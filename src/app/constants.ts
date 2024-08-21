@@ -5,4 +5,8 @@ export enum PageUrl {
 	CHANNEL = '/chat/channel',
 }
 
+export enum ImgUrl {
+	BG_REPEAT = 'bg-repeat.svg',
+}
+
 export enum ApiUrl {}
