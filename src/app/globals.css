@@ -6,24 +6,24 @@
 	:root {
 		--background: 210 40% 98%;
 		--foreground: 217 32.6% 17.5%;
-		--card: 210 40% 98%;
+		--card: 210 50% 98%;
 		--card-foreground: 217 32.6% 17.5%;
-		--popover: 210 40% 98%;
+		--popover: 210 50% 98%;
 		--popover-foreground: 217 32.6% 17.5%;
-		--primary: 234 89.5% 73.9%;
+		--primary: 234 80% 70%;
 		--primary-foreground: 210 40% 98%;
-		--secondary: 172 66% 50.4%;
+		--secondary: 172 60% 50%;
 		--secondary-foreground: 210 40% 98%;
-		--muted: 0 0% 63.9%;
+		--muted: 0 0% 70%;
 		--muted-foreground: 210 40% 98%;
-		--accent: 351 94.5% 71.4%;
+		--accent: 351 90% 70%;
 		--accent-foreground: 210 40% 98%;
-		--destructive: 0 0% 63.9%;
+		--destructive: 0 0% 70%;
 		--destructive-foreground: 210 40% 98%;
-		--border: 204 93.8% 93.7%;
-		--input: 204 93.8% 93.7%;
-		--ring: 172 66% 50.4%;
-		--hover: 215 20.2% 65.1%;
+		--border: 204 80% 90%;
+		--input: 204 80% 90%;
+		--ring: 172 60% 50%;
+		--hover: 210 45% 95%;
 		--radius: 0.5rem;
 		--chart-1: 12 76% 61%;
 		--chart-2: 173 58% 39%;
@@ -33,39 +33,54 @@
 	}
 
 	.dark {
-		--background: 215 19.3% 34.5%;
-		--foreground: 210 40% 98%;
-		--card: 215 19.3% 34.5%;
-		--card-foreground: 210 40% 98%;
-		--popover: 215 19.3% 34.5%;
-		--popover-foreground: 210 40% 98%;
+		--background: 200 15% 20%;
+		--foreground: 200 80% 90%;
+		--card: 200 20% 25%;
+		--card-foreground: 200 80% 90%;
+		--popover: 200 20% 25%;
+		--popover-foreground: 200 80% 90%;
 		--primary: 234 89.5% 73.9%;
-		--primary-foreground: 210 40% 98%;
+		--primary-foreground: 200 80% 90%;
 		--secondary: 172 66% 50.4%;
-		--secondary-foreground: 210 40% 98%;
-		--muted: 0 0% 63.9%;
-		--muted-foreground: 210 40% 98%;
+		--secondary-foreground: 200 80% 90%;
+		--muted: 0 0% 40%;
+		--muted-foreground: 200 80% 90%;
 		--accent: 351 94.5% 71.4%;
-		--accent-foreground: 210 40% 98%;
-		--destructive: 0 0% 63.9%;
-		--destructive-foreground: 210 40% 98%;
-		--border: 204 93.8% 93.7%;
-		--input: 204 93.8% 93.7%;
+		--accent-foreground: 200 80% 90%;
+		--destructive: 0 0% 40%;
+		--destructive-foreground: 200 80% 90%;
+		--border: 200 30% 35%;
+		--input: 200 30% 35%;
 		--ring: 172 66% 50.4%;
-		--hover: 215 20.2% 65.1%;
+		--hover: 200 25% 30%;
+		--radius: 0.5rem;
 		--chart-1: 220 70% 50%;
 		--chart-2: 160 60% 45%;
 		--chart-3: 30 80% 55%;
 		--chart-4: 280 65% 60%;
 		--chart-5: 340 75% 55%;
 	}
-}
 
-@layer base {
 	* {
 		@apply border-border;
 	}
+
 	body {
 		@apply bg-background text-foreground;
+	}
+
+	.loader {
+		@apply border-8 border-white border-opacity-30 rounded-full w-16 h-16;
+		border-top-color: hsl(var(--secondary));
+		animation: spin 1s linear infinite;
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
 	}
 }

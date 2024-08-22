@@ -7,53 +7,119 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum ValidStatus {
+  VALID
+  INVALID
+}
+
 model Account {
-  id                String  @id @default(cuid())
-  userId            String  @map("user_id")
+  id                String   @id @default(cuid())
+  userId            String
   type              String
   provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
+  providerAccountId String
+  refresh_token     String?  @map("refreshToken") @db.Text
+  access_token      String?  @map("accessToken") @db.Text
+  expires_at        Int?     @map("expireAt")
+  token_type        String?  @map("tokenType")
   scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  id_token          String?  @map("idToken") @db.Text
+  session_state     String?  @map("sessionState")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@map("accounts")
 }
 
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
+  sessionToken String   @unique
+  userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  @@map("sessions")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
+  emailVerified DateTime?
   image         String?
-  accounts      Account[]
-  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  @@map("users")
+  accounts               Account[]
+  sessions               Session[]
+  sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  friendships            Friendship[]    @relation("UserFriendships")
+  friendshipsTo          Friendship[]    @relation("FriendFriendships")
+  sentMessages           FriendMessage[] @relation("SendFriendMessages")
+  receivedMessages       FriendMessage[] @relation("ReceiveFriendMessages")
 }
 
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
-  @@map("verificationtokens")
+}
+
+model FriendRequest {
+  id         String        @id @default(cuid())
+  senderId   String
+  receiverId String
+  status     RequestStatus
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  sender   User @relation("SentFriendRequests", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId])
+}
+
+model Friendship {
+  id        String      @id @default(cuid())
+  userId    String
+  friendId  String
+  status    ValidStatus
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  user   User @relation("UserFriendships", fields: [userId], references: [id])
+  friend User @relation("FriendFriendships", fields: [friendId], references: [id])
+
+  @@unique([userId, friendId])
+}
+
+model FriendMessage {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  content    String
+  replyTo    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User @relation("SendFriendMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceiveFriendMessages", fields: [receiverId], references: [id])
+
+  replyToMessage FriendMessage? @relation("ReplyMessage", fields: [replyTo], references: [id])
+
+  repliedByMessages FriendMessage[] @relation("ReplyMessage")
 }

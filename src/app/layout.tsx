@@ -1,3 +1,5 @@
+import SessionProviderWrapper from '@/context/SessionProviderWrapper';
+import { ThemeProvider } from '@/context/ThemeProvider';
 import type { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
 import './globals.css';
@@ -19,7 +21,16 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={roboto.className}>{children}</body>
+			<body className={roboto.className}>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<SessionProviderWrapper>{children}</SessionProviderWrapper>
+				</ThemeProvider>
+			</body>
 		</html>
 	);
 }

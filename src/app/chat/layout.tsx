@@ -1,9 +1,17 @@
+import ChatLayout from '@/components/layout/ChatLayout';
+
 interface Props {
 	children: React.ReactNode;
 }
 
-export default function ChatLayout({ children }: Props) {
-	// use window size
+const layout: React.FC<Props> = ({ children }) => {
+	// todo data init
 
-	return <main className="w-screen h-screen">{children}</main>;
-}
+	return (
+		<main>
+			<ChatLayout>{children}</ChatLayout>
+		</main>
+	);
+};
+
+export default layout;

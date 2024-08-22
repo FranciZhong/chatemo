@@ -26,7 +26,20 @@ const handler = NextAuth({
 			}
 			return false;
 		},
-		redirect: async ({ baseUrl }) => {
+		jwt: async ({ token, user }) => {
+			if (user) {
+				token.id = user.id;
+			}
+			return token;
+		},
+		session: async ({ session, token }) => {
+			let userId = (token?.id as string) || null;
+			if (userId) {
+				session.user.id = userId;
+			}
+			return session;
+		},
+		redirect: async () => {
 			return PageUrl.CHAT;
 		},
 	},
