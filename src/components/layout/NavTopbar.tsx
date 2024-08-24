@@ -1,8 +1,12 @@
+'use client';
+
+import { ModalType } from '@/app/constants';
+import { useOpenModalStore } from '@/store/modalStore';
 import {
 	DragHandleHorizontalIcon,
 	EnvelopeClosedIcon,
 } from '@radix-ui/react-icons';
-import IconToggle from '../IconToggle';
+import IconButton from '../IconButton';
 import ThemeToggle from './ThemeToggle';
 
 interface Props {
@@ -11,19 +15,21 @@ interface Props {
 }
 
 const NavTopbar: React.FC<Props> = ({ children, triggers }) => {
+	const openModal = useOpenModalStore();
+
 	return (
 		<div className="h-12 w-full px-2 flex justify-end items-center">
 			<div className="flex-1 flex items-center gap-2">
-				<IconToggle onClick={() => {}}>
-					<DragHandleHorizontalIcon className="w-5 h-5" />
-				</IconToggle>
+				<IconButton onClick={() => {}}>
+					<DragHandleHorizontalIcon className="icon-size" />
+				</IconButton>
 				<div className="flex-1">{children}</div>
 			</div>
 			<div className="flex justify-end items-center gap-2">
 				{triggers}
-				<IconToggle onClick={() => {}}>
-					<EnvelopeClosedIcon className="w-5 h-5" />
-				</IconToggle>
+				<IconButton onClick={() => openModal(ModalType.NOTIFICATION_MODAL)}>
+					<EnvelopeClosedIcon className="icon-size" />
+				</IconButton>
 				<ThemeToggle />
 			</div>
 		</div>

@@ -3,27 +3,34 @@
 import { Theme } from '@/app/constants';
 import { MoonIcon, SunIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useCallback, useState } from 'react';
-import IconToggle from '../IconToggle';
+import { useCallback, useEffect, useState } from 'react';
+import IconButton from '../IconButton';
 
 const ThemeToggle: React.FC = () => {
 	const { theme, setTheme } = useTheme();
-	const [isDark, setDark] = useState(theme === Theme.DARK);
+	const [mounted, setMounted] = useState(false);
+
+	// effect runs only on the client
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const handleClick = useCallback(() => {
-		setDark((v) => !v);
-		setTheme(isDark ? Theme.LIGHT : Theme.DARK);
-	}, [isDark]);
+		setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
+	}, [theme, setTheme]);
 
 	const getIcon = useCallback(() => {
-		return isDark ? (
-			<MoonIcon className="h-5 w-5" />
+		return theme === Theme.DARK ? (
+			<MoonIcon className="icon-size" />
 		) : (
-			<SunIcon className="h-5 w-5" />
+			<SunIcon className="icon-size" />
 		);
-	}, [isDark]);
+	}, [theme]);
 
-	return <IconToggle onClick={handleClick}>{getIcon()}</IconToggle>;
+	// prevent rendering until mounted
+	if (!mounted) return null;
+
+	return <IconButton onClick={handleClick}>{getIcon()}</IconButton>;
 };
 
 export default ThemeToggle;

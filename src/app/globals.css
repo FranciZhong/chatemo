@@ -14,8 +14,8 @@
 		--primary-foreground: 210 40% 98%;
 		--secondary: 172 60% 50%;
 		--secondary-foreground: 210 40% 98%;
-		--muted: 0 0% 70%;
-		--muted-foreground: 210 40% 98%;
+		--muted: 210 40% 98%;
+		--muted-foreground: 0 0% 70%;
 		--accent: 351 90% 70%;
 		--accent-foreground: 210 40% 98%;
 		--destructive: 0 0% 70%;
@@ -43,8 +43,8 @@
 		--primary-foreground: 200 80% 90%;
 		--secondary: 172 66% 50.4%;
 		--secondary-foreground: 200 80% 90%;
-		--muted: 0 0% 40%;
-		--muted-foreground: 200 80% 90%;
+		--muted: 200 80% 90%;
+		--muted-foreground: 0 0% 40%;
 		--accent: 351 94.5% 71.4%;
 		--accent-foreground: 200 80% 90%;
 		--destructive: 0 0% 40%;
@@ -73,6 +73,14 @@
 		@apply border-8 border-white border-opacity-30 rounded-full w-16 h-16;
 		border-top-color: hsl(var(--secondary));
 		animation: spin 1s linear infinite;
+	}
+
+	.icon-size {
+		@apply w-5 h-5;
+	}
+
+	.icon-button {
+		@apply w-8 h-8 p-1.5 rounded-md flex justify-center items-center bg-background text-foreground hover:bg-hover;
 	}
 }
 

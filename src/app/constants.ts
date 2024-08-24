@@ -18,8 +18,20 @@ export enum Theme {
 	DARK = 'dark',
 }
 
+export enum ModalType {
+	NAV_MODAL = 'NavModal',
+	NOTIFICATION_MODAL = 'NotificationModal',
+}
+
 export enum SidebarTab {
 	FRIENDS = 'friends',
 	CHANNELS = 'channels',
 	AGENTS = 'agents',
+}
+
+export enum NavModalTab {
+	FIND_FRIEND = 'find friend',
+	JOIN_CHANNEL = 'join channel',
+	CREATE_CHANNEL = 'create channel',
+	ADD_AGENT = 'add agent',
 }

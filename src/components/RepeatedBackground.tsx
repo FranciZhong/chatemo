@@ -2,7 +2,7 @@
 
 interface Props {
 	img: string;
-	children: React.ReactNode;
+	children?: React.ReactNode;
 }
 
 const RepeatedBackground: React.FC<Props> = ({ img, children }) => {

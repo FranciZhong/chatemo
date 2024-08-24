@@ -8,7 +8,9 @@ const page = () => {
 		<div className="h-full w-full flex flex-col">
 			<NavTopbar />
 			<Separator orientation="horizontal" />
-			<div className="flex-1">Chat</div>
+			<div className="flex-1 flex items-center justify-center">
+				<h1>Welcome to CHATEMO</h1>
+			</div>
 		</div>
 	);
 };

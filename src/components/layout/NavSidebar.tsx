@@ -1,7 +1,9 @@
+'use client';
+
 import { SidebarTab } from '@/app/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ChannelList from '../chat/channel/ChannelList';
-import FriendList from '../chat/friend/FriendList';
+import ChannelList from '../chat/ChannelList';
+import FriendList from '../chat/FriendList';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import UserBar from './UserBar';
@@ -28,7 +30,7 @@ const NavSidebar: React.FC<Props> = ({}) => {
 				</TabsList>
 				<Separator orientation="horizontal" />
 				<ScrollArea className="flex-1">
-					<TabsContent value="friends">
+					<TabsContent value={SidebarTab.FRIENDS}>
 						<FriendList />
 					</TabsContent>
 					<TabsContent value={SidebarTab.CHANNELS}>
