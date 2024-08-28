@@ -56,17 +56,19 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  description   String?   @db.Text
+  config        Json      @default("{}")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   accounts               Account[]
   sessions               Session[]
-  sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
-  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
-  friendships            Friendship[]    @relation("UserFriendships")
-  friendshipsTo          Friendship[]    @relation("FriendFriendships")
-  sentMessages           FriendMessage[] @relation("SendFriendMessages")
-  receivedMessages       FriendMessage[] @relation("ReceiveFriendMessages")
+  sentFriendRequests     FriendRequest[]         @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[]         @relation("ReceivedFriendRequests")
+  friendships            Friendship[]            @relation("UserFriendships")
+  friendshipsTo          Friendship[]            @relation("FriendFriendships")
+  conversations          ConversationPartipant[]
+  sentMessages           Message[]               @relation("SendMessages")
 }
 
 model VerificationToken {
@@ -81,45 +83,63 @@ model VerificationToken {
 
 model FriendRequest {
   id         String        @id @default(cuid())
-  senderId   String
-  receiverId String
-  status     RequestStatus
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
-
-  sender   User @relation("SentFriendRequests", fields: [senderId], references: [id])
-  receiver User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+  senderId   String
+  sender     User          @relation("SentFriendRequests", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User          @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+  status     RequestStatus
 
   @@unique([senderId, receiverId])
 }
 
 model Friendship {
   id        String      @id @default(cuid())
-  userId    String
-  friendId  String
-  status    ValidStatus
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-
-  user   User @relation("UserFriendships", fields: [userId], references: [id])
-  friend User @relation("FriendFriendships", fields: [friendId], references: [id])
+  userId    String
+  user      User        @relation("UserFriendships", fields: [userId], references: [id])
+  friendId  String
+  friend    User        @relation("FriendFriendships", fields: [friendId], references: [id])
+  status    ValidStatus
 
   @@unique([userId, friendId])
 }
 
-model FriendMessage {
-  id         String   @id @default(cuid())
-  senderId   String
-  receiverId String
-  content    String
-  replyTo    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model ConversationPartipant {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
 
-  sender   User @relation("SendFriendMessages", fields: [senderId], references: [id])
-  receiver User @relation("ReceiveFriendMessages", fields: [receiverId], references: [id])
+enum ConversationType {
+  DIRECT
+}
 
-  replyToMessage FriendMessage? @relation("ReplyMessage", fields: [replyTo], references: [id])
+model Conversation {
+  id           String                  @id @default(cuid())
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  type         ConversationType
+  participants ConversationPartipant[]
+  messages     Message[]
+}
 
-  repliedByMessages FriendMessage[] @relation("ReplyMessage")
+model Message {
+  id                String        @id @default(cuid())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  senderId          String
+  sender            User          @relation("SendMessages", fields: [senderId], references: [id])
+  conversationId    String?
+  conversation      Conversation? @relation(fields: [conversationId], references: [id])
+  content           String        @db.Text
+  replyTo           String?
+  replyToMessage    Message?      @relation("ReplyMessage", fields: [replyTo], references: [id])
+  repliedByMessages Message[]     @relation("ReplyMessage")
 }

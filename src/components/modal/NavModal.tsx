@@ -1,5 +1,5 @@
 import { ModalType, NavModalTab } from '@/app/constants';
-import { useInModalStore } from '@/store/modalStore';
+import useModalStore from '@/store/modalStore';
 import { DragHandleHorizontalIcon } from '@radix-ui/react-icons';
 import { useCallback, useState } from 'react';
 import IconButton from '../IconButton';
@@ -7,9 +7,10 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import Modal from './Modal';
+import FindFriendBox from './SearchFriendBox';
 
 const NavModal: React.FC = () => {
-	const { isOpen, modalType, secondaryType, closeModal } = useInModalStore();
+	const { isOpen, modalType, secondaryType, closeModal } = useModalStore();
 	const [tabsOpen, setTabsOpen] = useState(true);
 
 	const handleClickTabsTrigger = useCallback(() => {
@@ -54,15 +55,20 @@ const NavModal: React.FC = () => {
 						</>
 					) : null}
 					<ScrollArea className="flex-1">
-						{Object.values(NavModalTab).map((value) => {
-							return (
-								<TabsContent key={value} value={value}>
-									<div className="flex items-center justify-center">
-										<div>TODO</div>
-									</div>
-								</TabsContent>
-							);
-						})}
+						<TabsContent value={NavModalTab.FIND_FRIEND}>
+							<FindFriendBox />
+						</TabsContent>
+						{Object.values(NavModalTab)
+							.filter((value) => value !== NavModalTab.FIND_FRIEND)
+							.map((value) => {
+								return (
+									<TabsContent key={value} value={value}>
+										<div className="flex items-center justify-center">
+											<div>TODO</div>
+										</div>
+									</TabsContent>
+								);
+							})}
 					</ScrollArea>
 				</Tabs>
 			</div>

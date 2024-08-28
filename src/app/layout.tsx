@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/toaster';
 import SessionProviderWrapper from '@/context/SessionProviderWrapper';
 import { ThemeProvider } from '@/context/ThemeProvider';
 import type { Metadata } from 'next';
@@ -28,7 +29,10 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<SessionProviderWrapper>{children}</SessionProviderWrapper>
+					<SessionProviderWrapper>
+						<main>{children}</main>
+						<Toaster />
+					</SessionProviderWrapper>
 				</ThemeProvider>
 			</body>
 		</html>

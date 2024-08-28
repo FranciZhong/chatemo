@@ -1,16 +1,34 @@
+'use server';
+
 import ChatLayout from '@/components/layout/ChatLayout';
+import userService from '@/server/services/userService';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '../api/auth/[...nextauth]/route';
+import { PageUrl } from '../constants';
 
 interface Props {
 	children: React.ReactNode;
 }
 
-const layout: React.FC<Props> = ({ children }) => {
-	// todo data init
+const layout: React.FC<Props> = async ({ children }) => {
+	const session = await getServerSession(authOptions);
+	const userId = session?.user.id;
+	if (!userId) {
+		redirect(PageUrl.LOGIN);
+	}
+
+	const userProfile = await userService.getById(userId);
+	if (!userProfile) {
+		redirect(PageUrl.LOGIN);
+	}
+
+	const notifications = await userService.getNotificationsByUserId(userId);
 
 	return (
-		<main>
-			<ChatLayout>{children}</ChatLayout>
-		</main>
+		<ChatLayout userProfile={userProfile} notifications={notifications}>
+			{children}
+		</ChatLayout>
 	);
 };
 

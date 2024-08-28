@@ -1,11 +1,13 @@
 import { ModalType } from '@/app/constants';
-import { useInModalStore } from '@/store/modalStore';
+import useModalStore from '@/store/modalStore';
+import useNotificationStore from '@/store/notificationStore';
 import NotificationCard from '../profile/NotificationCard';
 import { ScrollArea } from '../ui/scroll-area';
 import Modal from './Modal';
 
 const NotificationModal: React.FC = () => {
-	const { isOpen, modalType, closeModal } = useInModalStore();
+	const { isOpen, modalType, closeModal } = useModalStore();
+	const { notifications } = useNotificationStore();
 
 	if (!isOpen || modalType !== ModalType.NOTIFICATION_MODAL) {
 		return null;
@@ -21,8 +23,11 @@ const NotificationModal: React.FC = () => {
 		>
 			<ScrollArea className="w-full h-full">
 				<div className="p-2 flex flex-col gap-2">
-					{Array.from({ length: 20 }, (_, index) => (
-						<NotificationCard key={index}>Friend Request</NotificationCard>
+					{notifications.map((notification) => (
+						<NotificationCard
+							key={notification.referToId}
+							notification={notification}
+						/>
 					))}
 				</div>
 			</ScrollArea>

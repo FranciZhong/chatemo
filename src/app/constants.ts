@@ -1,4 +1,5 @@
 export enum PageUrl {
+	HOME = '/',
 	LOGIN = '/login',
 	CHAT = '/chat',
 	FRIEND = '/chat/friend',
@@ -11,7 +12,11 @@ export enum ImgUrl {
 	CHANNEL_AVATAR_ALT = 'channel-avatar-alt.svg',
 }
 
-export enum ApiUrl {}
+export enum ApiUrl {
+	USER_SEARCH = '/api/user/search',
+	USER_PROFILE = '/api/user/profile',
+	SEND_FRIEND_REQUEST = '/api/user/request',
+}
 
 export enum Theme {
 	LIGHT = 'light',
@@ -35,3 +40,15 @@ export enum NavModalTab {
 	CREATE_CHANNEL = 'create channel',
 	ADD_AGENT = 'add agent',
 }
+
+export enum NOTIFICATION_TYPE {
+	FRIEND_REQUEST = 'Friend Request',
+}
+
+export enum AvatarSize {
+	LG = 'lg',
+	MD = 'md',
+	SM = 'sm',
+}
+
+export const DEFAULT_SELECT_LIMIT = 20;

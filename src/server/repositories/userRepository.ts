@@ -1,13 +1,25 @@
 import { prisma } from '@/lib/db';
 
-const getById = async (id: string) => {
+const selectById = (id: string) => {
 	return prisma.user.findFirst({
 		where: { id },
 	});
 };
 
-const repository = {
-	getById,
+const selectStartWithName = (name: string, limit?: number) => {
+	return prisma.user.findMany({
+		where: {
+			name: {
+				startsWith: name,
+			},
+		},
+		take: limit,
+	});
 };
 
-export default repository;
+const userRepository = {
+	selectById,
+	selectStartWithName,
+};
+
+export default userRepository;
