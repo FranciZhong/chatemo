@@ -1,4 +1,4 @@
-import { ImgUrl } from '@/app/constants';
+import { ImgUrl } from '@/lib/constants';
 import Loading from './Loading';
 import RepeatedBackground from './RepeatedBackground';
 

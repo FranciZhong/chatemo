@@ -1,12 +1,12 @@
 'use client';
 
-import { ModalType, NavModalTab } from '@/app/constants';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ModalType, NavModalTab } from '@/lib/constants';
 import { useOpenModalStore } from '@/store/modalStore';
 import { PlusIcon } from '@radix-ui/react-icons';
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { ImgUrl } from '@/app/constants';
 import ItemContainer from '@/components/ItemContainer';
 import { Badge } from '@/components/ui/badge';
+import { ImgUrl } from '@/lib/constants';
 import { Avatar, AvatarImage } from '@radix-ui/react-avatar';
 
 interface Props {}

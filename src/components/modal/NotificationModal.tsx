@@ -1,7 +1,7 @@
-import { ModalType } from '@/app/constants';
+import { ModalType } from '@/lib/constants';
 import useModalStore from '@/store/modalStore';
 import useNotificationStore from '@/store/notificationStore';
-import NotificationCard from '../profile/NotificationCard';
+import NotificationCard from '../profile/notification/NotificationCard';
 import { ScrollArea } from '../ui/scroll-area';
 import Modal from './Modal';
 
@@ -19,7 +19,7 @@ const NotificationModal: React.FC = () => {
 			onClose={closeModal}
 			justifyContent="end"
 			className="max-w-md"
-			topLeft={<h1 className="px-2 text-2xl">Notifications</h1>}
+			topLeft={<h1 className="p-2 text-2xl">Notifications</h1>}
 		>
 			<ScrollArea className="w-full h-full">
 				<div className="p-2 flex flex-col gap-2">

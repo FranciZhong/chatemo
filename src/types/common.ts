@@ -21,3 +21,17 @@ export const ValidStatusEnumSchema = z.enum([
 ]);
 
 export type ValidStatusEnumZType = z.infer<typeof ValidStatusEnumSchema>;
+
+export const AcceptRejectStatusSchema = z.enum([
+	RequestStatus.ACCEPTED,
+	RequestStatus.REJECTED,
+]);
+
+export type AcceptRejectStatusZType = z.infer<typeof RequestStatusEnumSchema>;
+
+export const AcceptRejectPayloadSchema = z.object({
+	referToId: z.string(),
+	status: AcceptRejectStatusSchema,
+});
+
+export type AcceptRejectPayload = z.infer<typeof AcceptRejectPayloadSchema>;

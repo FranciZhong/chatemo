@@ -1,6 +1,6 @@
 'use client';
 
-import { Theme } from '@/app/constants';
+import { Theme } from '@/lib/constants';
 import { MoonIcon, SunIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useState } from 'react';

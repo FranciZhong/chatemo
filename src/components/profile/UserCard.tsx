@@ -1,4 +1,3 @@
-import { AvatarSize, ImgUrl } from '@/app/constants';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import {
 	HoverCard,
@@ -6,6 +5,7 @@ import {
 	HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AvatarSize, ImgUrl } from '@/lib/constants';
 import { parseFotmatedDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
 import { UserZType } from '@/types/user';

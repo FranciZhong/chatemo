@@ -67,7 +67,7 @@ model User {
   receivedFriendRequests FriendRequest[]         @relation("ReceivedFriendRequests")
   friendships            Friendship[]            @relation("UserFriendships")
   friendshipsTo          Friendship[]            @relation("FriendFriendships")
-  conversations          ConversationPartipant[]
+  participantsTo         ConversationPartipant[]
   sentMessages           Message[]               @relation("SendMessages")
 }
 
@@ -95,14 +95,16 @@ model FriendRequest {
 }
 
 model Friendship {
-  id        String      @id @default(cuid())
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  userId    String
-  user      User        @relation("UserFriendships", fields: [userId], references: [id])
-  friendId  String
-  friend    User        @relation("FriendFriendships", fields: [friendId], references: [id])
-  status    ValidStatus
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  userId         String
+  user           User         @relation("UserFriendships", fields: [userId], references: [id])
+  friendId       String
+  friend         User         @relation("FriendFriendships", fields: [friendId], references: [id])
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  status         ValidStatus
 
   @@unique([userId, friendId])
 }
@@ -128,6 +130,7 @@ model Conversation {
   type         ConversationType
   participants ConversationPartipant[]
   messages     Message[]
+  friendships  Friendship[]
 }
 
 model Message {

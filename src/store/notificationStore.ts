@@ -8,12 +8,12 @@ type NotificationStore = {
 	push: (notification: NotificationZType) => void;
 };
 
-const defaultStore = {
+const defaultState = {
 	notifications: [] as NotificationZType[],
 };
 
 const useNotificationStore = create<NotificationStore>((set) => ({
-	...defaultStore,
+	...defaultState,
 	setNotifications: (notifications: NotificationZType[]) => {
 		return set((state) => ({
 			...state,

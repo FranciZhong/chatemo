@@ -1,6 +1,6 @@
 import { ConversationType } from '@prisma/client';
 import { z } from 'zod';
-import { UserSchema } from './user';
+import { FriendshipSchema, UserSchema } from './user';
 
 export const MessageSchema = z.object({
 	id: z.string(),
@@ -24,10 +24,18 @@ export const ConversationTypeSchema = z.enum([ConversationType.DIRECT]);
 
 export type ConversationTypeZType = z.infer<typeof ConversationTypeSchema>;
 
+export const ParticipantSchema = z.object({
+	id: z.string(),
+	updatedAt: z.date(),
+	userId: z.string(),
+	user: UserSchema.optional(),
+});
+
 export const ConversationSchema = z.object({
 	id: z.string(),
 	type: ConversationTypeSchema,
-	participants: z.array(UserSchema),
+	participants: z.array(ParticipantSchema),
+	friendships: z.array(FriendshipSchema).optional(),
 	messages: z.array(MessageWithReplySchema).optional(),
 });
 

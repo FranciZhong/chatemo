@@ -1,5 +1,5 @@
-import { ApiUrl } from '@/app/constants';
 import axiosInstance from '@/lib/axios';
+import { ApiUrl } from '@/lib/constants';
 import { useCloseModalStore } from '@/store/modalStore';
 import { FormatResponse } from '@/types/common';
 import { UserZType } from '@/types/user';

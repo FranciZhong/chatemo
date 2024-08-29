@@ -1,5 +1,5 @@
-import { ApiUrl, NavModalTab } from '@/app/constants';
 import axiosInstance from '@/lib/axios';
+import { ApiUrl, NavModalTab } from '@/lib/constants';
 import { FormatResponse } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { useCallback, useEffect, useRef, useState } from 'react';

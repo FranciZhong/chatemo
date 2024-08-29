@@ -1,4 +1,4 @@
-import { NOTIFICATION_TYPE } from '@/app/constants';
+import { NotificationType } from '@/lib/constants';
 import { z } from 'zod';
 import { RequestStatusEnumSchema, ValidStatusEnumSchema } from './common';
 
@@ -44,13 +44,13 @@ export const FriendshipSchema = z.object({
 	userId: z.string(),
 	friendId: z.string(),
 	status: ValidStatusEnumSchema,
-	friend: UserSchema,
+	friend: UserSchema.optional(),
 });
 
 export type FriendShipZType = z.infer<typeof FriendRequestSchema>;
 
 export const NotificationSchema = z.object({
-	type: z.enum([NOTIFICATION_TYPE.FRIEND_REQUEST]),
+	type: z.enum([NotificationType.FRIEND_REQUEST]),
 	referToId: z.string().optional(),
 	referTo: z.any().optional(),
 	from: UserSchema.optional(),

@@ -16,7 +16,7 @@ const getHandler = async (req: NextRequest) => {
 	}
 
 	try {
-		const currentUser = userService.getById(userId);
+		const currentUser = userService.getProfileById(userId);
 
 		return NextResponse.json(
 			{ data: currentUser },

@@ -1,9 +1,14 @@
 'use client';
 
+import { UserEvent } from '@/lib/events';
+import useConversationStore from '@/store/conversationStore';
 import useNotificationStore from '@/store/notificationStore';
+import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
+import { ConversationZType } from '@/types/chat';
 import { NotificationZType, UserProfileZType } from '@/types/user';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import LoadingPage from '../LoadingPage';
 import NavModal from '../modal/NavModal';
 import NotificationModal from '../modal/NotificationModal';
 import { Separator } from '../ui/separator';
@@ -15,21 +20,37 @@ interface Props {
 	children: React.ReactNode;
 }
 
-const ChatLayout: React.FC<Props> = ({
-	userProfile,
-	notifications,
-	children,
-}) => {
+const ChatLayout: React.FC<Props> = (props) => {
+	const [isLoading, setLoading] = useState(true);
+	const { socket, connect } = useSocketStore();
 	const { setProfile } = useUserStore();
 	const { setNotifications } = useNotificationStore();
+	const { newConversation } = useConversationStore();
 
 	useEffect(() => {
-		setProfile(userProfile);
-	}, [userProfile, setProfile]);
+		setLoading(false);
+	}, []);
 
+	// init stores
 	useEffect(() => {
-		setNotifications(notifications);
-	}, [notifications, setNotifications]);
+		setProfile(props.userProfile);
+		setNotifications(props.notifications);
+	}, [props, setProfile, setNotifications]);
+
+	// init socket and event listeners
+	useEffect(() => {
+		if (!socket) {
+			connect(process.env.HOSTNAME || 'localhost:3000');
+		} else {
+			socket.on(UserEvent.NEW_FRIENDSHIP, (payload: ConversationZType) => {
+				newConversation(payload);
+			});
+		}
+	}, [socket, connect]);
+
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
 	return (
 		<>
@@ -38,7 +59,7 @@ const ChatLayout: React.FC<Props> = ({
 			<div className="w-screen h-screen flex">
 				<NavSidebar />
 				<Separator orientation="vertical" />
-				<div className="flex-1">{children}</div>
+				<div className="flex-1">{props.children}</div>
 			</div>
 		</>
 	);

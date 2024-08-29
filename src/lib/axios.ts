@@ -1,5 +1,5 @@
-import { PageUrl } from '@/app/constants';
 import { toast } from '@/components/ui/use-toast';
+import { PageUrl } from '@/lib/constants';
 import axios, { HttpStatusCode } from 'axios';
 import Router from 'next/router';
 

@@ -1,4 +1,4 @@
-import { PageUrl } from '@/app/constants';
+import { PageUrl } from '@/lib/constants';
 import { prisma } from '@/lib/db';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import NextAuth, { NextAuthOptions } from 'next-auth';
@@ -26,16 +26,17 @@ export const authOptions: NextAuthOptions = {
 			}
 			return false;
 		},
-		jwt: async ({ token, user }) => {
-			if (user) {
+		async jwt({ token, account, user }) {
+			if (account) {
+				token.accessToken = account.access_token;
 				token.id = user.id;
 			}
 			return token;
 		},
 		session: async ({ session, token }) => {
-			let userId = (token?.id as string) || null;
-			if (userId) {
-				session.user.id = userId;
+			if (token) {
+				session.user.id = token?.id as string;
+				session.user.accessToken = token?.accessToken as string;
 			}
 			return session;
 		},

@@ -1,6 +1,6 @@
 'use client';
 
-import { ModalType } from '@/app/constants';
+import { ModalType } from '@/lib/constants';
 import { useOpenModalStore } from '@/store/modalStore';
 import {
 	DragHandleHorizontalIcon,

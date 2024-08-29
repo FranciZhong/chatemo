@@ -1,12 +1,32 @@
-import { prisma } from '@/lib/db';
+import { Prisma, PrismaClient } from '@prisma/client';
 
-const selectById = (id: string) => {
+const selectById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string
+) => {
 	return prisma.user.findFirst({
 		where: { id },
 	});
 };
 
-const selectStartWithName = (name: string, limit?: number) => {
+const selectByIds = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	ids: string[]
+) => {
+	return prisma.user.findMany({
+		where: {
+			id: {
+				in: ids,
+			},
+		},
+	});
+};
+
+const selectStartWithName = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	name: string,
+	limit?: number
+) => {
 	return prisma.user.findMany({
 		where: {
 			name: {
@@ -19,6 +39,7 @@ const selectStartWithName = (name: string, limit?: number) => {
 
 const userRepository = {
 	selectById,
+	selectByIds,
 	selectStartWithName,
 };
 

@@ -7,10 +7,18 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import useSocketStore from '@/store/socketStore';
 import { GearIcon } from '@radix-ui/react-icons';
 import { signOut } from 'next-auth/react';
 
 const SettingMenuTrigger = () => {
+	const { disconnect } = useSocketStore();
+
+	const handleSignOut = async () => {
+		disconnect();
+		await signOut();
+	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger className="icon-button" asChild>
@@ -22,7 +30,7 @@ const SettingMenuTrigger = () => {
 					<DropdownMenuItem>API Keys</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
+					<DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>

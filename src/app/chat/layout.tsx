@@ -4,8 +4,8 @@ import ChatLayout from '@/components/layout/ChatLayout';
 import userService from '@/server/services/userService';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
+import { PageUrl } from '../../lib/constants';
 import { authOptions } from '../api/auth/[...nextauth]/route';
-import { PageUrl } from '../constants';
 
 interface Props {
 	children: React.ReactNode;
@@ -18,7 +18,7 @@ const layout: React.FC<Props> = async ({ children }) => {
 		redirect(PageUrl.LOGIN);
 	}
 
-	const userProfile = await userService.getById(userId);
+	const userProfile = await userService.getProfileById(userId);
 	if (!userProfile) {
 		redirect(PageUrl.LOGIN);
 	}

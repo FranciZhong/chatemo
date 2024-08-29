@@ -3,7 +3,7 @@
 import LoadingPage from '@/components/LoadingPage';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
-import { PageUrl } from './constants';
+import { PageUrl } from '../lib/constants';
 
 const Home: React.FC = () => {
 	const { data: session, status } = useSession();

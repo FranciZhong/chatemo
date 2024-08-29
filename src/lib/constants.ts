@@ -13,6 +13,7 @@ export enum ImgUrl {
 }
 
 export enum ApiUrl {
+	SOCKET = '/api/socket',
 	USER_SEARCH = '/api/user/search',
 	USER_PROFILE = '/api/user/profile',
 	SEND_FRIEND_REQUEST = '/api/user/request',
@@ -41,7 +42,7 @@ export enum NavModalTab {
 	ADD_AGENT = 'add agent',
 }
 
-export enum NOTIFICATION_TYPE {
+export enum NotificationType {
 	FRIEND_REQUEST = 'Friend Request',
 }
 

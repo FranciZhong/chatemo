@@ -1,4 +1,4 @@
-import { ModalType, NavModalTab } from '@/app/constants';
+import { ModalType, NavModalTab } from '@/lib/constants';
 import useModalStore from '@/store/modalStore';
 import { DragHandleHorizontalIcon } from '@radix-ui/react-icons';
 import { useCallback, useState } from 'react';

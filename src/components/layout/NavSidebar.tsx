@@ -1,7 +1,7 @@
 'use client';
 
-import { SidebarTab } from '@/app/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SidebarTab } from '@/lib/constants';
 import ChannelList from '../chat/ChannelList';
 import FriendList from '../chat/FriendList';
 import { ScrollArea } from '../ui/scroll-area';

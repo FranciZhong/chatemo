@@ -1,4 +1,4 @@
-import { DEFAULT_SELECT_LIMIT, NOTIFICATION_TYPE } from '@/app/constants';
+import { DEFAULT_SELECT_LIMIT, NotificationType } from '@/lib/constants';
 import { prisma } from '@/lib/db';
 import { NotificationZType, UserProfileSchema, UserSchema } from '@/types/user';
 import { RequestStatus } from '@prisma/client';
@@ -6,8 +6,14 @@ import { ConflictError, NotFoundError } from '../error';
 import friendRequestRepository from '../repositories/friendRequestRepository';
 import userRepository from '../repositories/userRepository';
 
-const getById = async (id: string) => {
-	const user = await userRepository.selectById(id);
+const getByIds = async (ids: string[]) => {
+	const users = await userRepository.selectByIds(prisma, ids);
+
+	return users.map((user) => UserSchema.parse(user));
+};
+
+const getProfileById = async (id: string) => {
+	const user = await userRepository.selectById(prisma, id);
 	if (!user) {
 		throw new NotFoundError('No user found');
 	}
@@ -17,6 +23,7 @@ const getById = async (id: string) => {
 
 const getNotificationsByUserId = async (userId: string) => {
 	const friendRequests = await friendRequestRepository.selectByReceiverId(
+		prisma,
 		userId,
 		RequestStatus.PENDING
 	);
@@ -24,10 +31,10 @@ const getNotificationsByUserId = async (userId: string) => {
 	let notifications: NotificationZType[] = [];
 	friendRequests
 		.map((request) => ({
-			type: NOTIFICATION_TYPE.FRIEND_REQUEST,
+			type: NotificationType.FRIEND_REQUEST,
 			referToId: request.id,
 			from: UserSchema.parse(request.sender),
-			title: NOTIFICATION_TYPE.FRIEND_REQUEST,
+			title: NotificationType.FRIEND_REQUEST,
 			// todo description
 		}))
 		.forEach((notification) => notifications.push(notification));
@@ -37,6 +44,7 @@ const getNotificationsByUserId = async (userId: string) => {
 
 const searchByName = async (name: string) => {
 	const users = await userRepository.selectStartWithName(
+		prisma,
 		name,
 		DEFAULT_SELECT_LIMIT
 	);
@@ -49,25 +57,27 @@ const sendFriendRequest = async (senderId: string, receiverId: string) => {
 		throw new ConflictError("Can't to that to yourself");
 	}
 
-	const receiver = await userRepository.selectById(receiverId);
+	const receiver = await userRepository.selectById(prisma, receiverId);
 	if (!receiver) {
 		throw new NotFoundError('User not found.');
 	}
 
-	await prisma.$transaction(async () => {
+	await prisma.$transaction(async (client) => {
 		const existPendingRequest = await friendRequestRepository.selectWithStatus(
+			client,
 			senderId,
 			receiverId,
 			RequestStatus.PENDING
 		);
 		if (!existPendingRequest) {
-			await friendRequestRepository.create(senderId, receiverId);
+			await friendRequestRepository.create(client, senderId, receiverId);
 		}
 	});
 };
 
 const userService = {
-	getById,
+	getByIds,
+	getProfileById,
 	getNotificationsByUserId,
 	searchByName,
 	sendFriendRequest,

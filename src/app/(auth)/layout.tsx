@@ -1,5 +1,5 @@
 import RepeatedBackground from '@/components/RepeatedBackground';
-import { ImgUrl } from '../constants';
+import { ImgUrl } from '../../lib/constants';
 
 interface Props {
 	children: React.ReactNode;
