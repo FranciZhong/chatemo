@@ -2,8 +2,8 @@ export enum PageUrl {
 	HOME = '/',
 	LOGIN = '/login',
 	CHAT = '/chat',
-	FRIEND = '/chat/friend',
-	CHANNEL = '/chat/channel',
+	FRIENDS = '/chat/friends',
+	CHANNELS = '/chat/channels',
 }
 
 export enum ImgUrl {

@@ -7,7 +7,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { AvatarSize, ImgUrl } from '@/lib/constants';
 import { parseFotmatedDate } from '@/lib/date';
-import { cn } from '@/lib/utils';
+import { cn, getAvatarSizeStyle } from '@/lib/utils';
 import { UserZType } from '@/types/user';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { useCallback } from 'react';
@@ -15,33 +15,31 @@ import { useCallback } from 'react';
 interface Props {
 	user?: UserZType | null;
 	isCurrent?: boolean;
+	size?: AvatarSize;
 	children?: React.ReactNode;
 }
 
-const UserCard: React.FC<Props> = ({ user, isCurrent = false, children }) => {
-	const getSizeStyle = (size: AvatarSize) => {
-		switch (size) {
-			case AvatarSize.LG:
-				return 'h-16 w-16';
-			case AvatarSize.SM:
-				return 'h-8 w-8';
-			default:
-				return 'h-10 w-10';
-		}
-	};
-
+const UserCard: React.FC<Props> = ({
+	user,
+	isCurrent = false,
+	size = AvatarSize.MD,
+	children,
+}) => {
 	const getAvatar = useCallback(
 		(size: AvatarSize) =>
 			isCurrent ? (
 				<Avatar
-					className={cn('bg-primary hover:bg-secondary', getSizeStyle(size))}
+					className={cn(
+						'bg-primary hover:bg-secondary',
+						getAvatarSizeStyle(size)
+					)}
 				>
 					<Skeleton>
 						<AvatarImage src={user?.image || ImgUrl.USER_AVATAR_ALT} />
 					</Skeleton>
 				</Avatar>
 			) : (
-				<Avatar className={cn('bg-secondary', getSizeStyle(size))}>
+				<Avatar className={cn('bg-secondary', getAvatarSizeStyle(size))}>
 					<AvatarImage src={user?.image || ImgUrl.USER_AVATAR_ALT} />
 				</Avatar>
 			),
@@ -50,15 +48,13 @@ const UserCard: React.FC<Props> = ({ user, isCurrent = false, children }) => {
 
 	return (
 		<HoverCard>
-			<HoverCardTrigger asChild>
-				<div className="flex gap-2 items-center">
-					{getAvatar(AvatarSize.MD)}
-					<div className="flex flex-col">
-						<div className="font-semibold">{user?.name}</div>
-						{children}
-					</div>
+			<div className="w-full h-full flex gap-2 items-center">
+				<HoverCardTrigger asChild>{getAvatar(size)}</HoverCardTrigger>
+				<div className="w-32">
+					<h5 className="font-semibold text-single-line">{user?.name}</h5>
+					{children}
 				</div>
-			</HoverCardTrigger>
+			</div>
 			<HoverCardContent className="md:w-80">
 				<div className="flex justify-between space-x-4">
 					{getAvatar(AvatarSize.LG)}

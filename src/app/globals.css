@@ -86,6 +86,10 @@
 	.heading {
 		@apply text-2xl font-semibold leading-none tracking-tight;
 	}
+
+	.text-single-line {
+		@apply overflow-hidden text-ellipsis whitespace-nowrap;
+	}
 }
 
 @keyframes spin {

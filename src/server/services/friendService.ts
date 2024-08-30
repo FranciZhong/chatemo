@@ -57,12 +57,14 @@ const buildFriendship = async (userId: string, requestId: string) => {
 			{ userId: request.receiverId, conversationId },
 		]);
 
-		return await conversationRepository.selectById(
+		const conversations = await conversationRepository.selectByIds(
 			client,
-			conversationId,
+			[conversationId],
 			true,
 			true
 		);
+
+		return conversations[0];
 	});
 
 	return ConversationSchema.parse(conversation);

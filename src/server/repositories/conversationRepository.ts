@@ -14,15 +14,17 @@ const create = (
 	});
 };
 
-const selectById = (
+const selectByIds = (
 	prisma: PrismaClient | Prisma.TransactionClient,
-	id: string,
+	ids: string[],
 	includePaticipants: boolean,
 	includeFriendships: boolean
 ) => {
-	return prisma.conversation.findUnique({
+	return prisma.conversation.findMany({
 		where: {
-			id,
+			id: {
+				in: ids,
+			},
 		},
 		include: {
 			participants: includePaticipants,
@@ -31,6 +33,6 @@ const selectById = (
 	});
 };
 
-const conversationRepository = { create, selectById };
+const conversationRepository = { create, selectByIds };
 
 export default conversationRepository;

@@ -1,6 +1,5 @@
 import axiosInstance from '@/lib/axios';
 import { ApiUrl } from '@/lib/constants';
-import { useCloseModalStore } from '@/store/modalStore';
 import { FormatResponse } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { PlusIcon } from '@radix-ui/react-icons';
@@ -12,8 +11,6 @@ interface Props {
 }
 
 const SearchUserCard: React.FC<Props> = ({ user }) => {
-	const closeModal = useCloseModalStore();
-
 	const handleAddFriend = async () => {
 		// todo if use dialog for description
 		// todo socket.io for notifications
@@ -22,8 +19,6 @@ const SearchUserCard: React.FC<Props> = ({ user }) => {
 				ApiUrl.SEND_FRIEND_REQUEST,
 				{ receiverId: user.id }
 			);
-
-			closeModal();
 		} catch (error) {}
 	};
 

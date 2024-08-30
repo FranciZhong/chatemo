@@ -12,7 +12,7 @@ interface Props {
 
 const FriendRequestCard: React.FC<Props> = ({ notification }) => {
 	const { socket } = useSocketStore();
-	const { removeById } = useNotificationStore();
+	const { removeNotification } = useNotificationStore();
 
 	const handleAccept = (status: AcceptRejectStatusZType) => {
 		if (socket) {
@@ -20,7 +20,7 @@ const FriendRequestCard: React.FC<Props> = ({ notification }) => {
 				referToId: notification.referToId,
 				status,
 			} as AcceptRejectPayload);
-			removeById(notification.referToId!);
+			removeNotification(notification.referToId!);
 		}
 	};
 

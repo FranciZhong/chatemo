@@ -1,9 +1,15 @@
 import { DEFAULT_SELECT_LIMIT, NotificationType } from '@/lib/constants';
 import { prisma } from '@/lib/db';
-import { NotificationZType, UserProfileSchema, UserSchema } from '@/types/user';
-import { RequestStatus } from '@prisma/client';
+import {
+	FriendRequestSchema,
+	NotificationZType,
+	UserProfileSchema,
+	UserSchema,
+} from '@/types/user';
+import { RequestStatus, ValidStatus } from '@prisma/client';
 import { ConflictError, NotFoundError } from '../error';
 import friendRequestRepository from '../repositories/friendRequestRepository';
+import friendshipRepository from '../repositories/friendshipRepository';
 import userRepository from '../repositories/userRepository';
 
 const getByIds = async (ids: string[]) => {
@@ -62,7 +68,16 @@ const sendFriendRequest = async (senderId: string, receiverId: string) => {
 		throw new NotFoundError('User not found.');
 	}
 
-	await prisma.$transaction(async (client) => {
+	const existFrienship = await friendshipRepository.selectByUserFriend(
+		prisma,
+		senderId,
+		receiverId
+	);
+	if (existFrienship?.status === ValidStatus.VALID) {
+		throw new ConflictError('This user is already your friend.');
+	}
+
+	const request = await prisma.$transaction(async (client) => {
 		const existPendingRequest = await friendRequestRepository.selectWithStatus(
 			client,
 			senderId,
@@ -70,9 +85,13 @@ const sendFriendRequest = async (senderId: string, receiverId: string) => {
 			RequestStatus.PENDING
 		);
 		if (!existPendingRequest) {
-			await friendRequestRepository.create(client, senderId, receiverId);
+			return await friendRequestRepository.create(client, senderId, receiverId);
+		} else {
+			return null;
 		}
 	});
+
+	return request ? FriendRequestSchema.parse(request) : null;
 };
 
 const userService = {

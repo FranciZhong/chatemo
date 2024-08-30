@@ -4,8 +4,8 @@ import { create } from 'zustand';
 type NotificationStore = {
 	notifications: NotificationZType[];
 	setNotifications: (notifications: NotificationZType[]) => void;
-	removeById: (referToId: string) => void;
-	push: (notification: NotificationZType) => void;
+	removeNotification: (referToId: string) => void;
+	pushNotification: (notification: NotificationZType) => void;
 };
 
 const defaultState = {
@@ -20,7 +20,7 @@ const useNotificationStore = create<NotificationStore>((set) => ({
 			notifications,
 		}));
 	},
-	removeById: (referToId: string) => {
+	removeNotification: (referToId: string) => {
 		return set((state) => ({
 			...state,
 			notifications: state.notifications.filter(
@@ -28,7 +28,7 @@ const useNotificationStore = create<NotificationStore>((set) => ({
 			),
 		}));
 	},
-	push: (notification: NotificationZType) => {
+	pushNotification: (notification: NotificationZType) => {
 		return set((state) => ({
 			...state,
 			notifications: [notification, ...state.notifications],

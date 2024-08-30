@@ -2,28 +2,25 @@ import { verifyToken } from '@/lib/auth';
 import { UserEvent } from '@/lib/events';
 import { HttpStatusCode } from 'axios';
 import { parse } from 'cookie';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { Server, Socket } from 'socket.io';
 import { ApiError, UnauthorizedError } from './error';
 import { USER_PREFFIX } from './events';
 
 export const wrapErrorHandler = (
-	handler: (req: NextRequest) => Promise<NextResponse>
+	handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
 ) => {
-	return async (req: NextRequest) => {
+	return async (req: NextApiRequest, res: NextApiResponse) => {
 		try {
-			return await handler(req);
+			return await handler(req, res);
 		} catch (error) {
+			console.error(error);
 			if (error instanceof ApiError) {
-				return NextResponse.json(
-					{ error: error.message },
-					{ status: error.statusCode }
-				);
+				res.status(error.statusCode).json({ error: error.message });
 			} else {
-				return NextResponse.json(
-					{ error: 'Something went wrong.' },
-					{ status: HttpStatusCode.InternalServerError }
-				);
+				res
+					.status(HttpStatusCode.InternalServerError)
+					.json({ error: 'Something went wrong.' });
 			}
 		}
 	};
