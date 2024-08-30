@@ -1,23 +1,20 @@
-import {
-	FaceIcon,
-	ImageIcon,
-	PaperPlaneIcon,
-	RocketIcon,
-} from '@radix-ui/react-icons';
+import { ImageIcon, PaperPlaneIcon, RocketIcon } from '@radix-ui/react-icons';
+import { EmojiClickData } from 'emoji-picker-react';
 import { useState } from 'react';
+import EmojiPickerButton from '../EmojiPickerButton';
 import IconButton from '../IconButton';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 
 interface Props {
-	onSubmit: () => void;
+	onSubmit: (message: string) => void;
 }
 
 const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
 	const [message, setMessage] = useState('');
 
-	const handleMessageChange = (v: string) => {
-		setMessage(message);
+	const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setMessage(e.target.value);
 	};
 
 	const handleSubmit = () => {
@@ -25,16 +22,26 @@ const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
 			return;
 		}
 
-		handleMessageChange(message);
+		onSubmit(message);
 		setMessage('');
+	};
+
+	const handlePressEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleSubmit();
+		}
+	};
+
+	const handleClickEmoji = (emojiData: EmojiClickData) => {
+		const emoji = emojiData.emoji;
+		setMessage(message + emoji);
 	};
 
 	return (
 		<div className="w-full p-1 flex flex-col gap-1">
 			<div className="flex items-center gap-2">
-				<IconButton>
-					<FaceIcon className="icon-size" />
-				</IconButton>
+				<EmojiPickerButton onEmojiClick={handleClickEmoji} />
 				<IconButton onClick={() => {}}>
 					<ImageIcon className="icon-size" />
 				</IconButton>
@@ -44,8 +51,11 @@ const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
 			</div>
 			<div className="w-full relative px-2">
 				<Textarea
-					className="pr-16 focus-visible:ring-1"
+					className="pr-16 focus-visible:ring-1 text-lg"
 					placeholder="Write something ... Press Enter to send"
+					value={message}
+					onChange={handleMessageChange}
+					onKeyDown={handlePressEnter}
 				/>
 				<div className="absolute right-2 bottom-0">
 					<Button className="shadow-md" onClick={handleSubmit}>
