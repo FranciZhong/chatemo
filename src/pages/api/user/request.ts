@@ -4,6 +4,7 @@ import { MethodNotAllowedError, UnauthorizedError } from '@/server/error';
 import { USER_PREFFIX } from '@/server/events';
 import { wrapErrorHandler } from '@/server/middleware';
 import userService from '@/server/services/userService';
+import { FormatResponse } from '@/types/common';
 import { NextApiResponseServerIO } from '@/types/socket';
 import { FriendRequestPayloadSchema, NotificationZType } from '@/types/user';
 import { HttpStatusCode } from 'axios';
@@ -31,7 +32,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 	res.status(HttpStatusCode.Created).json({
 		message: 'A friend request is sent.',
-	});
+	} as FormatResponse<any>);
 
 	// send notifications to receivers
 	const io = (res as NextApiResponseServerIO).socket.server.io;

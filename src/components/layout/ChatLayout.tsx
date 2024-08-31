@@ -1,13 +1,13 @@
 'use client';
 
 import { ModalType } from '@/lib/constants';
-import { UserEvent } from '@/lib/events';
+import { ChatEvent, UserEvent } from '@/lib/events';
 import useConversationStore from '@/store/conversationStore';
 import useModalStore from '@/store/modalStore';
 import useNotificationStore from '@/store/notificationStore';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
-import { ConversationZType } from '@/types/chat';
+import { ConversationZType, MessageWithReplyZType } from '@/types/chat';
 import { NotificationZType, UserProfileZType } from '@/types/user';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
@@ -30,7 +30,8 @@ const ChatLayout: React.FC<Props> = (props) => {
 	const { socket, connect } = useSocketStore();
 	const { setProfile } = useUserStore();
 	const { setNotifications, pushNotification } = useNotificationStore();
-	const { setConversations, newConversation } = useConversationStore();
+	const { setConversations, newConversation, newMessage } =
+		useConversationStore();
 	const { toast } = useToast();
 	const { openModal } = useModalStore();
 
@@ -67,6 +68,10 @@ const ChatLayout: React.FC<Props> = (props) => {
 			});
 			socket.on(UserEvent.NEW_FRIENDSHIP, (payload: ConversationZType) =>
 				newConversation(payload)
+			);
+			socket.on(
+				ChatEvent.NEW_CONVERSATION_MESSAGE,
+				(payload: MessageWithReplyZType) => newMessage(payload)
 			);
 		}
 	}, [socket, connect]);

@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import { authSocketMiddleware } from '../middleware';
+import chatHandler from './chatHandler';
 import userHandler from './userHandler';
 
 export const USER_PREFFIX = 'user:';
@@ -21,6 +22,7 @@ const socketHandler = (io: Server) => {
 
 		// bind event handlers
 		userHandler(io, socket);
+		chatHandler(io, socket);
 	});
 };
 

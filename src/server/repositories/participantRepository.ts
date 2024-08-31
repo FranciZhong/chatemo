@@ -20,6 +20,25 @@ const selectByUserId = (
 	});
 };
 
-const participantRepository = { createMany, selectByUserId };
+const selectByConversationId = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	conversationId: string,
+	includeUser: boolean
+) => {
+	return prisma.conversationPartipant.findMany({
+		where: {
+			conversationId,
+		},
+		include: {
+			user: includeUser,
+		},
+	});
+};
+
+const participantRepository = {
+	createMany,
+	selectByUserId,
+	selectByConversationId,
+};
 
 export default participantRepository;

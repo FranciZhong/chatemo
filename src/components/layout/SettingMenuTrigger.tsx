@@ -10,6 +10,7 @@ import {
 import useSocketStore from '@/store/socketStore';
 import { GearIcon } from '@radix-ui/react-icons';
 import { signOut } from 'next-auth/react';
+import { Separator } from '../ui/separator';
 
 const SettingMenuTrigger = () => {
 	const { disconnect } = useSocketStore();
@@ -29,6 +30,7 @@ const SettingMenuTrigger = () => {
 					<DropdownMenuItem>Profile</DropdownMenuItem>
 					<DropdownMenuItem>API Keys</DropdownMenuItem>
 				</DropdownMenuGroup>
+				<Separator orientation="horizontal" />
 				<DropdownMenuGroup>
 					<DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
 				</DropdownMenuGroup>

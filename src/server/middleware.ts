@@ -34,9 +34,9 @@ export const wrapSocketErrorHandler = (
 ) => {
 	return socket.on(event, async (payload: any) => {
 		const userRoom = USER_PREFFIX + socket.data.session.id;
+		console.log(` Event [${event}] from ${userRoom}`, payload);
 
 		try {
-			console.log(` Event [${event}] from ${userRoom}`, payload);
 			await action(payload);
 		} catch (error) {
 			console.error(

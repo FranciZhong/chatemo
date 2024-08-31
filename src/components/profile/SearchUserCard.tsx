@@ -4,6 +4,7 @@ import { FormatResponse } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { PlusIcon } from '@radix-ui/react-icons';
 import IconButton from '../IconButton';
+import { useToast } from '../ui/use-toast';
 import UserCard from './UserCard';
 
 interface Props {
@@ -11,6 +12,8 @@ interface Props {
 }
 
 const SearchUserCard: React.FC<Props> = ({ user }) => {
+	const { toast } = useToast();
+
 	const handleAddFriend = async () => {
 		// todo if use dialog for description
 		// todo socket.io for notifications
@@ -19,7 +22,12 @@ const SearchUserCard: React.FC<Props> = ({ user }) => {
 				ApiUrl.SEND_FRIEND_REQUEST,
 				{ receiverId: user.id }
 			);
-		} catch (error) {}
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: 'Something went wrong.',
+			});
+		}
 	};
 
 	return (

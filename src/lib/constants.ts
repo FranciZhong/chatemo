@@ -15,8 +15,8 @@ export enum ImgUrl {
 export enum ApiUrl {
 	SOCKET = '/api/socket',
 	USER_SEARCH = '/api/user/search',
-	USER_PROFILE = '/api/user/profile',
 	SEND_FRIEND_REQUEST = '/api/user/request',
+	GET_CONVERSATION_MESSAGES = '/api/chat/friends/messages',
 }
 
 export enum Theme {
@@ -53,3 +53,6 @@ export enum AvatarSize {
 }
 
 export const DEFAULT_SELECT_LIMIT = 20;
+export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
+export const TAKE_MESSAGES_DEFAULT = 50;
+export const TAKE_MESSAGES_LIMIT = 1000;

@@ -1,3 +1,5 @@
+import useUserStore from '@/store/userStore';
+import { MessagePayload } from '@/types/chat';
 import { ImageIcon, PaperPlaneIcon, RocketIcon } from '@radix-ui/react-icons';
 import { EmojiClickData } from 'emoji-picker-react';
 import { useState } from 'react';
@@ -7,23 +9,28 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 
 interface Props {
-	onSubmit: (message: string) => void;
+	onSubmit: (payload: MessagePayload) => void;
 }
 
 const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
-	const [message, setMessage] = useState('');
+	const {} = useUserStore();
+	const [messageContent, setMessageContent] = useState('');
 
 	const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setMessage(e.target.value);
+		setMessageContent(e.target.value);
 	};
 
 	const handleSubmit = () => {
-		if (!message.length) {
+		if (!messageContent.length) {
 			return;
 		}
 
-		onSubmit(message);
-		setMessage('');
+		const payload: MessagePayload = {
+			content: messageContent,
+		};
+
+		onSubmit(payload);
+		setMessageContent('');
 	};
 
 	const handlePressEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -35,7 +42,7 @@ const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
 
 	const handleClickEmoji = (emojiData: EmojiClickData) => {
 		const emoji = emojiData.emoji;
-		setMessage(message + emoji);
+		setMessageContent(messageContent + emoji);
 	};
 
 	return (
@@ -53,7 +60,7 @@ const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
 				<Textarea
 					className="pr-16 focus-visible:ring-1 text-lg"
 					placeholder="Write something ... Press Enter to send"
-					value={message}
+					value={messageContent}
 					onChange={handleMessageChange}
 					onKeyDown={handlePressEnter}
 				/>

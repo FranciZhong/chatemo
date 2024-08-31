@@ -2,12 +2,27 @@ import { ConversationType } from '@prisma/client';
 import { z } from 'zod';
 import { FriendshipSchema, UserSchema } from './user';
 
+export const MessagePayloadSchema = z.object({
+	content: z.string(),
+	replyTo: z.string().optional(),
+});
+
+export type MessagePayload = z.infer<typeof MessagePayloadSchema>;
+
+export const ConversationMessagePayloadSchema = MessagePayloadSchema.extend({
+	conversationId: z.string(),
+});
+
+export type ConversationMessagePayload = z.infer<
+	typeof ConversationMessagePayloadSchema
+>;
+
 export const MessageSchema = z.object({
 	id: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 	senderId: z.string(),
-	conversationId: z.string().nullable().optional(),
+	conversationId: z.string(),
 	content: z.string(),
 	replyTo: z.string().nullable().optional(),
 });
@@ -15,7 +30,7 @@ export const MessageSchema = z.object({
 export type MessageZType = z.infer<typeof MessageSchema>;
 
 export const MessageWithReplySchema = MessageSchema.extend({
-	replyToMessage: MessageSchema,
+	replyToMessage: MessageSchema.nullable().optional(),
 });
 
 export type MessageWithReplyZType = z.infer<typeof MessageWithReplySchema>;
@@ -30,6 +45,8 @@ export const ParticipantSchema = z.object({
 	userId: z.string(),
 	user: UserSchema.optional(),
 });
+
+export type ParticipantZType = z.infer<typeof ParticipantSchema>;
 
 export const ConversationSchema = z.object({
 	id: z.string(),
