@@ -7,8 +7,9 @@ import useModalStore from '@/store/modalStore';
 import useNotificationStore from '@/store/notificationStore';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
-import { ConversationZType, MessageWithReplyZType } from '@/types/chat';
+import { ConversationZType } from '@/types/chat';
 import { NotificationZType, UserProfileZType } from '@/types/user';
+import { ConversationMessage } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
 import NavModal from '../modal/NavModal';
@@ -71,7 +72,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 			);
 			socket.on(
 				ChatEvent.NEW_CONVERSATION_MESSAGE,
-				(payload: MessageWithReplyZType) => newMessage(payload)
+				(payload: ConversationMessage) => newMessage(payload)
 			);
 		}
 	}, [socket, connect]);

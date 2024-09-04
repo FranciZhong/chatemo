@@ -52,7 +52,9 @@ export enum AvatarSize {
 	SM = 'sm',
 }
 
-export const DEFAULT_SELECT_LIMIT = 20;
+export const DEFAULT_TRANSFORM_DELAY = 300;
 export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
+
+export const DEFAULT_SELECT_LIMIT = 20;
 export const TAKE_MESSAGES_DEFAULT = 50;
 export const TAKE_MESSAGES_LIMIT = 1000;

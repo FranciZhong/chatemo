@@ -1,6 +1,7 @@
 {
 	"name": "chatemo",
 	"version": "0.1.0",
+	"type": "module",
 	"private": true,
 	"scripts": {
 		"prisma:push": "dotenv -e .env.local -- prisma db push",
@@ -41,6 +42,7 @@
 		"next": "14.2.5",
 		"next-auth": "^4.24.7",
 		"next-themes": "^0.3.0",
+		"openai": "^4.57.0",
 		"react": "^18",
 		"react-dom": "^18",
 		"socket.io": "^4.7.5",

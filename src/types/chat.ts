@@ -17,23 +17,38 @@ export type ConversationMessagePayload = z.infer<
 	typeof ConversationMessagePayloadSchema
 >;
 
-export const MessageSchema = z.object({
+export const BasicMessageSchema = z.object({
 	id: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 	senderId: z.string(),
-	conversationId: z.string(),
 	content: z.string(),
 	replyTo: z.string().nullable().optional(),
 });
 
-export type MessageZType = z.infer<typeof MessageSchema>;
+export type BasicMessageZType = z.infer<typeof BasicMessageSchema>;
 
-export const MessageWithReplySchema = MessageSchema.extend({
-	replyToMessage: MessageSchema.nullable().optional(),
+export const MessageSchema = BasicMessageSchema.extend({
+	replyToMessage: BasicMessageSchema.nullable().optional(),
 });
 
-export type MessageWithReplyZType = z.infer<typeof MessageWithReplySchema>;
+export type MessageZType = z.infer<typeof MessageSchema>;
+
+export const BasicConversationMessageSchema = BasicMessageSchema.extend({
+	conversationId: z.string(),
+});
+
+export type BasicConversationMessageZType = z.infer<
+	typeof BasicConversationMessageSchema
+>;
+
+export const ConversationMessageSchema = BasicConversationMessageSchema.extend({
+	replyToMessage: BasicConversationMessageSchema.nullable().optional(),
+});
+
+export type ConversationMessageZType = z.infer<
+	typeof ConversationMessageSchema
+>;
 
 export const ConversationTypeSchema = z.enum([ConversationType.DIRECT]);
 
@@ -53,7 +68,7 @@ export const ConversationSchema = z.object({
 	type: ConversationTypeSchema,
 	participants: z.array(ParticipantSchema),
 	friendships: z.array(FriendshipSchema).optional(),
-	messages: z.array(MessageWithReplySchema).optional(),
+	messages: z.array(ConversationMessageSchema).optional(),
 });
 
 export type ConversationZType = z.infer<typeof ConversationSchema>;

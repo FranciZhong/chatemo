@@ -68,7 +68,7 @@ model User {
   friendships            Friendship[]            @relation("UserFriendships")
   friendshipsTo          Friendship[]            @relation("FriendFriendships")
   participantsTo         ConversationPartipant[]
-  sentMessages           Message[]               @relation("SendMessages")
+  sentMessages           ConversationMessage[]   @relation("SendMessages")
 }
 
 model VerificationToken {
@@ -129,20 +129,20 @@ model Conversation {
   updatedAt    DateTime                @updatedAt
   type         ConversationType
   participants ConversationPartipant[]
-  messages     Message[]
+  messages     ConversationMessage[]
   friendships  Friendship[]
 }
 
-model Message {
-  id                String       @id @default(cuid())
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+model ConversationMessage {
+  id                String                @id @default(cuid())
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
   senderId          String
-  sender            User         @relation("SendMessages", fields: [senderId], references: [id])
+  sender            User                  @relation("SendMessages", fields: [senderId], references: [id])
   conversationId    String
-  conversation      Conversation @relation(fields: [conversationId], references: [id])
-  content           String       @db.Text
+  conversation      Conversation          @relation(fields: [conversationId], references: [id])
+  content           String                @db.Text
   replyTo           String?
-  replyToMessage    Message?     @relation("ReplyMessage", fields: [replyTo], references: [id])
-  repliedByMessages Message[]    @relation("ReplyMessage")
+  replyToMessage    ConversationMessage?  @relation("ReplyMessage", fields: [replyTo], references: [id])
+  repliedByMessages ConversationMessage[] @relation("ReplyMessage")
 }

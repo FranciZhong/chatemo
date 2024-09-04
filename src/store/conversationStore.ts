@@ -34,7 +34,10 @@ const useConversationStore = create<ConversationStore>((set) => ({
 			conversations: [
 				...state.conversations.map((item) => {
 					if (item.id === conversation.id) {
-						return { ...item, ...conversation };
+						return {
+							...item,
+							...conversation,
+						};
 					} else {
 						return item;
 					}

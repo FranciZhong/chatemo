@@ -6,24 +6,25 @@ import { ChatEvent } from '@/lib/events';
 import useConversationStore from '@/store/conversationStore';
 import useSocketStore from '@/store/socketStore';
 import {
+	BasicConversationMessageZType,
 	ConversationMessagePayload,
+	ConversationMessageZType,
 	ConversationZType,
 	MessagePayload,
-	MessageWithReplyZType,
 } from '@/types/chat';
 import { FormatResponse } from '@/types/common';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { useToast } from '../ui/use-toast';
 import ChatEditer from './ChatEditer';
-import MessageList from './MessageList';
+import ChatMessageList from './ChatMessageList';
 
 interface Props {
 	initConversation: ConversationZType;
 }
 
-const ChatBox: React.FC<Props> = ({ initConversation }) => {
+const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 	const { conversations, updateConversation } = useConversationStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
@@ -32,14 +33,28 @@ const ChatBox: React.FC<Props> = ({ initConversation }) => {
 		(item) => item.id === initConversation.id
 	)!;
 
-	console.log(conversations);
+	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(
+		null
+	);
+
+	const handleReplyTo = useCallback(
+		(messageId: string) => {
+			const matchedMessage =
+				conversation.messages?.find((item) => item.id === messageId) || null;
+
+			setReplyTo(matchedMessage);
+		},
+		[setReplyTo, conversation]
+	);
+
+	const deleteReplyTo = useCallback(() => setReplyTo(null), [setReplyTo]);
 
 	useEffect(() => {
 		const updateConversationMessages = async () => {
 			if (!conversation?.messages) {
 				try {
 					const response = await axiosInstance.get<
-						FormatResponse<MessageWithReplyZType[]>
+						FormatResponse<ConversationMessageZType[]>
 					>(ApiUrl.GET_CONVERSATION_MESSAGES, {
 						params: {
 							conversationId: initConversation.id,
@@ -61,7 +76,7 @@ const ChatBox: React.FC<Props> = ({ initConversation }) => {
 		};
 
 		updateConversationMessages();
-	}, []);
+	}, [initConversation]);
 
 	const handleSubmit = useCallback(
 		(payload: MessagePayload) => {
@@ -78,16 +93,21 @@ const ChatBox: React.FC<Props> = ({ initConversation }) => {
 		<div className="w-full h-full flex flex-col justify-end">
 			<div className="flex-1 overflow-hidden">
 				<ScrollArea className="w-full h-full">
-					<MessageList
+					<ChatMessageList
 						participants={conversation.participants}
 						messages={conversation.messages || []}
+						onReplyTo={handleReplyTo}
 					/>
 				</ScrollArea>
 			</div>
 			<Separator orientation="horizontal" />
-			<ChatEditer onSubmit={handleSubmit} />
+			<ChatEditer
+				replyTo={replyTo}
+				onDeleteReplyTo={deleteReplyTo}
+				onSubmit={handleSubmit}
+			/>
 		</div>
 	);
 };
 
-export default ChatBox;
+export default ConversationBox;

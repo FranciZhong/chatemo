@@ -41,6 +41,7 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 					<div className="w-60">
 						<h5 className="font-semibold text-single-line">{friend?.name}</h5>
 						<p className="text-single-line text-sm text-foreground/60 font-light">
+							{/* todo last message */}
 							Hello!! How are you going? Hello!! How are you going?
 						</p>
 					</div>

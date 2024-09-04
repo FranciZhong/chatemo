@@ -1,6 +1,6 @@
 'use server';
 
-import ChatBox from '@/components/chat/ChatBox';
+import ConversationBox from '@/components/chat/ConversationBox';
 import NavTopbar from '@/components/layout/NavTopbar';
 import { Separator } from '@/components/ui/separator';
 import { PageUrl } from '@/lib/constants';
@@ -24,7 +24,7 @@ const page: React.FC<Props> = async ({ params: { conversationId } }) => {
 				<NavTopbar />
 				<Separator orientation="horizontal" />
 				<div className="flex-1 overflow-hidden">
-					<ChatBox initConversation={conversation} />
+					<ConversationBox initConversation={conversation} />
 				</div>
 			</div>
 		);

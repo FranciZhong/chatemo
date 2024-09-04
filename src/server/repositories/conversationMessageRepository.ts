@@ -7,7 +7,7 @@ const create = (
 	content: string,
 	replyTo?: string
 ) => {
-	return prisma.message.create({
+	return prisma.conversationMessage.create({
 		data: {
 			senderId,
 			conversationId,
@@ -26,7 +26,7 @@ const selectByConversationOffset = (
 	skip: number,
 	take: number
 ) => {
-	return prisma.message.findMany({
+	return prisma.conversationMessage.findMany({
 		where: {
 			conversationId,
 		},
@@ -41,6 +41,6 @@ const selectByConversationOffset = (
 	});
 };
 
-const messageRepository = { create, selectByConversationOffset };
+const conversationMessageRepository = { create, selectByConversationOffset };
 
-export default messageRepository;
+export default conversationMessageRepository;

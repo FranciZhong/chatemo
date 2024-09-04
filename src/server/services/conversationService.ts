@@ -1,15 +1,15 @@
 import { prisma } from '@/lib/db';
 import {
 	ConversationMessagePayload,
+	ConversationMessageSchema,
 	ConversationSchema,
-	MessageWithReplySchema,
 	ParticipantSchema,
 } from '@/types/chat';
 import { UserSchema } from '@/types/user';
 import { User } from '@prisma/client';
 import { NotFoundError } from '../error';
+import conversationMessageRepository from '../repositories/conversationMessageRepository';
 import conversationRepository from '../repositories/conversationRepository';
-import messageRepository from '../repositories/messageRepository';
 import participantRepository from '../repositories/participantRepository';
 import userRepository from '../repositories/userRepository';
 
@@ -99,14 +99,15 @@ const getConversationMessages = async (
 	skip: number,
 	take: number
 ) => {
-	const messages = await messageRepository.selectByConversationOffset(
-		prisma,
-		conversationId,
-		skip,
-		take
-	);
+	const messages =
+		await conversationMessageRepository.selectByConversationOffset(
+			prisma,
+			conversationId,
+			skip,
+			take
+		);
 
-	return messages.map((item) => MessageWithReplySchema.parse(item));
+	return messages.map((item) => ConversationMessageSchema.parse(item));
 };
 
 const createMessage = async (
@@ -115,7 +116,7 @@ const createMessage = async (
 ) => {
 	const { conversationId, content, replyTo } = payload;
 
-	const message = await messageRepository.create(
+	const message = await conversationMessageRepository.create(
 		prisma,
 		senderId,
 		conversationId,
@@ -123,7 +124,7 @@ const createMessage = async (
 		replyTo
 	);
 
-	return MessageWithReplySchema.parse(message);
+	return ConversationMessageSchema.parse(message);
 };
 
 const conversationService = {

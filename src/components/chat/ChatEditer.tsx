@@ -1,18 +1,30 @@
 import useUserStore from '@/store/userStore';
-import { MessagePayload } from '@/types/chat';
-import { ImageIcon, PaperPlaneIcon, RocketIcon } from '@radix-ui/react-icons';
+import { BasicMessageZType, MessagePayload } from '@/types/chat';
+import {
+	Cross2Icon,
+	ImageIcon,
+	PaperPlaneIcon,
+	RocketIcon,
+} from '@radix-ui/react-icons';
 import { EmojiClickData } from 'emoji-picker-react';
 import { useState } from 'react';
 import EmojiPickerButton from '../EmojiPickerButton';
 import IconButton from '../IconButton';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
+import RepliedMessage from './RepliedMessage';
 
 interface Props {
+	replyTo: BasicMessageZType | null;
+	onDeleteReplyTo: () => void;
 	onSubmit: (payload: MessagePayload) => void;
 }
 
-const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
+const ChatEditer: React.FC<Props> = ({
+	replyTo,
+	onDeleteReplyTo,
+	onSubmit,
+}) => {
 	const {} = useUserStore();
 	const [messageContent, setMessageContent] = useState('');
 
@@ -27,9 +39,11 @@ const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
 
 		const payload: MessagePayload = {
 			content: messageContent,
+			replyTo: replyTo?.id,
 		};
 
 		onSubmit(payload);
+		onDeleteReplyTo();
 		setMessageContent('');
 	};
 
@@ -47,6 +61,14 @@ const ChatEditer: React.FC<Props> = ({ onSubmit }) => {
 
 	return (
 		<div className="w-full p-1 flex flex-col gap-1">
+			{replyTo && (
+				<div className="flex items-center gap-2 justify-start">
+					<RepliedMessage replyTo={replyTo} />
+					<IconButton onClick={onDeleteReplyTo} className="hover:bg-accent">
+						<Cross2Icon />
+					</IconButton>
+				</div>
+			)}
 			<div className="flex items-center gap-2">
 				<EmojiPickerButton onEmojiClick={handleClickEmoji} />
 				<IconButton onClick={() => {}}>

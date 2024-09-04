@@ -90,6 +90,10 @@
 	.text-single-line {
 		@apply overflow-hidden text-ellipsis whitespace-nowrap;
 	}
+
+	.message-width {
+		@apply max-w-[320px] md:max-w-[480px] lg:max-w-[640px] xl:max-w-[900px];
+	}
 }
 
 @keyframes spin {
