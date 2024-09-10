@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { JsonObject } from '@prisma/client/runtime/library';
 
 const selectById = (
 	prisma: PrismaClient | Prisma.TransactionClient,
@@ -37,10 +38,26 @@ const selectStartWithName = (
 	});
 };
 
+const updateConfig = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	config: JsonObject
+) => {
+	return prisma.user.update({
+		where: {
+			id,
+		},
+		data: {
+			config,
+		},
+	});
+};
+
 const userRepository = {
 	selectById,
 	selectByIds,
 	selectStartWithName,
+	updateConfig,
 };
 
 export default userRepository;

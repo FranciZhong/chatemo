@@ -3,13 +3,13 @@
 import ItemContainer from '@/components/ItemContainer';
 import { Badge } from '@/components/ui/badge';
 import { ImgUrl } from '@/lib/constants';
-import { Avatar, AvatarImage } from '@radix-ui/react-avatar';
+import { Avatar, AvatarImage } from '../ui/avatar';
 
 interface Props {}
 
-const ChannelTab: React.FC<Props> = ({}) => {
+const ChannelLink: React.FC<Props> = ({}) => {
 	return (
-		<ItemContainer className="px-2 h-14 w-full flex gap-2 items-center hover:cursor-pointe">
+		<ItemContainer className="px-2 h-14 w-full flex gap-2 items-center hover:cursor-pointer">
 			<Avatar className="h-10 w-10 rounded-full bg-secondary">
 				<AvatarImage className="rounded-full" src={ImgUrl.CHANNEL_AVATAR_ALT} />
 			</Avatar>
@@ -23,4 +23,4 @@ const ChannelTab: React.FC<Props> = ({}) => {
 	);
 };
 
-export default ChannelTab;
+export default ChannelLink;

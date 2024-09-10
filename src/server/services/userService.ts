@@ -1,13 +1,20 @@
-import { DEFAULT_SELECT_LIMIT, NotificationType } from '@/lib/constants';
+import {
+	DEFAULT_SELECT_LIMIT,
+	LlmProviderName,
+	NotificationType,
+} from '@/lib/constants';
 import { prisma } from '@/lib/db';
+import { LlmProvider } from '@/types/llm';
 import {
 	FriendRequestSchema,
 	NotificationZType,
+	UserConfigZType,
 	UserProfileSchema,
 	UserSchema,
 } from '@/types/user';
 import { RequestStatus, ValidStatus } from '@prisma/client';
 import { ConflictError, NotFoundError } from '../error';
+import OpenAiProvider from '../gateways/providers/openAiProvider';
 import friendRequestRepository from '../repositories/friendRequestRepository';
 import friendshipRepository from '../repositories/friendshipRepository';
 import userRepository from '../repositories/userRepository';
@@ -94,12 +101,39 @@ const sendFriendRequest = async (senderId: string, receiverId: string) => {
 	return request ? FriendRequestSchema.parse(request) : null;
 };
 
+const updateConfig = async (userId: string, config: UserConfigZType) => {
+	const user = await userRepository.updateConfig(prisma, userId, config);
+
+	return UserProfileSchema.parse(user);
+};
+
+const initProviders = async (userId: string) => {
+	const providerMap = new Map<LlmProviderName, LlmProvider>();
+	const user = await getProfileById(userId);
+	const apiConfig = user.config?.apiConfig;
+	if (apiConfig?.openaiApiKey && apiConfig.openaiApiKey.length > 0) {
+		const openAiProvider = new OpenAiProvider(apiConfig.openaiApiKey);
+		try {
+			const models = await openAiProvider.getModels();
+			if (models.length !== 0) {
+				providerMap.set(LlmProviderName.OPENAI, openAiProvider);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	return providerMap;
+};
+
 const userService = {
 	getByIds,
 	getProfileById,
 	getNotificationsByUserId,
 	searchByName,
 	sendFriendRequest,
+	updateConfig,
+	initProviders,
 };
 
 export default userService;

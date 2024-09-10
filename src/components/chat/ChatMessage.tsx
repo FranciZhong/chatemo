@@ -1,29 +1,78 @@
 import { ImgUrl } from '@/lib/constants';
 import { parseFormatedDateTime } from '@/lib/date';
+import { ChatEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
+import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
 import { MessageZType } from '@/types/chat';
+import { IdPayload } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { ArrowTopRightIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
+import rehypePrism from 'rehype-prism';
+import remarkBreaks from 'remark-breaks';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import { useDebounce } from 'use-debounce';
+import CopyButton from '../CopyButton';
+import DeleteButton from '../DeleteButton';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import LoadingContent from './LoadingContent';
 import RepliedMessage from './RepliedMessage';
 
 interface Props {
 	sender: UserZType;
 	message: MessageZType;
 	onReplyTo: (messageId: string) => void;
+	actions?: React.ReactNode[];
 }
 
-const ChatMessage: React.FC<Props> = ({ sender, message, onReplyTo }) => {
+const ChatMessage: React.FC<Props> = ({
+	sender,
+	message,
+	onReplyTo,
+	actions,
+}) => {
 	const { user } = useUserStore();
-	const isCurrentUser = user?.id === sender.id;
+	const isCurrentUser = user?.id === sender.id && message.type === 'USER';
+
+	const { socket } = useSocketStore();
 
 	const [mouseOn, setMouseOn] = useState(false);
+	const [showButtons] = useDebounce(mouseOn, 500);
 
 	const datetimeObject = parseFormatedDateTime(message.createdAt);
+
+	const getAvatarImage = () => {
+		switch (message.type) {
+			case 'USER':
+				return sender?.image || ImgUrl.USER_AVATAR_ALT;
+			case 'MODEL':
+				return message.agent?.image || ImgUrl.AGENT_AVATAR_ALT;
+		}
+	};
+
+	const getName = () => {
+		switch (message.type) {
+			case 'USER':
+				return user?.name;
+			case 'MODEL':
+				return (
+					message.agent?.name ||
+					`[${message.provider?.toUpperCase()}] ${message.model}`
+				);
+		}
+	};
+
+	const handleDelete = () => {
+		socket?.emit(ChatEvent.DELETE_CONVERSATION_MESSAGE, {
+			referToId: message.id,
+		} as IdPayload);
+	};
 
 	return (
 		<div
@@ -41,7 +90,7 @@ const ChatMessage: React.FC<Props> = ({ sender, message, onReplyTo }) => {
 				)}
 			>
 				<Avatar className="h-8 w-8 bg-secondary">
-					<AvatarImage src={sender?.image || ImgUrl.USER_AVATAR_ALT} />
+					<AvatarImage src={getAvatarImage()} />
 				</Avatar>
 				<div
 					className={cn(
@@ -55,22 +104,23 @@ const ChatMessage: React.FC<Props> = ({ sender, message, onReplyTo }) => {
 							isCurrentUser && 'flex-row-reverse'
 						)}
 					>
-						<div className="text-lg font-bold">{sender?.name}</div>
-						{mouseOn && (
-							<ScrollArea className="flex-1">
-								<div
-									className={cn(
-										'flex items-center gap-2',
-										isCurrentUser && 'justify-end'
-									)}
-								>
+						<div className="text-lg font-bold">{getName()}</div>
+						{showButtons && (
+							<ScrollArea
+								dir={isCurrentUser ? 'rtl' : 'ltr'}
+								className="flex-1"
+							>
+								<div className="flex items-center gap-2">
+									<CopyButton content={message.content} />
 									<Button
 										size="xs"
 										variant="outline"
 										onClick={() => onReplyTo(message.id)}
 									>
-										<ArrowTopRightIcon />
+										<ArrowTopRightIcon className="icon-size" />
 									</Button>
+									<DeleteButton onDelete={handleDelete} />
+									{actions}
 								</div>
 								<ScrollBar orientation="horizontal" className="invisible" />
 							</ScrollArea>
@@ -81,8 +131,17 @@ const ChatMessage: React.FC<Props> = ({ sender, message, onReplyTo }) => {
 						<RepliedMessage replyTo={message.replyToMessage} />
 					) : null}
 
-					<div className="p-2 rounded-lg bg-hover text-md">
-						<p className="break-words break-all">{message.content}</p>
+					<div className="message-container message-width prose">
+						{message.content?.length > 0 ? (
+							<ReactMarkdown
+								remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
+								rehypePlugins={[rehypePrism, rehypeKatex]}
+							>
+								{message.content}
+							</ReactMarkdown>
+						) : (
+							<LoadingContent />
+						)}
 					</div>
 					<p className="text-xs text-foreground/50 font-thin">
 						{datetimeObject.date} {datetimeObject.time}

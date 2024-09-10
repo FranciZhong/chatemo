@@ -1,4 +1,4 @@
-import { MethodNotAllowedError } from '@/server/error';
+import { BadRequestError, MethodNotAllowedError } from '@/server/error';
 import { wrapErrorHandler } from '@/server/middleware';
 import userService from '@/server/services/userService';
 import { FormatResponse } from '@/types/common';
@@ -13,7 +13,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const name = req.query.name as string;
 	if (!name) {
-		res.status(HttpStatusCode.BadRequest).json({ error: 'No name in query.' });
+		throw new BadRequestError('No name in query.');
 	}
 
 	const matchedUsers = await userService.searchByName(name);

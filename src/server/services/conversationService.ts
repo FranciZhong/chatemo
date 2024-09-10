@@ -3,10 +3,11 @@ import {
 	ConversationMessagePayload,
 	ConversationMessageSchema,
 	ConversationSchema,
+	MessageTypeZType,
 	ParticipantSchema,
 } from '@/types/chat';
 import { UserSchema } from '@/types/user';
-import { User } from '@prisma/client';
+import { User, ValidStatus } from '@prisma/client';
 import { NotFoundError } from '../error';
 import conversationMessageRepository from '../repositories/conversationMessageRepository';
 import conversationRepository from '../repositories/conversationRepository';
@@ -110,21 +111,46 @@ const getConversationMessages = async (
 	return messages.map((item) => ConversationMessageSchema.parse(item));
 };
 
-const createMessage = async (
-	senderId: string,
-	payload: ConversationMessagePayload
-) => {
-	const { conversationId, content, replyTo } = payload;
-
-	const message = await conversationMessageRepository.create(
+const getMessageById = async (messageId: string) => {
+	const message = await conversationMessageRepository.selectById(
 		prisma,
-		senderId,
-		conversationId,
-		content,
-		replyTo
+		messageId
 	);
 
 	return ConversationMessageSchema.parse(message);
+};
+
+const createMessage = async (
+	senderId: string,
+	type: MessageTypeZType,
+	payload: ConversationMessagePayload
+) => {
+	const message = await conversationMessageRepository.create(
+		prisma,
+		senderId,
+		type,
+		payload
+	);
+
+	return ConversationMessageSchema.parse(message);
+};
+
+const updateMessageContent = async (messageId: string, content: string) => {
+	const message = await conversationMessageRepository.updateContentById(
+		prisma,
+		messageId,
+		content
+	);
+
+	return ConversationMessageSchema.parse(message);
+};
+
+const deleteMessage = async (messageId: string) => {
+	await conversationMessageRepository.updateValidById(
+		prisma,
+		messageId,
+		ValidStatus.INVALID
+	);
 };
 
 const conversationService = {
@@ -132,7 +158,10 @@ const conversationService = {
 	getConversationWithParticipants,
 	getParticipantsByConversationId,
 	getConversationMessages,
+	getMessageById,
 	createMessage,
+	updateMessageContent,
+	deleteMessage,
 };
 
 export default conversationService;

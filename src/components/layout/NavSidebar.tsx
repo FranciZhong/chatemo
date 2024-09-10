@@ -2,6 +2,8 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SidebarTab } from '@/lib/constants';
+import useOpenStore from '@/store/openStore';
+import AgentList from '../chat/AgentList';
 import ChannelList from '../chat/ChannelList';
 import FriendList from '../chat/FriendList';
 import { ScrollArea } from '../ui/scroll-area';
@@ -11,7 +13,9 @@ import UserBar from './UserBar';
 interface Props {}
 
 const NavSidebar: React.FC<Props> = ({}) => {
-	return (
+	const { openSidebar } = useOpenStore();
+
+	return openSidebar ? (
 		<div className="w-full md:w-80 h-full flex flex-col justify-end">
 			<Tabs
 				defaultValue={SidebarTab.FRIENDS}
@@ -37,16 +41,14 @@ const NavSidebar: React.FC<Props> = ({}) => {
 						<ChannelList />
 					</TabsContent>
 					<TabsContent value={SidebarTab.AGENTS}>
-						<div className="flex items-center justify-center">
-							<div>TODO</div>
-						</div>
+						<AgentList />
 					</TabsContent>
 				</ScrollArea>
 			</Tabs>
 			<Separator orientation="horizontal" />
 			<UserBar />
 		</div>
-	);
+	) : null;
 };
 
 export default NavSidebar;

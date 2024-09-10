@@ -68,32 +68,36 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+}
 
-	.loader {
-		@apply border-8 border-white border-opacity-30 rounded-full w-16 h-16;
-		border-top-color: hsl(var(--secondary));
-		animation: spin 1s linear infinite;
-	}
+.loader {
+	@apply border-8 border-white border-opacity-30 rounded-full w-16 h-16;
+	border-top-color: hsl(var(--secondary));
+	animation: spin 1s linear infinite;
+}
 
-	.icon-size {
-		@apply w-5 h-5;
-	}
+.icon-size {
+	@apply h-5 w-5;
+}
 
-	.icon-button {
-		@apply w-8 h-8 p-1.5 rounded-md flex justify-center items-center bg-background text-foreground hover:bg-hover;
-	}
+.icon-button {
+	@apply w-8 h-8 p-1.5 rounded-md flex justify-center items-center bg-background text-foreground hover:bg-hover;
+}
 
-	.heading {
-		@apply text-2xl font-semibold leading-none tracking-tight;
-	}
+.heading {
+	@apply text-2xl font-semibold leading-none tracking-tight;
+}
 
-	.text-single-line {
-		@apply overflow-hidden text-ellipsis whitespace-nowrap;
-	}
+.text-single-line {
+	@apply overflow-hidden text-ellipsis whitespace-nowrap;
+}
 
-	.message-width {
-		@apply max-w-[320px] md:max-w-[480px] lg:max-w-[640px] xl:max-w-[900px];
-	}
+.message-container {
+	@apply p-2 rounded-lg bg-hover;
+}
+
+.message-width {
+	@apply max-w-[320px] md:max-w-[480px] lg:max-w-[640px] xl:max-w-[900px];
 }
 
 @keyframes spin {

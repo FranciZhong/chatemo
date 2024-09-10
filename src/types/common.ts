@@ -35,3 +35,16 @@ export const AcceptRejectPayloadSchema = z.object({
 });
 
 export type AcceptRejectPayload = z.infer<typeof AcceptRejectPayloadSchema>;
+
+export const IdPayloadSchema = z.object({
+	referToId: z.string(),
+});
+
+export type IdPayload = z.infer<typeof IdPayloadSchema>;
+
+export const ParentChildIdPayloadSchema = z.object({
+	parentId: z.string(),
+	childId: z.string(),
+});
+
+export type ParentChildIdPayload = z.infer<typeof ParentChildIdPayloadSchema>;

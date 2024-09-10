@@ -1,21 +1,79 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { ConversationMessagePayload } from '@/types/chat';
+import { MessageType, Prisma, PrismaClient, ValidStatus } from '@prisma/client';
 
 const create = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	senderId: string,
-	conversationId: string,
-	content: string,
-	replyTo?: string
+	type: MessageType,
+	{
+		conversationId,
+		content,
+		replyTo,
+		provider,
+		model,
+		agentId,
+	}: ConversationMessagePayload
 ) => {
 	return prisma.conversationMessage.create({
 		data: {
 			senderId,
+			type,
 			conversationId,
 			content,
 			replyTo,
+			provider,
+			model,
+			agentId,
+			valid: ValidStatus.VALID,
 		},
 		include: {
 			replyToMessage: true,
+			agent: true,
+		},
+	});
+};
+
+const updateContentById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	content: string
+) => {
+	return prisma.conversationMessage.update({
+		where: {
+			id,
+		},
+		data: {
+			content,
+		},
+		include: {
+			replyToMessage: true,
+			agent: true,
+		},
+	});
+};
+
+const updateValidById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	valid: ValidStatus
+) => {
+	return prisma.conversationMessage.update({
+		where: {
+			id,
+		},
+		data: {
+			valid,
+		},
+	});
+};
+
+const selectById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string
+) => {
+	return prisma.conversationMessage.findUnique({
+		where: {
+			id,
 		},
 	});
 };
@@ -29,6 +87,7 @@ const selectByConversationOffset = (
 	return prisma.conversationMessage.findMany({
 		where: {
 			conversationId,
+			valid: ValidStatus.VALID,
 		},
 		skip,
 		take,
@@ -37,10 +96,17 @@ const selectByConversationOffset = (
 		},
 		include: {
 			replyToMessage: true,
+			agent: true,
 		},
 	});
 };
 
-const conversationMessageRepository = { create, selectByConversationOffset };
+const conversationMessageRepository = {
+	create,
+	updateContentById,
+	updateValidById,
+	selectById,
+	selectByConversationOffset,
+};
 
 export default conversationMessageRepository;

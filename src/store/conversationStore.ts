@@ -1,4 +1,5 @@
-import { ConversationZType, MessageWithReplyZType } from '@/types/chat';
+import { ConversationMessageZType, ConversationZType } from '@/types/chat';
+import { ParentChildIdPayload } from '@/types/common';
 import { create } from 'zustand';
 
 type ConversationStore = {
@@ -7,7 +8,9 @@ type ConversationStore = {
 	newConversation: (conversation: ConversationZType) => void;
 	updateConversation: (conversation: ConversationZType) => void;
 	removeConversation: (conversationId: string) => void;
-	newMessage: (message: MessageWithReplyZType) => void;
+	newMessage: (message: ConversationMessageZType) => void;
+	updateMessage: (message: ConversationMessageZType) => void;
+	removeMessage: (payload: ParentChildIdPayload) => void;
 };
 
 const defaultState = {
@@ -22,12 +25,14 @@ const useConversationStore = create<ConversationStore>((set) => ({
 			conversations,
 		}));
 	},
+
 	newConversation: (conversation: ConversationZType) => {
 		set((state) => ({
 			...state,
 			conversations: [conversation, ...state.conversations],
 		}));
 	},
+
 	updateConversation: (conversation: ConversationZType) => {
 		set((state) => ({
 			...state,
@@ -45,6 +50,7 @@ const useConversationStore = create<ConversationStore>((set) => ({
 			],
 		}));
 	},
+
 	removeConversation: (conversationId: string) => {
 		set((state) => ({
 			...state,
@@ -53,7 +59,8 @@ const useConversationStore = create<ConversationStore>((set) => ({
 			),
 		}));
 	},
-	newMessage: (message: MessageWithReplyZType) => {
+
+	newMessage: (message: ConversationMessageZType) => {
 		set((state) => ({
 			...state,
 			conversations: [
@@ -70,6 +77,44 @@ const useConversationStore = create<ConversationStore>((set) => ({
 					})),
 				...state.conversations.filter(
 					(item) => item.id !== message.conversationId
+				),
+			],
+		}));
+	},
+
+	updateMessage: (message: ConversationMessageZType) => {
+		set((state) => ({
+			...state,
+			conversations: [
+				...state.conversations
+					.filter((conversation) => conversation.id === message.conversationId)
+					.map((conversation) => ({
+						...conversation,
+						messages: conversation.messages?.map((item) => {
+							return item.id === message.id ? message : item;
+						}) || [message],
+					})),
+				...state.conversations.filter(
+					(item) => item.id !== message.conversationId
+				),
+			],
+		}));
+	},
+
+	removeMessage: (payload: ParentChildIdPayload) => {
+		set((state) => ({
+			...state,
+			conversations: [
+				...state.conversations
+					.filter((conversation) => conversation.id === payload.parentId)
+					.map((conversation) => ({
+						...conversation,
+						messages: conversation.messages?.filter(
+							(item) => item.id !== payload.childId
+						),
+					})),
+				...state.conversations.filter(
+					(conversation) => conversation.id !== payload.parentId
 				),
 			],
 		}));

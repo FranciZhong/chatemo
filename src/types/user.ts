@@ -1,4 +1,4 @@
-import { NotificationType } from '@/lib/constants';
+import { LlmProviderName, NotificationType } from '@/lib/constants';
 import { z } from 'zod';
 import { RequestStatusEnumSchema, ValidStatusEnumSchema } from './common';
 
@@ -13,14 +13,31 @@ export const UserSchema = z.object({
 
 export type UserZType = z.infer<typeof UserSchema>;
 
+export const ApiConfigSchema = z.object({
+	openaiApiKey: z.string().optional(),
+	anthropicApiKey: z.string().optional(),
+});
+
+export type ApiConfigZType = z.infer<typeof ApiConfigSchema>;
+
+export const ModelConfigSchema = z.object({
+	defaultProvider: z
+		.enum([LlmProviderName.OPENAI, LlmProviderName.ANTHROPIC])
+		.optional(),
+	defaultModel: z.string().optional(),
+});
+
+export type ModelConfigZType = z.infer<typeof ModelConfigSchema>;
+
 export const UserConfigSchema = z.object({
-	openaiApiKey: z.string().optional().nullable(),
+	apiConfig: ApiConfigSchema.optional(),
+	modelConfig: ModelConfigSchema.optional(),
 });
 
 export type UserConfigZType = z.infer<typeof UserConfigSchema>;
 
 export const UserProfileSchema = UserSchema.extend({
-	config: UserConfigSchema,
+	config: UserConfigSchema.optional(),
 });
 
 export type UserProfileZType = z.infer<typeof UserProfileSchema>;

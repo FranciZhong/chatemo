@@ -1,8 +1,16 @@
 'use client';
 
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
-import { ChatEvent } from '@/lib/events';
+import {
+	ApiUrl,
+	AvatarSize,
+	ImgUrl,
+	LlmProviderName,
+	TAKE_MESSAGES_DEFAULT,
+} from '@/lib/constants';
+import { AgentEvent, ChatEvent } from '@/lib/events';
+import { cn, getAvatarSizeStyle } from '@/lib/utils';
+import useAgentStore from '@/store/agentStore';
 import useConversationStore from '@/store/conversationStore';
 import useSocketStore from '@/store/socketStore';
 import {
@@ -11,9 +19,14 @@ import {
 	ConversationMessageZType,
 	ConversationZType,
 	MessagePayload,
+	MessageZType,
 } from '@/types/chat';
 import { FormatResponse } from '@/types/common';
+import { AgentReplyPayload } from '@/types/llm';
+import { RocketIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useState } from 'react';
+import { Avatar, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { useToast } from '../ui/use-toast';
@@ -26,6 +39,7 @@ interface Props {
 
 const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 	const { conversations, updateConversation } = useConversationStore();
+	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
 
@@ -64,6 +78,7 @@ const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 					});
 					const messages = response.data.data;
 					initConversation.messages = messages;
+					updateConversation(initConversation);
 				} catch (error) {
 					toast({
 						title: 'Error',
@@ -71,8 +86,6 @@ const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 					});
 				}
 			}
-
-			updateConversation(initConversation);
 		};
 
 		updateConversationMessages();
@@ -89,17 +102,60 @@ const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 		[socket]
 	);
 
+	const messageActions = [
+		(message: MessageZType) => (
+			<Button
+				key={'agent-none'}
+				size="xs"
+				variant="outline"
+				onClick={() => {
+					socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
+						replyTo: message.id,
+						provider: LlmProviderName.OPENAI,
+						model: 'gpt-4o-mini',
+					} as AgentReplyPayload);
+				}}
+			>
+				<RocketIcon className="icon-size" />
+			</Button>
+		),
+		...agents.map((agent) => (message: MessageZType) => (
+			<Button
+				key={'agent-' + agent.id}
+				size="xs"
+				variant="outline"
+				onClick={() => {
+					socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
+						replyTo: message.id,
+						// todo modify model selection
+						provider: LlmProviderName.OPENAI,
+						model: 'gpt-4o-mini',
+						agentId: agent.id,
+					} as AgentReplyPayload);
+				}}
+			>
+				<div className="flex gap-2 items-center">
+					<Avatar
+						className={cn('bg-secondary', getAvatarSizeStyle(AvatarSize.XS))}
+					>
+						<AvatarImage src={agent.image || ImgUrl.AGENT_AVATAR_ALT} />
+					</Avatar>
+					<span>{agent.name}</span>
+				</div>
+			</Button>
+		)),
+	];
+
 	return (
 		<div className="w-full h-full flex flex-col justify-end">
-			<div className="flex-1 overflow-hidden">
-				<ScrollArea className="w-full h-full">
-					<ChatMessageList
-						participants={conversation.participants}
-						messages={conversation.messages || []}
-						onReplyTo={handleReplyTo}
-					/>
-				</ScrollArea>
-			</div>
+			<ScrollArea className="flex-1">
+				<ChatMessageList
+					participants={conversation.participants}
+					messages={conversation.messages || []}
+					onReplyTo={handleReplyTo}
+					messageActions={messageActions}
+				/>
+			</ScrollArea>
 			<Separator orientation="horizontal" />
 			<ChatEditer
 				replyTo={replyTo}

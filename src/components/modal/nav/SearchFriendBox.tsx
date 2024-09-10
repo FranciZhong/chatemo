@@ -3,11 +3,11 @@ import { ApiUrl, NavModalTab } from '@/lib/constants';
 import { FormatResponse } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import NotFound from '../NotFound';
-import SearchUserCard from '../profile/SearchUserCard';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Separator } from '../ui/separator';
+import NotFound from '../../NotFound';
+import SearchUserCard from '../../profile/SearchUserCard';
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Separator } from '../../ui/separator';
 
 const FindFriendBox: React.FC = () => {
 	const [userPrefix, setUserPrefix] = useState('');
@@ -55,7 +55,7 @@ const FindFriendBox: React.FC = () => {
 	}, [handleSearch]);
 
 	return (
-		<div className="w-full px-4 flex flex-col gap-4">
+		<div className="w-full flex flex-col gap-4">
 			<h2 className="heading">{NavModalTab.FIND_FRIEND.toLocaleUpperCase()}</h2>
 			<p className="text-md text-muted-foreground">
 				You can add friends with their username on Chatemo.

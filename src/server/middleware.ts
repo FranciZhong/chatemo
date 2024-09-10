@@ -3,7 +3,7 @@ import { UserEvent } from '@/lib/events';
 import { HttpStatusCode } from 'axios';
 import { parse } from 'cookie';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { ApiError, UnauthorizedError } from './error';
 import { USER_PREFFIX } from './events';
 
@@ -27,7 +27,6 @@ export const wrapErrorHandler = (
 };
 
 export const wrapSocketErrorHandler = (
-	io: Server,
 	socket: Socket,
 	event: string,
 	action: (payload: any) => void | Promise<void>

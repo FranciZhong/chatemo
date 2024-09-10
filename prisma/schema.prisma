@@ -18,6 +18,11 @@ enum ValidStatus {
   INVALID
 }
 
+enum MessageType {
+  USER
+  MODEL
+}
+
 model Account {
   id                String   @id @default(cuid())
   userId            String
@@ -69,6 +74,7 @@ model User {
   friendshipsTo          Friendship[]            @relation("FriendFriendships")
   participantsTo         ConversationPartipant[]
   sentMessages           ConversationMessage[]   @relation("SendMessages")
+  agents                 Agent[]
 }
 
 model VerificationToken {
@@ -135,8 +141,10 @@ model Conversation {
 
 model ConversationMessage {
   id                String                @id @default(cuid())
+  valid             ValidStatus           @default(VALID)
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
+  type              MessageType           @default(USER)
   senderId          String
   sender            User                  @relation("SendMessages", fields: [senderId], references: [id])
   conversationId    String
@@ -145,4 +153,32 @@ model ConversationMessage {
   replyTo           String?
   replyToMessage    ConversationMessage?  @relation("ReplyMessage", fields: [replyTo], references: [id])
   repliedByMessages ConversationMessage[] @relation("ReplyMessage")
+  provider          String?
+  model             String?
+  agentId           String?
+  agent             Agent?                @relation(fields: [agentId], references: id)
+}
+
+model Agent {
+  id                   String                @id @default(cuid())
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  name                 String
+  description          String?
+  image                String?
+  config               Json                  @default("{}")
+  userId               String
+  user                 User                  @relation(fields: [userId], references: [id])
+  prompts              AgentPrompt[]
+  conversationMessages ConversationMessage[]
+}
+
+model AgentPrompt {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  content   String      @db.Text
+  agentId   String
+  agent     Agent       @relation(fields: [agentId], references: [id])
+  valid     ValidStatus @default(VALID)
 }

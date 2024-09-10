@@ -2,6 +2,7 @@
 
 import ChatLayout from '@/components/layout/ChatLayout';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import agentService from '@/server/services/agentService';
 import conversationService from '@/server/services/conversationService';
 import userService from '@/server/services/userService';
 import { getServerSession } from 'next-auth';
@@ -30,11 +31,14 @@ const layout: React.FC<Props> = async ({ children }) => {
 		userId
 	);
 
+	const agents = await agentService.getAllByUserId(userId);
+
 	return (
 		<ChatLayout
 			userProfile={userProfile}
 			notifications={notifications}
 			conversations={conversations}
+			agents={agents}
 		>
 			{children}
 		</ChatLayout>

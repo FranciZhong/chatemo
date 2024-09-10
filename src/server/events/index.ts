@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import { authSocketMiddleware } from '../middleware';
+import agentHandler from './agentHandler';
 import chatHandler from './chatHandler';
 import userHandler from './userHandler';
 
@@ -23,6 +24,7 @@ const socketHandler = (io: Server) => {
 		// bind event handlers
 		userHandler(io, socket);
 		chatHandler(io, socket);
+		agentHandler(io, socket);
 	});
 };
 

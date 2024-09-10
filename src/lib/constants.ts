@@ -3,20 +3,26 @@ export enum PageUrl {
 	LOGIN = '/login',
 	CHAT = '/chat',
 	FRIENDS = '/chat/friends',
+	AGENTS = '/chat/agents',
 	CHANNELS = '/chat/channels',
 }
 
 export enum ImgUrl {
-	BG_REPEAT = 'bg-repeat.svg',
-	USER_AVATAR_ALT = 'user-avatar-alt.svg',
-	CHANNEL_AVATAR_ALT = 'channel-avatar-alt.svg',
+	BG_REPEAT = '/bg-repeat.svg',
+	USER_AVATAR_ALT = '/user-avatar-alt.svg',
+	CHANNEL_AVATAR_ALT = '/channel-avatar-alt.svg',
+	AGENT_AVATAR_ALT = '/agent-avatar-alt.svg',
 }
 
 export enum ApiUrl {
 	SOCKET = '/api/socket',
 	USER_SEARCH = '/api/user/search',
 	SEND_FRIEND_REQUEST = '/api/user/request',
-	GET_CONVERSATION_MESSAGES = '/api/chat/friends/messages',
+	UPDATE_APIKEYS_CONFIG = '/api/user/config/apikeys',
+	GET_CONVERSATION_MESSAGES = '/api/chat/conversation/messages',
+	CREATE_AGENT = '/api/agent/create',
+	GET_ALL_AGENT = '/api/agent/all',
+	AGENT_PROMPT = '/api/agent/prompt',
 }
 
 export enum Theme {
@@ -26,6 +32,7 @@ export enum Theme {
 
 export enum ModalType {
 	NAV_MODAL = 'NavModal',
+	PROFILE_MODAL = 'ProfileModal',
 	NOTIFICATION_MODAL = 'NotificationModal',
 }
 
@@ -37,9 +44,15 @@ export enum SidebarTab {
 
 export enum NavModalTab {
 	FIND_FRIEND = 'find friend',
+	ADD_AGENT = 'add agent',
 	JOIN_CHANNEL = 'join channel',
 	CREATE_CHANNEL = 'create channel',
-	ADD_AGENT = 'add agent',
+}
+
+export enum ProfileModalTab {
+	USER_PROFILE = 'user profile',
+	API_KEYS = 'api keys',
+	MODEL_SETTING = 'model setting',
 }
 
 export enum NotificationType {
@@ -50,6 +63,18 @@ export enum AvatarSize {
 	LG = 'lg',
 	MD = 'md',
 	SM = 'sm',
+	XS = 'xs',
+}
+
+export enum LlmProviderName {
+	OPENAI = 'openai',
+	ANTHROPIC = 'anthropic',
+}
+
+export enum LlmRole {
+	SYSTEM = 'system',
+	USER = 'user',
+	ASSISTANT = 'assistant',
 }
 
 export const DEFAULT_TRANSFORM_DELAY = 300;

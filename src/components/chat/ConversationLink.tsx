@@ -29,6 +29,8 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 		.filter((participant) => participant.userId === friendId)
 		.map((participant) => participant.user!)[0];
 
+	const lastMessage = conversation.messages?.at(0);
+
 	return (
 		<Link href={PageUrl.FRIENDS + '/' + conversation.id}>
 			<ItemContainer className="p-2 w-full h-16 hover:cursor-pointer">
@@ -41,8 +43,7 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 					<div className="w-60">
 						<h5 className="font-semibold text-single-line">{friend?.name}</h5>
 						<p className="text-single-line text-sm text-foreground/60 font-light">
-							{/* todo last message */}
-							Hello!! How are you going? Hello!! How are you going?
+							{lastMessage?.content || ''}
 						</p>
 					</div>
 				</div>

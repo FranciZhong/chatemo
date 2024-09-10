@@ -16,7 +16,6 @@ const SearchUserCard: React.FC<Props> = ({ user }) => {
 
 	const handleAddFriend = async () => {
 		// todo if use dialog for description
-		// todo socket.io for notifications
 		try {
 			await axiosInstance.post<FormatResponse<any>>(
 				ApiUrl.SEND_FRIEND_REQUEST,

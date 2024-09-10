@@ -8,7 +8,6 @@ import userService from '../services/userService';
 
 const userHandler = (io: Server, socket: Socket) => {
 	wrapSocketErrorHandler(
-		io,
 		socket,
 		UserEvent.RESPOND_FRIEND_REQUEST,
 		async (payload: AcceptRejectPayload) => {
@@ -52,6 +51,11 @@ const userHandler = (io: Server, socket: Socket) => {
 			);
 		}
 	);
+
+	wrapSocketErrorHandler(socket, UserEvent.UPDATE_APIKEYS, async () => {
+		const userId = socket.data.session.id as string;
+		socket.data.providerMap = await userService.initProviders(userId);
+	});
 };
 
 export default userHandler;
