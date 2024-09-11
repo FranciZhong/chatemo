@@ -1,12 +1,9 @@
 import { BasicMessageZType, MessagePayload } from '@/types/chat';
-import {
-	Cross2Icon,
-	CubeIcon,
-	ImageIcon,
-	RocketIcon,
-} from '@radix-ui/react-icons';
+import { LlmModelZType } from '@/types/llm';
+import { Cross2Icon, ImageIcon, RocketIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import IconButton from '../IconButton';
+import SelectModelButton from '../SelectModelButton';
 import { ScrollArea } from '../ui/scroll-area';
 import AgentPreview from './AgentPreview';
 import Editer from './Editer';
@@ -16,12 +13,16 @@ interface Props {
 	replyTo?: BasicMessageZType | null;
 	onDeleteReplyTo: () => void;
 	onSubmit: (payload: MessagePayload) => void;
+	selectedModel: LlmModelZType;
+	onSelectedModelChange: (model: LlmModelZType) => void;
 }
 
 const ChatEditer: React.FC<Props> = ({
 	replyTo,
 	onDeleteReplyTo,
 	onSubmit,
+	selectedModel,
+	onSelectedModelChange,
 }) => {
 	const [messageContent, setMessageContent] = useState('');
 	const [openPreview, setOpenPreview] = useState(false);
@@ -44,9 +45,11 @@ const ChatEditer: React.FC<Props> = ({
 		<IconButton key="image-button">
 			<ImageIcon className="icon-size" />
 		</IconButton>,
-		<IconButton key="model-button">
-			<CubeIcon className="icon-size" />
-		</IconButton>,
+		<SelectModelButton
+			key="model-button"
+			selectedModel={selectedModel}
+			onSelectedModelChange={onSelectedModelChange}
+		/>,
 		<IconButton
 			key="agent-button"
 			onClick={() => setOpenPreview((value) => !value)}

@@ -1,16 +1,17 @@
 'use client';
 
 import { ModalType } from '@/lib/constants';
-import { ChatEvent, UserEvent } from '@/lib/events';
+import { AgentEvent, ChatEvent, UserEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useConversationStore from '@/store/conversationStore';
+import useLlmModelStore from '@/store/llmModelStore';
 import useModalStore from '@/store/modalStore';
 import useNotificationStore from '@/store/notificationStore';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
 import { ConversationMessageZType, ConversationZType } from '@/types/chat';
 import { ParentChildIdPayload } from '@/types/common';
-import { AgentZType } from '@/types/llm';
+import { AgentZType, LlmModelZType } from '@/types/llm';
 import { NotificationZType, UserProfileZType } from '@/types/user';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
@@ -45,6 +46,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 	const { setAgents } = useAgentStore();
 	const { toast } = useToast();
 	const { openModal } = useModalStore();
+	const { setAvailableModels } = useLlmModelStore();
 
 	useEffect(() => {
 		setLoading(false);
@@ -99,6 +101,9 @@ const ChatLayout: React.FC<Props> = (props) => {
 				ChatEvent.REMOVE_CONVERSATION_MESSAGE,
 				(payload: ParentChildIdPayload) => removeMessage(payload)
 			);
+			socket.on(AgentEvent.AVAILABLE_MODELS, (models: LlmModelZType[]) => {
+				setAvailableModels(models);
+			});
 		}
 	}, [socket, connect]);
 

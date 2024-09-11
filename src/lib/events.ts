@@ -23,5 +23,6 @@ export enum ChatEvent {
 }
 
 export enum AgentEvent {
+	AVAILABLE_MODELS = 'available_models',
 	AGENT_REPLY_CONVERSATION = 'agent_reply_conversation',
 }

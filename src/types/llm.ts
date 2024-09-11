@@ -2,7 +2,7 @@ import { LlmProviderName } from '@/lib/constants';
 import { z } from 'zod';
 
 export interface LlmProvider {
-	getModels: () => Promise<string[]>;
+	getModels: () => Promise<LlmModelZType[]>;
 
 	isAvailable: () => Promise<boolean>;
 
@@ -17,6 +17,18 @@ export interface LlmProvider {
 		callback: (chunk: string) => void
 	) => Promise<void>;
 }
+
+export const LlmProviderNameSchema = z.enum([
+	LlmProviderName.OPENAI,
+	LlmProviderName.ANTHROPIC,
+]);
+
+export const LlmModelSchema = z.object({
+	provider: LlmProviderNameSchema,
+	model: z.string(),
+});
+
+export type LlmModelZType = z.infer<typeof LlmModelSchema>;
 
 export const LlmMessageSchema = z.object({
 	role: z.enum(['system', 'user', 'assistant']),
@@ -62,8 +74,6 @@ export const AgentProfilePayloadSchema = z.object({
 });
 
 export type AgentProfilePayload = z.infer<typeof AgentProfilePayloadSchema>;
-
-export const LlmProviderNameSchema = z.enum([LlmProviderName.OPENAI]);
 
 export const AgentReplyPayloadSchema = z.object({
 	replyTo: z.string(),

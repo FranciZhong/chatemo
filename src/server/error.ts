@@ -1,3 +1,4 @@
+import { LlmProviderName } from '@/lib/constants';
 import { HttpStatusCode } from 'axios';
 
 export class ApiError extends Error {
@@ -42,5 +43,14 @@ export class MethodNotAllowedError extends ApiError {
 export class ConflictError extends ApiError {
 	constructor(message: string = 'Conflict.') {
 		super(HttpStatusCode.Conflict, message);
+	}
+}
+
+export class LlmProviderError extends Error {
+	provider: LlmProviderName;
+
+	constructor(provider: LlmProviderName, message: string) {
+		super(message);
+		this.provider = provider;
 	}
 }

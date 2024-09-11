@@ -1,5 +1,7 @@
-import { LlmMessageZType, LlmProvider } from '@/types/llm';
-import OpenAI from 'openai';
+import { LlmProviderName } from '@/lib/constants';
+import { LlmProviderError } from '@/server/error';
+import { LlmMessageZType, LlmModelZType, LlmProvider } from '@/types/llm';
+import OpenAI, { OpenAIError } from 'openai';
 
 export default class OpenAiProvider implements LlmProvider {
 	private client: OpenAI;
@@ -10,8 +12,14 @@ export default class OpenAiProvider implements LlmProvider {
 		});
 	}
 
-	public async getModels(): Promise<string[]> {
-		return (await this.client.models.list()).data.map((item) => item.id);
+	public async getModels(): Promise<LlmModelZType[]> {
+		return (await this.client.models.list()).data.map(
+			(item) =>
+				({
+					provider: LlmProviderName.OPENAI,
+					model: item.id,
+				} as LlmModelZType)
+		);
 	}
 
 	public async isAvailable(): Promise<boolean> {
@@ -22,17 +30,25 @@ export default class OpenAiProvider implements LlmProvider {
 		model: string,
 		messages: LlmMessageZType[]
 	): Promise<LlmMessageZType> {
-		const completion = await this.client.chat.completions.create({
-			model,
-			messages,
-		});
+		try {
+			const completion = await this.client.chat.completions.create({
+				model,
+				messages,
+			});
 
-		const returnedMessage = completion.choices[0].message;
+			const returnedMessage = completion.choices[0].message;
 
-		return {
-			role: returnedMessage.role,
-			content: returnedMessage.content || returnedMessage.refusal || '',
-		};
+			return {
+				role: returnedMessage.role,
+				content: returnedMessage.content || returnedMessage.refusal || '',
+			};
+		} catch (error) {
+			if (error instanceof OpenAIError) {
+				throw new LlmProviderError(LlmProviderName.OPENAI, error?.message);
+			} else {
+				throw error;
+			}
+		}
 	}
 
 	public async streamMessage(
@@ -40,14 +56,22 @@ export default class OpenAiProvider implements LlmProvider {
 		messages: LlmMessageZType[],
 		callback: (chunk: string) => void
 	): Promise<void> {
-		const stream = await this.client.chat.completions.create({
-			stream: true,
-			model,
-			messages,
-		});
+		try {
+			const stream = await this.client.chat.completions.create({
+				stream: true,
+				model,
+				messages,
+			});
 
-		for await (const chunk of stream) {
-			callback(chunk.choices[0]?.delta?.content || '');
+			for await (const chunk of stream) {
+				callback(chunk.choices[0]?.delta?.content || '');
+			}
+		} catch (error) {
+			if (error instanceof OpenAIError) {
+				throw new LlmProviderError(LlmProviderName.OPENAI, error?.message);
+			} else {
+				throw error;
+			}
 		}
 	}
 }

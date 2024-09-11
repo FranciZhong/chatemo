@@ -4,7 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { parse } from 'cookie';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Socket } from 'socket.io';
-import { ApiError, UnauthorizedError } from './error';
+import { ApiError, LlmProviderError, UnauthorizedError } from './error';
 import { USER_PREFFIX } from './events';
 
 export const wrapErrorHandler = (
@@ -45,6 +45,11 @@ export const wrapSocketErrorHandler = (
 			);
 			if (error instanceof ApiError) {
 				socket.emit(UserEvent.ERROR_ACCTION, error.message);
+			} else if (error instanceof LlmProviderError) {
+				socket.emit(
+					UserEvent.ERROR_ACCTION,
+					`[${error.provider.toUpperCase()}]${error.message}`
+				);
 			} else {
 				socket.emit(UserEvent.ERROR_ACCTION, 'Something went wrong.');
 			}

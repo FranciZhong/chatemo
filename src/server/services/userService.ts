@@ -14,6 +14,7 @@ import {
 } from '@/types/user';
 import { RequestStatus, ValidStatus } from '@prisma/client';
 import { ConflictError, NotFoundError } from '../error';
+import AuthropicProvider from '../gateways/providers/anthropicProvider';
 import OpenAiProvider from '../gateways/providers/openAiProvider';
 import friendRequestRepository from '../repositories/friendRequestRepository';
 import friendshipRepository from '../repositories/friendshipRepository';
@@ -114,12 +115,23 @@ const initProviders = async (userId: string) => {
 	if (apiConfig?.openaiApiKey && apiConfig.openaiApiKey.length > 0) {
 		const openAiProvider = new OpenAiProvider(apiConfig.openaiApiKey);
 		try {
-			const models = await openAiProvider.getModels();
-			if (models.length !== 0) {
+			if (await openAiProvider.isAvailable()) {
 				providerMap.set(LlmProviderName.OPENAI, openAiProvider);
 			}
 		} catch (error) {
-			console.error(error);
+			console.error(`User:${userId} fail to init openAiProvider`, error);
+		}
+	}
+
+	if (apiConfig?.anthropicApiKey && apiConfig.anthropicApiKey.length > 0) {
+		const anthropicProvider = new AuthropicProvider(apiConfig.anthropicApiKey);
+
+		try {
+			if (await anthropicProvider.isAvailable()) {
+				providerMap.set(LlmProviderName.ANTHROPIC, anthropicProvider);
+			}
+		} catch (error) {
+			console.error(`User:${userId} fail to init anthropicProvider`, error);
 		}
 	}
 

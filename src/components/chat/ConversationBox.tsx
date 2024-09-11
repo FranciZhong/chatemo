@@ -22,7 +22,7 @@ import {
 	MessageZType,
 } from '@/types/chat';
 import { FormatResponse } from '@/types/common';
-import { AgentReplyPayload } from '@/types/llm';
+import { AgentReplyPayload, LlmModelZType } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useState } from 'react';
 import { Avatar, AvatarImage } from '../ui/avatar';
@@ -42,6 +42,10 @@ const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
+	const [selectedModel, setSelectedModel] = useState<LlmModelZType>({
+		provider: LlmProviderName.OPENAI,
+		model: 'gpt-4o-mini',
+	});
 
 	const conversation = conversations.find(
 		(item) => item.id === initConversation.id
@@ -102,49 +106,51 @@ const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 		[socket]
 	);
 
-	const messageActions = [
-		(message: MessageZType) => (
-			<Button
-				key={'agent-none'}
-				size="xs"
-				variant="outline"
-				onClick={() => {
-					socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
-						replyTo: message.id,
-						provider: LlmProviderName.OPENAI,
-						model: 'gpt-4o-mini',
-					} as AgentReplyPayload);
-				}}
-			>
-				<RocketIcon className="icon-size" />
-			</Button>
-		),
-		...agents.map((agent) => (message: MessageZType) => (
-			<Button
-				key={'agent-' + agent.id}
-				size="xs"
-				variant="outline"
-				onClick={() => {
-					socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
-						replyTo: message.id,
-						// todo modify model selection
-						provider: LlmProviderName.OPENAI,
-						model: 'gpt-4o-mini',
-						agentId: agent.id,
-					} as AgentReplyPayload);
-				}}
-			>
-				<div className="flex gap-2 items-center">
-					<Avatar
-						className={cn('bg-secondary', getAvatarSizeStyle(AvatarSize.XS))}
-					>
-						<AvatarImage src={agent.image || ImgUrl.AGENT_AVATAR_ALT} />
-					</Avatar>
-					<span>{agent.name}</span>
-				</div>
-			</Button>
-		)),
-	];
+	const messageActions = useCallback(
+		() => [
+			(message: MessageZType) => (
+				<Button
+					key={'agent-none'}
+					size="xs"
+					variant="outline"
+					onClick={() => {
+						socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
+							replyTo: message.id,
+							provider: selectedModel.provider,
+							model: selectedModel.model,
+						} as AgentReplyPayload);
+					}}
+				>
+					<RocketIcon className="icon-size" />
+				</Button>
+			),
+			...agents.map((agent) => (message: MessageZType) => (
+				<Button
+					key={'agent-' + agent.id}
+					size="xs"
+					variant="outline"
+					onClick={() => {
+						socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
+							replyTo: message.id,
+							provider: selectedModel.provider,
+							model: selectedModel.model,
+							agentId: agent.id,
+						} as AgentReplyPayload);
+					}}
+				>
+					<div className="flex gap-2 items-center">
+						<Avatar
+							className={cn('bg-secondary', getAvatarSizeStyle(AvatarSize.XS))}
+						>
+							<AvatarImage src={agent.image || ImgUrl.AGENT_AVATAR_ALT} />
+						</Avatar>
+						<span>{agent.name}</span>
+					</div>
+				</Button>
+			)),
+		],
+		[selectedModel]
+	);
 
 	return (
 		<div className="w-full h-full flex flex-col justify-end">
@@ -161,6 +167,8 @@ const ConversationBox: React.FC<Props> = ({ initConversation }) => {
 				replyTo={replyTo}
 				onDeleteReplyTo={deleteReplyTo}
 				onSubmit={handleSubmit}
+				selectedModel={selectedModel}
+				onSelectedModelChange={setSelectedModel}
 			/>
 		</div>
 	);

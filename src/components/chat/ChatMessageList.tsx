@@ -7,7 +7,7 @@ interface Props {
 	participants: ParticipantZType[];
 	messages: MessageZType[];
 	onReplyTo: (messageId: string) => void;
-	messageActions?: ((message: MessageZType) => React.ReactNode)[];
+	messageActions?: () => ((message: MessageZType) => React.ReactNode)[];
 }
 
 const ChatMessageList: React.FC<Props> = ({
@@ -47,7 +47,9 @@ const ChatMessageList: React.FC<Props> = ({
 					sender={id2UserMap.get(message.senderId)!}
 					message={message}
 					onReplyTo={onReplyTo}
-					actions={messageActions?.map((action) => action(message))}
+					actions={
+						messageActions && messageActions().map((action) => action(message))
+					}
 				/>
 			))}
 		</div>
