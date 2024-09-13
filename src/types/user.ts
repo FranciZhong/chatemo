@@ -2,12 +2,21 @@ import { LlmProviderName, NotificationType } from '@/lib/constants';
 import { z } from 'zod';
 import { RequestStatusEnumSchema, ValidStatusEnumSchema } from './common';
 
+export const ProfilePayloadSchema = z.object({
+	name: z.string().min(5).max(32),
+	email: z.string().email(),
+	image: z.string().url().optional(),
+	description: z.string().max(1024).optional(),
+});
+
+export type ProfilePayload = z.infer<typeof ProfilePayloadSchema>;
+
 export const UserSchema = z.object({
 	id: z.string(),
 	name: z.string().min(5).max(32).optional().nullable(),
 	email: z.string().email().optional().nullable(),
 	image: z.string().url().optional().nullable(),
-	description: z.string().email().optional().nullable(),
+	description: z.string().max(1024).optional().nullable(),
 	createdAt: z.date().optional().nullable(),
 });
 

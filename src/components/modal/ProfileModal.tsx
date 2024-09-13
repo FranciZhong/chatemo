@@ -1,6 +1,7 @@
 import { ModalType, ProfileModalTab } from '@/lib/constants';
 import TabModal from './TabModal';
 import ApiKeysBox from './profile/ApiKeysBox';
+import USerProfileBox from './profile/UserProfileBox';
 
 const ProfileModal: React.FC = () => {
 	const todoPage = () => (
@@ -10,7 +11,7 @@ const ProfileModal: React.FC = () => {
 	);
 
 	const tab2PageMap = new Map<string, React.ReactNode>();
-	tab2PageMap.set(ProfileModalTab.USER_PROFILE, todoPage());
+	tab2PageMap.set(ProfileModalTab.USER_PROFILE, <USerProfileBox />);
 	tab2PageMap.set(ProfileModalTab.API_KEYS, <ApiKeysBox />);
 	tab2PageMap.set(ProfileModalTab.MODEL_SETTING, todoPage());
 

@@ -48,3 +48,17 @@ export const ParentChildIdPayloadSchema = z.object({
 });
 
 export type ParentChildIdPayload = z.infer<typeof ParentChildIdPayloadSchema>;
+
+export const FilePresignPayloadSchema = z.object({
+	fileName: z.string(),
+	fileType: z.string(),
+});
+
+export type FilePresignPayload = z.infer<typeof FilePresignPayloadSchema>;
+
+export const FilePresignResponseSchema = z.object({
+	uploadUrl: z.string().url(),
+	fileUrl: z.string().url(),
+});
+
+export type FilePresignResponse = z.infer<typeof FilePresignResponseSchema>;

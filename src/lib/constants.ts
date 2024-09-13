@@ -16,8 +16,10 @@ export enum ImgUrl {
 
 export enum ApiUrl {
 	SOCKET = '/api/socket',
+	FILE_PRESIGN = '/api/file/presign',
 	USER_SEARCH = '/api/user/search',
 	SEND_FRIEND_REQUEST = '/api/user/request',
+	UPDATE_USER_PROFILE = '/api/user/profile/update',
 	UPDATE_APIKEYS_CONFIG = '/api/user/config/apikeys',
 	GET_CONVERSATION_MESSAGES = '/api/chat/conversation/messages',
 	CREATE_AGENT = '/api/agent/create',
@@ -60,6 +62,7 @@ export enum NotificationType {
 }
 
 export enum AvatarSize {
+	XL = 'xl',
 	LG = 'lg',
 	MD = 'md',
 	SM = 'sm',
@@ -79,6 +82,7 @@ export enum LlmRole {
 
 export const DEFAULT_TRANSFORM_DELAY = 300;
 export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
+export const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;
 
 export const DEFAULT_SELECT_LIMIT = 20;
 export const TAKE_MESSAGES_DEFAULT = 50;

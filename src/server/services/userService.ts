@@ -8,6 +8,7 @@ import { LlmProvider } from '@/types/llm';
 import {
 	FriendRequestSchema,
 	NotificationZType,
+	ProfilePayload,
 	UserConfigZType,
 	UserProfileSchema,
 	UserSchema,
@@ -102,6 +103,12 @@ const sendFriendRequest = async (senderId: string, receiverId: string) => {
 	return request ? FriendRequestSchema.parse(request) : null;
 };
 
+const updateProfile = async (userId: string, payload: ProfilePayload) => {
+	const user = await userRepository.updateProfile(prisma, userId, payload);
+
+	return UserProfileSchema.parse(user);
+};
+
 const updateConfig = async (userId: string, config: UserConfigZType) => {
 	const user = await userRepository.updateConfig(prisma, userId, config);
 
@@ -144,6 +151,7 @@ const userService = {
 	getNotificationsByUserId,
 	searchByName,
 	sendFriendRequest,
+	updateProfile,
 	updateConfig,
 	initProviders,
 };

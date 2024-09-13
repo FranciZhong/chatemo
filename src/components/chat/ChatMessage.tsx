@@ -8,7 +8,7 @@ import { MessageZType } from '@/types/chat';
 import { IdPayload } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { ArrowTopRightIcon } from '@radix-ui/react-icons';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import rehypePrism from 'rehype-prism';
@@ -59,7 +59,7 @@ const ChatMessage: React.FC<Props> = ({
 	const getName = () => {
 		switch (message.type) {
 			case 'USER':
-				return user?.name;
+				return isCurrentUser ? user?.name : sender.name;
 			case 'MODEL':
 				return (
 					message.agent?.name ||
@@ -152,4 +152,4 @@ const ChatMessage: React.FC<Props> = ({
 	);
 };
 
-export default ChatMessage;
+export default memo(ChatMessage);

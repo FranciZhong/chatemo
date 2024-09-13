@@ -55,12 +55,18 @@ const UserCard: React.FC<Props> = ({
 					{children}
 				</div>
 			</div>
-			<HoverCardContent className="md:w-80">
+			<HoverCardContent className="md:w-96">
 				<div className="flex justify-between space-x-4">
 					{getAvatar(AvatarSize.LG)}
 					<div className="flex-1 space-y-1">
-						<h4 className="text-md font-semibold">{user?.name}</h4>
-						<p className="text-sm">{user?.description}</p>
+						<h4 className="text-md font-semibold text-single-line">
+							{user?.name}
+						</h4>
+						<p className="text-sm">
+							{user?.description && user?.description?.length > 256
+								? user?.description?.slice(0, 253) + '...'
+								: user?.description}
+						</p>
 						{user?.createdAt && (
 							<div className="flex items-center pt-2 gap-1">
 								<CalendarIcon className="mr-2 h-4 w-4 opacity-70" />

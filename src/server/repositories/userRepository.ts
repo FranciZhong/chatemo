@@ -1,3 +1,4 @@
+import { ProfilePayload } from '@/types/user';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { JsonObject } from '@prisma/client/runtime/library';
 
@@ -38,6 +39,23 @@ const selectStartWithName = (
 	});
 };
 
+const updateProfile = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	{ name, image, description }: ProfilePayload
+) => {
+	return prisma.user.update({
+		where: {
+			id,
+		},
+		data: {
+			name,
+			image,
+			description,
+		},
+	});
+};
+
 const updateConfig = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	id: string,
@@ -57,6 +75,7 @@ const userRepository = {
 	selectById,
 	selectByIds,
 	selectStartWithName,
+	updateProfile,
 	updateConfig,
 };
 

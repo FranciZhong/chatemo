@@ -9,6 +9,8 @@ export function cn(...inputs: ClassValue[]) {
 
 export const getAvatarSizeStyle = (size: AvatarSize) => {
 	switch (size) {
+		case AvatarSize.XL:
+			return 'h-36 w-36';
 		case AvatarSize.LG:
 			return 'h-16 w-16';
 		case AvatarSize.SM:
