@@ -1,5 +1,6 @@
 'use client';
 
+import AvatarUploader from '@/components/profile/AvatarUploader';
 import { Button } from '@/components/ui/button';
 import {
 	Form,
@@ -38,6 +39,8 @@ const CreateAgentBox: React.FC = () => {
 		},
 	});
 
+	const image = form.watch('image');
+
 	const onSubmit = async (values: AgentProfilePayload) => {
 		// console.log(values);
 		try {
@@ -64,6 +67,11 @@ const CreateAgentBox: React.FC = () => {
 			<h2 className="heading">{NavModalTab.ADD_AGENT.toLocaleUpperCase()}</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+					<AvatarUploader
+						image={image}
+						onChange={(url: string) => form.setValue('image', url)}
+					/>
+
 					<FormField
 						control={form.control}
 						name="name"

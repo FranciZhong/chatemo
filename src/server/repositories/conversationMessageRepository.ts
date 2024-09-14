@@ -5,9 +5,11 @@ const create = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	senderId: string,
 	type: MessageType,
+	loading: boolean,
 	{
 		conversationId,
 		content,
+		image,
 		replyTo,
 		provider,
 		model,
@@ -18,8 +20,10 @@ const create = (
 		data: {
 			senderId,
 			type,
+			loading,
 			conversationId,
 			content,
+			image,
 			replyTo,
 			provider,
 			model,
@@ -36,6 +40,7 @@ const create = (
 const updateContentById = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	id: string,
+	loading: boolean,
 	content: string
 ) => {
 	return prisma.conversationMessage.update({
@@ -43,6 +48,7 @@ const updateContentById = (
 			id,
 		},
 		data: {
+			loading,
 			content,
 		},
 		include: {

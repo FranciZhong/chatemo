@@ -1,7 +1,10 @@
+import { allowedImageTypes, MAX_IMAGE_FILE_SIZE } from '@/lib/constants';
 import { BasicMessageZType, MessagePayload } from '@/types/chat';
 import { LlmModelZType } from '@/types/llm';
 import { Cross2Icon, ImageIcon, RocketIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 import { useState } from 'react';
+import FileUploader from '../FileUploader';
 import IconButton from '../IconButton';
 import SelectModelButton from '../SelectModelButton';
 import { ScrollArea } from '../ui/scroll-area';
@@ -24,27 +27,43 @@ const ChatEditer: React.FC<Props> = ({
 	selectedModel,
 	onSelectedModelChange,
 }) => {
-	const [messageContent, setMessageContent] = useState('');
-	const [openPreview, setOpenPreview] = useState(false);
+	const [messageContent, setMessageContent] = useState<string>('');
+	const [openPreview, setOpenPreview] = useState<boolean>(false);
+	const [uploadedImage, setUploadedImage] = useState<string | undefined>(
+		undefined
+	);
+
+	const handleDeleteImage = async () => {
+		setUploadedImage(undefined);
+	};
 
 	const handleSubmit = () => {
-		if (!messageContent.length) {
+		if (!messageContent.length && !uploadedImage) {
 			return;
 		}
 
 		const payload: MessagePayload = {
 			content: messageContent,
+			image: uploadedImage,
 			replyTo: replyTo?.id,
 		};
 
 		onSubmit(payload);
 		onDeleteReplyTo();
+		setUploadedImage(undefined);
 	};
 
 	const actions = [
-		<IconButton key="image-button">
-			<ImageIcon className="icon-size" />
-		</IconButton>,
+		<FileUploader
+			key="image-button"
+			onChange={setUploadedImage}
+			allowedFileTypes={allowedImageTypes}
+			allowedFileSize={MAX_IMAGE_FILE_SIZE}
+		>
+			<IconButton>
+				<ImageIcon className="icon-size" />
+			</IconButton>
+		</FileUploader>,
 		<SelectModelButton
 			key="model-button"
 			selectedModel={selectedModel}
@@ -72,9 +91,25 @@ const ChatEditer: React.FC<Props> = ({
 			)}
 
 			{replyTo && (
-				<div className="flex items-center gap-2 justify-start">
+				<div className="flex items-center gap-1 justify-start">
 					<RepliedMessage replyTo={replyTo} />
-					<IconButton onClick={onDeleteReplyTo} className="hover:bg-accent">
+					<IconButton
+						onClick={onDeleteReplyTo}
+						className="icon-sm-button hover:bg-accent"
+					>
+						<Cross2Icon />
+					</IconButton>
+				</div>
+			)}
+			{uploadedImage && (
+				<div className="flex items-center gap-1 justify-start">
+					<div className="message-container">
+						<Image src={uploadedImage} alt="image" width={64} height={48} />
+					</div>
+					<IconButton
+						onClick={handleDeleteImage}
+						className="icon-sm-button hover:bg-accent"
+					>
 						<Cross2Icon />
 					</IconButton>
 				</div>

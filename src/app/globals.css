@@ -84,6 +84,10 @@
 	@apply w-8 h-8 p-1.5 rounded-md flex justify-center items-center bg-background text-foreground hover:bg-hover;
 }
 
+.icon-sm-button {
+	@apply w-6 h-6 p-1 rounded-md flex justify-center items-center bg-background text-foreground hover:bg-hover;
+}
+
 .heading {
 	@apply text-2xl font-semibold leading-none tracking-tight;
 }

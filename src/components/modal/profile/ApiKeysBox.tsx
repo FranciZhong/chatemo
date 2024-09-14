@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl } from '@/lib/constants';
+import { ApiUrl, ProfileModalTab } from '@/lib/constants';
 import { UserEvent } from '@/lib/events';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
@@ -57,7 +57,10 @@ const ApiKeysBox: React.FC = () => {
 	};
 
 	return (
-		<div>
+		<div className="flex flex-col gap-8">
+			<h2 className="heading">
+				{ProfileModalTab.API_KEYS.toLocaleUpperCase()}
+			</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					<FormField

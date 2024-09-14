@@ -142,6 +142,7 @@ model Conversation {
 model ConversationMessage {
   id                String                @id @default(cuid())
   valid             ValidStatus           @default(VALID)
+  loading           Boolean               @default(false)
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
   type              MessageType           @default(USER)
@@ -150,6 +151,7 @@ model ConversationMessage {
   conversationId    String
   conversation      Conversation          @relation(fields: [conversationId], references: [id])
   content           String                @db.Text
+  image             String?
   replyTo           String?
   replyToMessage    ConversationMessage?  @relation("ReplyMessage", fields: [replyTo], references: [id])
   repliedByMessages ConversationMessage[] @relation("ReplyMessage")

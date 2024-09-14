@@ -17,6 +17,7 @@ const chatHandler = (io: Server, socket: Socket) => {
 			const message = await conversationService.createMessage(
 				senderId,
 				'USER',
+				false,
 				payload
 			);
 

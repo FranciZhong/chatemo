@@ -5,6 +5,7 @@ import { FriendshipSchema, UserSchema } from './user';
 
 export const MessagePayloadSchema = z.object({
 	content: z.string(),
+	image: z.string().optional(),
 	replyTo: z.string().optional(),
 	provider: LlmProviderNameSchema.optional(),
 	model: z.string().optional(),
@@ -26,11 +27,13 @@ export type MessageTypeZType = z.infer<typeof MessageTypeSchema>;
 
 export const BasicMessageSchema = z.object({
 	id: z.string(),
+	loading: z.boolean(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 	type: MessageTypeSchema,
 	senderId: z.string(),
 	content: z.string(),
+	image: z.string().nullable().optional(),
 	replyTo: z.string().nullable().optional(),
 	provider: LlmProviderNameSchema.nullable().optional(),
 	model: z.string().nullable().optional(),

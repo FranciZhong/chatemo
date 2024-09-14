@@ -34,6 +34,7 @@ const agentHandler = (io: Server, socket: Socket) => {
 			const newMessage = await conversationService.createMessage(
 				userId,
 				'MODEL',
+				true,
 				{
 					...payload,
 					conversationId: replyToMessage.conversationId,
@@ -86,8 +87,11 @@ const agentHandler = (io: Server, socket: Socket) => {
 
 			const updatedMessage = await conversationService.updateMessageContent(
 				newMessage.id,
+				false,
 				llmMessage.content
 			);
+
+			console.log(updatedMessage);
 
 			io.to(participantRooms).emit(
 				ChatEvent.UPDATE_CONVERSATION_MESSAGE,

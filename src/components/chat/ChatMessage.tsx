@@ -8,16 +8,12 @@ import { MessageZType } from '@/types/chat';
 import { IdPayload } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { ArrowTopRightIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 import { memo, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import rehypeKatex from 'rehype-katex';
-import rehypePrism from 'rehype-prism';
-import remarkBreaks from 'remark-breaks';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
 import { useDebounce } from 'use-debounce';
 import CopyButton from '../CopyButton';
 import DeleteButton from '../DeleteButton';
+import MarkdownContent from '../MarkdownContent';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
@@ -131,18 +127,27 @@ const ChatMessage: React.FC<Props> = ({
 						<RepliedMessage replyTo={message.replyToMessage} />
 					) : null}
 
-					<div className="message-container message-width prose">
-						{message.content?.length > 0 ? (
-							<ReactMarkdown
-								remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
-								rehypePlugins={[rehypePrism, rehypeKatex]}
-							>
-								{message.content}
-							</ReactMarkdown>
-						) : (
-							<LoadingContent />
-						)}
-					</div>
+					{!message.loading ? (
+						<>
+							{message.content && (
+								<MarkdownContent className="message-container">
+									{message.content}
+								</MarkdownContent>
+							)}
+							{message.image && (
+								<div className="message-container">
+									<Image
+										src={message.image}
+										alt="Image"
+										width={280}
+										height={210}
+									/>
+								</div>
+							)}
+						</>
+					) : (
+						<LoadingContent className="message-container" />
+					)}
 					<p className="text-xs text-foreground/50 font-thin">
 						{datetimeObject.date} {datetimeObject.time}
 					</p>

@@ -36,14 +36,17 @@ const SelectModelButton: React.FC<Props> = ({
 				</IconButton>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
-				<ScrollArea className="h-96">
+				<ScrollArea className="h-96 w-80">
 					{availableModels.map((model) => (
 						<DropdownMenuItem
+							className="grid grid-cols-8"
 							key={model.provider + model.model}
 							onClick={() => onSelectedModelChange(model)}
 						>
-							<div className="w-full flex justify-between items-center gap-2">
+							<div className="col-span-7 text-single-line">
 								{`${model.model}(${model.provider})`}
+							</div>
+							<div className="col-span-1">
 								{selectedModel.provider === model.provider &&
 									selectedModel.model === model.model && (
 										<CheckIcon className="icon-size" />

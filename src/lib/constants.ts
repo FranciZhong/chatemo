@@ -80,6 +80,14 @@ export enum LlmRole {
 	ASSISTANT = 'assistant',
 }
 
+export const allowedImageTypes = [
+	'image/jpeg',
+	'image/png',
+	'image/gif',
+	'image/webp',
+	'image/svg+xml',
+];
+
 export const DEFAULT_TRANSFORM_DELAY = 300;
 export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
 export const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;

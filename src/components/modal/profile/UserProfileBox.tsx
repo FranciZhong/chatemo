@@ -1,6 +1,6 @@
 'use client';
 
-import AvatarUploader from '@/components/AvatarUploader';
+import AvatarUploader from '@/components/profile/AvatarUploader';
 import { Button } from '@/components/ui/button';
 import {
 	Form,
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl } from '@/lib/constants';
+import { ApiUrl, ProfileModalTab } from '@/lib/constants';
 import useModalStore from '@/store/modalStore';
 import useUserStore from '@/store/userStore';
 import { FormatResponse } from '@/types/common';
@@ -62,7 +62,10 @@ const USerProfileBox: React.FC = () => {
 	const image = form.watch('image');
 
 	return (
-		<div>
+		<div className="flex flex-col gap-8">
+			<h2 className="heading">
+				{ProfileModalTab.USER_PROFILE.toLocaleUpperCase()}
+			</h2>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					<AvatarUploader

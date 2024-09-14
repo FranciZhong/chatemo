@@ -123,22 +123,29 @@ const getMessageById = async (messageId: string) => {
 const createMessage = async (
 	senderId: string,
 	type: MessageTypeZType,
+	loading: boolean,
 	payload: ConversationMessagePayload
 ) => {
 	const message = await conversationMessageRepository.create(
 		prisma,
 		senderId,
 		type,
+		loading,
 		payload
 	);
 
 	return ConversationMessageSchema.parse(message);
 };
 
-const updateMessageContent = async (messageId: string, content: string) => {
+const updateMessageContent = async (
+	messageId: string,
+	loading: boolean,
+	content: string
+) => {
 	const message = await conversationMessageRepository.updateContentById(
 		prisma,
 		messageId,
+		loading,
 		content
 	);
 

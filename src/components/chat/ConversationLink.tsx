@@ -1,12 +1,9 @@
 'use client';
 
-import ItemContainer from '@/components/ItemContainer';
-import { AvatarSize, ImgUrl, PageUrl } from '@/lib/constants';
-import { cn, getAvatarSizeStyle } from '@/lib/utils';
+import { ImgUrl, PageUrl } from '@/lib/constants';
 import useUserStore from '@/store/userStore';
 import { ConversationZType } from '@/types/chat';
-import Link from 'next/link';
-import { Avatar, AvatarImage } from '../ui/avatar';
+import LinkTab from './LinkTab';
 
 interface Props {
 	conversation: ConversationZType;
@@ -32,23 +29,12 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 	const lastMessage = conversation.messages?.at(0);
 
 	return (
-		<Link href={PageUrl.FRIENDS + '/' + conversation.id}>
-			<ItemContainer className="p-2 w-full h-16 hover:cursor-pointer">
-				<div className="w-full h-full flex gap-2 items-center">
-					<Avatar
-						className={cn('bg-secondary', getAvatarSizeStyle(AvatarSize.MD))}
-					>
-						<AvatarImage src={friend.image || ImgUrl.USER_AVATAR_ALT} />
-					</Avatar>
-					<div className="w-60">
-						<h5 className="font-semibold text-single-line">{friend?.name}</h5>
-						<p className="text-single-line text-sm text-foreground/60 font-light">
-							{lastMessage?.content || ''}
-						</p>
-					</div>
-				</div>
-			</ItemContainer>
-		</Link>
+		<LinkTab
+			href={PageUrl.FRIENDS + '/' + conversation.id}
+			image={friend.image || ImgUrl.USER_AVATAR_ALT}
+			title={friend?.name || ' '}
+			description={lastMessage?.content || ' '}
+		/>
 	);
 };
 

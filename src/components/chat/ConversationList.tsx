@@ -10,7 +10,7 @@ import ConversationLink from './ConversationLink';
 
 interface Props {}
 
-const FriendList: React.FC<Props> = ({}) => {
+const ConversationList: React.FC<Props> = ({}) => {
 	const { conversations } = useConversationStore();
 	const { openModal } = useModalStore();
 
@@ -36,4 +36,4 @@ const FriendList: React.FC<Props> = ({}) => {
 	);
 };
 
-export default FriendList;
+export default ConversationList;
