@@ -17,14 +17,20 @@ export enum ImgUrl {
 export enum ApiUrl {
 	SOCKET = '/api/socket',
 	FILE_PRESIGN = '/api/file/presign',
+	// user
 	USER_SEARCH = '/api/user/search',
 	SEND_FRIEND_REQUEST = '/api/user/request',
 	UPDATE_USER_PROFILE = '/api/user/profile/update',
 	UPDATE_APIKEYS_CONFIG = '/api/user/config/apikeys',
-	GET_CONVERSATION_MESSAGES = '/api/chat/conversation/messages',
+	// conversation
+	GET_CONVERSATION_MESSAGES = '/api/conversation/messages',
+	// agent
 	CREATE_AGENT = '/api/agent/create',
 	GET_ALL_AGENT = '/api/agent/all',
 	AGENT_PROMPT = '/api/agent/prompt',
+	// channel
+	CREATE_CHANNEL = '/api/channel/create',
+	GET_CHANNEL_MESSAGES = '/api/channel/messages',
 }
 
 export enum Theme {
@@ -93,5 +99,5 @@ export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
 export const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;
 
 export const DEFAULT_SELECT_LIMIT = 20;
-export const TAKE_MESSAGES_DEFAULT = 50;
-export const TAKE_MESSAGES_LIMIT = 1000;
+export const TAKE_MESSAGES_DEFAULT = 20;
+export const TAKE_MESSAGES_LIMIT = 50;

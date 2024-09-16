@@ -1,4 +1,4 @@
-import { ConversationType } from '@prisma/client';
+import { AvailableType, ConversationType } from '@prisma/client';
 import { z } from 'zod';
 import { AgentSchema, LlmProviderNameSchema } from './llm';
 import { FriendshipSchema, UserSchema } from './user';
@@ -81,9 +81,66 @@ export type ParticipantZType = z.infer<typeof ParticipantSchema>;
 export const ConversationSchema = z.object({
 	id: z.string(),
 	type: ConversationTypeSchema,
-	participants: z.array(ParticipantSchema),
+	participants: z.array(ParticipantSchema).optional(),
 	friendships: z.array(FriendshipSchema).optional(),
 	messages: z.array(ConversationMessageSchema).optional(),
 });
 
 export type ConversationZType = z.infer<typeof ConversationSchema>;
+
+export const BasicChannelMessageSchema = BasicMessageSchema.extend({
+	channelId: z.string(),
+});
+
+export type BasicChannelMessageZType = z.infer<
+	typeof BasicChannelMessageSchema
+>;
+
+export const ChannelMessageSchema = BasicChannelMessageSchema.extend({
+	replyToMessage: BasicChannelMessageSchema.nullable().optional(),
+});
+
+export type ChannelMessageZType = z.infer<typeof ChannelMessageSchema>;
+
+export const ChannelMessagePayloadSchema = MessagePayloadSchema.extend({
+	channelId: z.string(),
+});
+
+export type ChannelMessagePayload = z.infer<typeof ChannelMessagePayloadSchema>;
+
+export const ChannelMembershipSchema = ParticipantSchema.extend({
+	channelId: z.string(),
+});
+
+export type ChannelMembershipZType = z.infer<typeof ChannelMembershipSchema>;
+
+export const AvailableTypeSchema = z.enum([
+	AvailableType.PUBLIC,
+	AvailableType.PRIVATE,
+]);
+
+export type AvailableTypeZType = z.infer<typeof AvailableTypeSchema>;
+
+export const ChannelSchema = z.object({
+	id: z.string(),
+	createdAt: z.date(),
+	type: AvailableTypeSchema,
+	ownerId: z.string(),
+	owner: UserSchema.optional(),
+	name: z.string(),
+	image: z.string().nullable().optional(),
+	description: z.string().nullable().optional(),
+	memberships: z.array(ChannelMembershipSchema).optional(),
+	messages: z.array(ChannelMessageSchema).optional(),
+});
+
+export type ChannelZType = z.infer<typeof ChannelSchema>;
+
+export const ChannelPayloadSchema = z.object({
+	type: AvailableTypeSchema,
+	name: z.string().min(5).max(32),
+	image: z.string().optional(),
+	description: z.string().max(1024).optional(),
+});
+
+export type ChannelPayload = z.infer<typeof ChannelPayloadSchema>;

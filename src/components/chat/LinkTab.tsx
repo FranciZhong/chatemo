@@ -8,7 +8,7 @@ interface Props {
 	href: string;
 	image?: string;
 	title?: string;
-	description?: string;
+	description?: React.ReactNode;
 }
 
 const LinkTab: React.FC<Props> = ({ href, image, title, description }) => {
@@ -23,9 +23,7 @@ const LinkTab: React.FC<Props> = ({ href, image, title, description }) => {
 					</Avatar>
 					<div className="w-60">
 						<h5 className="font-semibold text-single-line">{title}</h5>
-						<p className="text-single-line text-sm text-foreground/60 font-light">
-							{description}
-						</p>
+						{description}
 					</div>
 				</div>
 			</ItemContainer>

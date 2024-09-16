@@ -1,29 +1,29 @@
 'use server';
 
-import ConversationBox from '@/components/chat/ConversationBox';
+import ChannelBox from '@/components/chat/ChannelBox';
 import NavTopbar from '@/components/layout/NavTopbar';
 import { Separator } from '@/components/ui/separator';
 import { PageUrl } from '@/lib/constants';
 import { NotFoundError } from '@/server/error';
-import conversationService from '@/server/services/conversationService';
+import channelService from '@/server/services/channelService';
 import { notFound, redirect } from 'next/navigation';
 
 interface Props {
 	params: {
-		conversationId: string;
+		channelId: string;
 	};
 }
 
-const page: React.FC<Props> = async ({ params: { conversationId } }) => {
+const page: React.FC<Props> = async ({ params: { channelId } }) => {
 	try {
-		await conversationService.getConversationById(conversationId);
+		await channelService.getChannelById(channelId);
 
 		return (
 			<div className="h-full w-full flex flex-col">
 				<NavTopbar />
 				<Separator orientation="horizontal" />
 				<div className="flex-1 overflow-hidden">
-					<ConversationBox conversationId={conversationId} />
+					<ChannelBox channelId={channelId} />
 				</div>
 			</div>
 		);

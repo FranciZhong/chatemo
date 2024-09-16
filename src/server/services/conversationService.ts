@@ -50,7 +50,7 @@ const getConversationsByUserId = async (userId: string) => {
 	}, new Map<String, User>());
 
 	parsedConversations.forEach((conversation) =>
-		conversation.participants.forEach(
+		conversation.participants?.forEach(
 			(participant) =>
 				(participant.user = UserSchema.parse(
 					id2UserMap.get(participant.userId)
@@ -61,7 +61,7 @@ const getConversationsByUserId = async (userId: string) => {
 	return parsedConversations;
 };
 
-const getConversationWithParticipants = async (conversationId: string) => {
+const getConversationById = async (conversationId: string) => {
 	const conversations = await conversationRepository.selectByIds(
 		prisma,
 		[conversationId],
@@ -73,15 +73,8 @@ const getConversationWithParticipants = async (conversationId: string) => {
 		throw new NotFoundError('Conversation not found.');
 	}
 
-	const participants = await participantRepository.selectByConversationId(
-		prisma,
-		conversationId,
-		true
-	);
-
 	return ConversationSchema.parse({
 		...conversations.at(0),
-		participants: participants,
 	});
 };
 
@@ -162,7 +155,7 @@ const deleteMessage = async (messageId: string) => {
 
 const conversationService = {
 	getConversationsByUserId,
-	getConversationWithParticipants,
+	getConversationById,
 	getParticipantsByConversationId,
 	getConversationMessages,
 	getMessageById,

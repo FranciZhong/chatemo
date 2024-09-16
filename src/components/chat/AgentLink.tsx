@@ -14,7 +14,11 @@ const AgentLink: React.FC<Props> = ({ agent }) => {
 			href={PageUrl.AGENTS + '/' + agent.id}
 			image={agent.image || ImgUrl.AGENT_AVATAR_ALT}
 			title={agent.name || ' '}
-			description={agent.description || ' '}
+			description={
+				<p className="text-single-line text-sm text-foreground/60 font-light">
+					{agent.description || ' '}
+				</p>
+			}
 		/>
 	);
 };

@@ -1,10 +1,14 @@
 import { ChatEvent } from '@/lib/events';
-import { ConversationMessagePayload } from '@/types/chat';
+import {
+	ChannelMessagePayload,
+	ConversationMessagePayload,
+} from '@/types/chat';
 import { IdPayload, ParentChildIdPayload } from '@/types/common';
 import { Server, Socket } from 'socket.io';
-import { USER_PREFFIX } from '.';
+import { CHANNEL_PREFIX, USER_PREFFIX } from '.';
 import { ForbiddenError } from '../error';
 import { wrapSocketErrorHandler } from '../middleware';
+import channelService from '../services/channelService';
 import conversationService from '../services/conversationService';
 
 const chatHandler = (io: Server, socket: Socket) => {
@@ -64,6 +68,48 @@ const chatHandler = (io: Server, socket: Socket) => {
 				parentId: message.conversationId,
 				childId: message.id,
 			} as ParentChildIdPayload);
+		}
+	);
+
+	wrapSocketErrorHandler(
+		socket,
+		ChatEvent.SEND_CHANNEL_MESSAGE,
+		async (payload: ChannelMessagePayload) => {
+			const senderId = socket.data.session.id as string;
+
+			const message = await channelService.createMessage(
+				senderId,
+				'USER',
+				false,
+				payload
+			);
+
+			io.to(CHANNEL_PREFIX + payload.channelId).emit(
+				ChatEvent.NEW_CHANNEL_MESSAGE,
+				message
+			);
+		}
+	);
+
+	wrapSocketErrorHandler(
+		socket,
+		ChatEvent.DELETE_CHANNEL_MESSAGE,
+		async (payload: IdPayload) => {
+			const senderId = socket.data.session.id as string;
+
+			const message = await channelService.getMessageById(payload.referToId);
+			if (message.senderId !== senderId) {
+				throw new ForbiddenError('Cannot delete a message from other members.');
+			}
+
+			await channelService.deleteMessage(payload.referToId);
+			io.to(CHANNEL_PREFIX + message.channelId).emit(
+				ChatEvent.REMOVE_CHANNEL_MESSAGE,
+				{
+					parentId: message.channelId,
+					childId: message.id,
+				} as ParentChildIdPayload
+			);
 		}
 	);
 };

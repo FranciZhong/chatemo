@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, ProfileModalTab } from '@/lib/constants';
+import { ApiUrl, ImgUrl, ProfileModalTab } from '@/lib/constants';
 import useModalStore from '@/store/modalStore';
 import useUserStore from '@/store/userStore';
 import { FormatResponse } from '@/types/common';
@@ -69,7 +69,7 @@ const USerProfileBox: React.FC = () => {
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					<AvatarUploader
-						image={image}
+						image={image || ImgUrl.USER_AVATAR_ALT}
 						onChange={(url: string) => form.setValue('image', url)}
 					/>
 

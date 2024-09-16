@@ -23,6 +23,11 @@ enum MessageType {
   MODEL
 }
 
+enum AvailableType {
+  PUBLIC
+  PRIVATE
+}
+
 model Account {
   id                String   @id @default(cuid())
   userId            String
@@ -66,15 +71,20 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts               Account[]
-  sessions               Session[]
-  sentFriendRequests     FriendRequest[]         @relation("SentFriendRequests")
-  receivedFriendRequests FriendRequest[]         @relation("ReceivedFriendRequests")
-  friendships            Friendship[]            @relation("UserFriendships")
-  friendshipsTo          Friendship[]            @relation("FriendFriendships")
-  participantsTo         ConversationPartipant[]
-  sentMessages           ConversationMessage[]   @relation("SendMessages")
-  agents                 Agent[]
+  accounts                 Account[]
+  sessions                 Session[]
+  sentFriendRequests       FriendRequest[]         @relation("SentFriendRequests")
+  receivedFriendRequests   FriendRequest[]         @relation("ReceivedFriendRequests")
+  friendships              Friendship[]            @relation("UserFriendships")
+  friendshipsTo            Friendship[]            @relation("FriendFriendships")
+  participantsTo           ConversationPartipant[]
+  sentConversationMessages ConversationMessage[]   @relation("SentMessages")
+  agents                   Agent[]
+  ownedChannels            Channel[]
+  joinedChannels           ChannelMembership[]
+  sentChannelRequests      ChannelRequest[]        @relation("SentChannelRequests")
+  receivedChannelRequests  ChannelRequest[]        @relation("ReceivedChannelRequests")
+  sentChannelMessages      ChannelMessage[]        @relation("SentMessages")
 }
 
 model VerificationToken {
@@ -147,7 +157,7 @@ model ConversationMessage {
   updatedAt         DateTime              @updatedAt
   type              MessageType           @default(USER)
   senderId          String
-  sender            User                  @relation("SendMessages", fields: [senderId], references: [id])
+  sender            User                  @relation("SentMessages", fields: [senderId], references: [id])
   conversationId    String
   conversation      Conversation          @relation(fields: [conversationId], references: [id])
   content           String                @db.Text
@@ -173,6 +183,7 @@ model Agent {
   user                 User                  @relation(fields: [userId], references: [id])
   prompts              AgentPrompt[]
   conversationMessages ConversationMessage[]
+  ChannelMessage       ChannelMessage[]
 }
 
 model AgentPrompt {
@@ -183,4 +194,74 @@ model AgentPrompt {
   agentId   String
   agent     Agent       @relation(fields: [agentId], references: [id])
   valid     ValidStatus @default(VALID)
+}
+
+model Channel {
+  id          String              @id @default(cuid())
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  valid       ValidStatus         @default(VALID)
+  type        AvailableType
+  ownerId     String
+  owner       User                @relation(fields: [ownerId], references: [id])
+  name        String
+  image       String?
+  description String?
+  memberships ChannelMembership[]
+  requests    ChannelRequest[]
+  messages    ChannelMessage[]
+}
+
+model ChannelMembership {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  valid     ValidStatus @default(VALID)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  channelId String
+  channel   Channel     @relation(fields: [channelId], references: [id])
+
+  @@unique([userId, channelId])
+}
+
+enum ChannelRequestType {
+  INVITE
+  JOIN
+}
+
+model ChannelRequest {
+  id         String             @id @default(cuid())
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  type       ChannelRequestType
+  status     RequestStatus
+  fromUserId String
+  fromUser   User               @relation("SentChannelRequests", fields: [fromUserId], references: [id])
+  toUserId   String
+  toUser     User               @relation("ReceivedChannelRequests", fields: [toUserId], references: [id])
+  channelId  String
+  channel    Channel            @relation(fields: [channelId], references: [id])
+}
+
+model ChannelMessage {
+  id                String           @id @default(cuid())
+  valid             ValidStatus      @default(VALID)
+  loading           Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  type              MessageType      @default(USER)
+  senderId          String
+  sender            User             @relation("SentMessages", fields: [senderId], references: [id])
+  channelId         String
+  channel           Channel          @relation(fields: [channelId], references: [id])
+  content           String           @db.Text
+  image             String?
+  replyTo           String?
+  replyToMessage    ChannelMessage?  @relation("ReplyMessage", fields: [replyTo], references: [id])
+  repliedByMessages ChannelMessage[] @relation("ReplyMessage")
+  provider          String?
+  model             String?
+  agentId           String?
+  agent             Agent?           @relation(fields: [agentId], references: id)
 }

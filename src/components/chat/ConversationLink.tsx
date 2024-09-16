@@ -22,8 +22,8 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 		.map((friendship) => friendship.friendId)
 		.at(0);
 
-	const friend = conversation.participants
-		.filter((participant) => participant.userId === friendId)
+	const friend = conversation
+		.participants!.filter((participant) => participant.userId === friendId)
 		.map((participant) => participant.user!)[0];
 
 	const lastMessage = conversation.messages?.at(0);
@@ -33,7 +33,11 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 			href={PageUrl.FRIENDS + '/' + conversation.id}
 			image={friend.image || ImgUrl.USER_AVATAR_ALT}
 			title={friend?.name || ' '}
-			description={lastMessage?.content || ' '}
+			description={
+				<p className="text-single-line text-sm text-foreground/60 font-light">
+					{lastMessage?.content || lastMessage?.image || ' '}
+				</p>
+			}
 		/>
 	);
 };

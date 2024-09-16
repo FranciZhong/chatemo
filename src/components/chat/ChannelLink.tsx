@@ -1,25 +1,28 @@
 'use client';
 
-import ItemContainer from '@/components/ItemContainer';
 import { Badge } from '@/components/ui/badge';
-import { ImgUrl } from '@/lib/constants';
-import { Avatar, AvatarImage } from '../ui/avatar';
+import { ImgUrl, PageUrl } from '@/lib/constants';
+import { ChannelZType } from '@/types/chat';
+import LinkTab from './LinkTab';
 
-interface Props {}
+interface Props {
+	channel: ChannelZType;
+}
 
-const ChannelLink: React.FC<Props> = ({}) => {
+const ChannelLink: React.FC<Props> = ({ channel }) => {
 	return (
-		<ItemContainer className="px-2 h-14 w-full flex gap-2 items-center hover:cursor-pointer">
-			<Avatar className="h-10 w-10 rounded-full bg-secondary">
-				<AvatarImage className="rounded-full" src={ImgUrl.CHANNEL_AVATAR_ALT} />
-			</Avatar>
-			<div className="flex flex-col">
-				<div>channel name</div>
-				<div className="flex items-center gap-1">
-					<Badge>private</Badge>
-				</div>
-			</div>
-		</ItemContainer>
+		<LinkTab
+			href={PageUrl.CHANNELS + '/' + channel.id}
+			image={channel.image || ImgUrl.CHANNEL_AVATAR_ALT}
+			title={channel.name || ' '}
+			description={
+				<Badge
+					className={channel.type === 'PRIVATE' ? 'bg-secondary' : 'bg-primary'}
+				>
+					{channel.type}
+				</Badge>
+			}
+		/>
 	);
 };
 

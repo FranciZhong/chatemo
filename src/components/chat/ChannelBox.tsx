@@ -8,12 +8,12 @@ import {
 } from '@/lib/constants';
 import { AgentEvent, ChatEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
-import useConversationStore from '@/store/conversationStore';
+import useChannelStore from '@/store/channelStore';
 import useSocketStore from '@/store/socketStore';
 import {
-	BasicConversationMessageZType,
-	ConversationMessagePayload,
-	ConversationMessageZType,
+	BasicChannelMessageZType,
+	ChannelMessagePayload,
+	ChannelMessageZType,
 	MessagePayload,
 	MessageZType,
 } from '@/types/chat';
@@ -30,55 +30,52 @@ import ChatEditer from './ChatEditer';
 import ChatMessageList from './ChatMessageList';
 
 interface Props {
-	conversationId: string;
+	channelId: string;
 }
 
-const ConversationBox: React.FC<Props> = ({ conversationId }) => {
-	const { conversations, updateConversation } = useConversationStore();
+const ChannelBox: React.FC<Props> = ({ channelId }) => {
+	const { channels, updateChannel } = useChannelStore();
 	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
+	// todo
 	const [selectedModel, setSelectedModel] = useState<LlmModelZType>({
 		provider: LlmProviderName.OPENAI,
 		model: 'gpt-4o-mini',
 	});
 
-	const conversation = conversations.find(
-		(item) => item.id === conversationId
-	)!;
+	const channel = channels.find((item) => item.id === channelId)!;
 
-	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(
-		null
-	);
+	const [replyTo, setReplyTo] = useState<BasicChannelMessageZType | null>(null);
 
 	const handleReplyTo = useCallback(
 		(messageId: string) => {
 			const matchedMessage =
-				conversation.messages?.find((item) => item.id === messageId) || null;
+				channel.messages?.find((item) => item.id === messageId) || null;
 
 			setReplyTo(matchedMessage);
 		},
-		[setReplyTo, conversation]
+		[setReplyTo, channel]
 	);
 
 	const deleteReplyTo = useCallback(() => setReplyTo(null), [setReplyTo]);
 
 	useEffect(() => {
-		const updateConversationMessages = async () => {
-			if (!conversation?.messages) {
+		const updateChannelMessages = async () => {
+			if (!channel?.messages) {
 				try {
 					const response = await axiosInstance.get<
-						FormatResponse<ConversationMessageZType[]>
-					>(ApiUrl.GET_CONVERSATION_MESSAGES, {
+						FormatResponse<ChannelMessageZType[]>
+					>(ApiUrl.GET_CHANNEL_MESSAGES, {
 						params: {
-							conversationId: conversation.id,
+							channelId: channel.id,
 							skip: 0,
 							take: TAKE_MESSAGES_DEFAULT,
 						},
 					});
 					const messages = response.data.data;
-					updateConversation({
-						...conversation,
+					updateChannel({
+						...channel,
 						messages,
 					});
 				} catch (error) {
@@ -90,18 +87,18 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 			}
 		};
 
-		updateConversationMessages();
-	}, [conversation, toast, updateConversation]);
+		updateChannelMessages();
+	}, [channel, toast, updateChannel]);
 
 	const handleSubmit = useCallback(
 		(payload: MessagePayload) => {
-			const convPayload: ConversationMessagePayload = {
+			const channelPayload: ChannelMessagePayload = {
 				...payload,
-				conversationId,
+				channelId,
 			};
-			socket?.emit(ChatEvent.SEND_CONVERSATION_MESSAGE, convPayload);
+			socket?.emit(ChatEvent.SEND_CHANNEL_MESSAGE, channelPayload);
 		},
-		[socket, conversationId]
+		[socket, channelId]
 	);
 
 	const messageActions = useCallback(
@@ -112,7 +109,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 					size="xs"
 					variant="outline"
 					onClick={() => {
-						socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
+						socket?.emit(AgentEvent.AGENT_REPLY_CHANNEL, {
 							replyTo: message.id,
 							provider: selectedModel.provider,
 							model: selectedModel.model,
@@ -130,7 +127,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 							key={`agent-help-button-${message.id}-${agent.id}`}
 							agent={agent}
 							onClick={() => {
-								socket?.emit(AgentEvent.AGENT_REPLY_CONVERSATION, {
+								socket?.emit(AgentEvent.AGENT_REPLY_CHANNEL, {
 									replyTo: message.id,
 									provider: selectedModel.provider,
 									model: selectedModel.model,
@@ -149,8 +146,8 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 		<div className="w-full h-full flex flex-col justify-end">
 			<ScrollArea className="flex-1">
 				<ChatMessageList
-					participants={conversation.participants || []}
-					messages={conversation.messages || []}
+					participants={channel.memberships || []}
+					messages={channel.messages || []}
 					onReplyTo={handleReplyTo}
 					messageActions={messageActions}
 				/>
@@ -167,4 +164,4 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 	);
 };
 
-export default ConversationBox;
+export default ChannelBox;

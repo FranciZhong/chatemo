@@ -2,6 +2,7 @@ import { AgentEvent } from '@/lib/events';
 import { LlmModelZType } from '@/types/llm';
 import { Server } from 'socket.io';
 import { authSocketMiddleware } from '../middleware';
+import channelService from '../services/channelService';
 import userService from '../services/userService';
 import agentHandler from './agentHandler';
 import chatHandler from './chatHandler';
@@ -19,6 +20,10 @@ const socketHandler = (io: Server) => {
 		const userRoom = USER_PREFFIX + userId;
 		socket.join(userRoom);
 		console.log(` Socket [${socket.id}] ${userRoom} connected`);
+
+		// join channels
+		const channels = await channelService.getChannelsByUserId(userId);
+		channels.forEach((channel) => socket.join(CHANNEL_PREFIX + channel.id));
 
 		// init llm providers
 		try {
@@ -41,6 +46,7 @@ const socketHandler = (io: Server) => {
 
 		socket.on('disconnect', () => {
 			socket.leave(userRoom);
+			channels.forEach((channel) => socket.leave(CHANNEL_PREFIX + channel.id));
 			console.log(` Socket [${socket.id}] ${userRoom} disconnected`);
 		});
 

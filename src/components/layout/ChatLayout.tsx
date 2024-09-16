@@ -3,13 +3,19 @@
 import { ModalType } from '@/lib/constants';
 import { AgentEvent, ChatEvent, UserEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
+import useChannelStore from '@/store/channelStore';
 import useConversationStore from '@/store/conversationStore';
 import useLlmModelStore from '@/store/llmModelStore';
 import useModalStore from '@/store/modalStore';
 import useNotificationStore from '@/store/notificationStore';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
-import { ConversationMessageZType, ConversationZType } from '@/types/chat';
+import {
+	ChannelMessageZType,
+	ChannelZType,
+	ConversationMessageZType,
+	ConversationZType,
+} from '@/types/chat';
 import { ParentChildIdPayload } from '@/types/common';
 import { AgentZType, LlmModelZType } from '@/types/llm';
 import { NotificationZType, UserProfileZType } from '@/types/user';
@@ -28,6 +34,7 @@ interface Props {
 	notifications: NotificationZType[];
 	conversations: ConversationZType[];
 	agents: AgentZType[];
+	channels: ChannelZType[];
 	children: React.ReactNode;
 }
 
@@ -39,11 +46,17 @@ const ChatLayout: React.FC<Props> = (props) => {
 	const {
 		setConversations,
 		newConversation,
-		newMessage,
-		updateMessage,
-		removeMessage,
+		newMessage: newConversationMessage,
+		updateMessage: updateConversationMessage,
+		removeMessage: removeConversationMessage,
 	} = useConversationStore();
 	const { setAgents } = useAgentStore();
+	const {
+		setChannels,
+		newMessage: newChannelMessage,
+		updateMessage: updateChannelMessage,
+		removeMessage: removeChannelMessage,
+	} = useChannelStore();
 	const { toast } = useToast();
 	const { openModal } = useModalStore();
 	const { setAvailableModels } = useLlmModelStore();
@@ -58,6 +71,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 		setNotifications(props.notifications);
 		setConversations(props.conversations);
 		setAgents(props.agents);
+		setChannels(props.channels);
 	}, [props, setProfile, setNotifications]);
 
 	// init socket and event listeners
@@ -91,15 +105,27 @@ const ChatLayout: React.FC<Props> = (props) => {
 			);
 			socket.on(
 				ChatEvent.NEW_CONVERSATION_MESSAGE,
-				(payload: ConversationMessageZType) => newMessage(payload)
+				(payload: ConversationMessageZType) => newConversationMessage(payload)
 			);
 			socket.on(
 				ChatEvent.UPDATE_CONVERSATION_MESSAGE,
-				(payload: ConversationMessageZType) => updateMessage(payload)
+				(payload: ConversationMessageZType) =>
+					updateConversationMessage(payload)
 			);
 			socket.on(
 				ChatEvent.REMOVE_CONVERSATION_MESSAGE,
-				(payload: ParentChildIdPayload) => removeMessage(payload)
+				(payload: ParentChildIdPayload) => removeConversationMessage(payload)
+			);
+			socket.on(ChatEvent.NEW_CHANNEL_MESSAGE, (payload: ChannelMessageZType) =>
+				newChannelMessage(payload)
+			);
+			socket.on(
+				ChatEvent.UPDATE_CHANNEL_MESSAGE,
+				(payload: ChannelMessageZType) => updateChannelMessage(payload)
+			);
+			socket.on(
+				ChatEvent.REMOVE_CHANNEL_MESSAGE,
+				(payload: ParentChildIdPayload) => removeChannelMessage(payload)
 			);
 			socket.on(AgentEvent.AVAILABLE_MODELS, (models: LlmModelZType[]) => {
 				setAvailableModels(models);

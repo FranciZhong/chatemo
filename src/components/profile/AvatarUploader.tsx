@@ -3,7 +3,6 @@ import {
 	allowedImageTypes,
 	ApiUrl,
 	AvatarSize,
-	ImgUrl,
 	MAX_IMAGE_FILE_SIZE,
 } from '@/lib/constants';
 import { cn, getAvatarSizeStyle } from '@/lib/utils';
@@ -18,7 +17,7 @@ import { Avatar, AvatarImage } from '../ui/avatar';
 import { toast } from '../ui/use-toast';
 
 interface Props {
-	image?: string;
+	image: string;
 	onChange: (url: string) => void;
 }
 
@@ -101,8 +100,8 @@ const AvatarUploader: React.FC<Props> = ({ image, onChange }) => {
 
 	return (
 		<div className="flex px-4 gap-8 justify-between items-center">
-			<Avatar className={getAvatarSizeStyle(AvatarSize.XL)}>
-				<AvatarImage src={image || ImgUrl.USER_AVATAR_ALT} />
+			<Avatar className={cn(getAvatarSizeStyle(AvatarSize.XL), 'bg-secondary')}>
+				<AvatarImage src={image} />
 			</Avatar>
 			<div className="flex-1 flex flex-col gap-4 justify-between">
 				<div

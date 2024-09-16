@@ -1,11 +1,13 @@
+import { TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
 import { AgentEvent, ChatEvent } from '@/lib/events';
 import { convertPrompt2LlmMessage } from '@/lib/utils';
 import { AgentReplyPayload, LlmMessageZType, LlmProvider } from '@/types/llm';
 import { Server, Socket } from 'socket.io';
-import { USER_PREFFIX } from '.';
+import { CHANNEL_PREFIX, USER_PREFFIX } from '.';
 import { BadRequestError, ForbiddenError } from '../error';
 import { wrapSocketErrorHandler } from '../middleware';
 import agentService from '../services/agentService';
+import channelService from '../services/channelService';
 import conversationService from '../services/conversationService';
 import userService from '../services/userService';
 
@@ -19,16 +21,7 @@ const agentHandler = (io: Server, socket: Socket) => {
 				payload.replyTo
 			);
 
-			if (!socket.data.providerMap) {
-				socket.data.providerMap = await userService.initProviders(userId);
-			}
-
-			const provider: LlmProvider = socket.data.providerMap.get(
-				payload.provider
-			);
-			if (!provider) {
-				throw new ForbiddenError('Please provide a valid api key to continue.');
-			}
+			const provider: LlmProvider = await getProvider(socket, userId, payload);
 
 			// emit pending message
 			const newMessage = await conversationService.createMessage(
@@ -57,21 +50,7 @@ const agentHandler = (io: Server, socket: Socket) => {
 			);
 
 			// todo handle error and update message
-			// get response from providers
-			let inputMessages = [] as LlmMessageZType[];
-			if (payload.agentId) {
-				const agent = await agentService.getWithPromptsById(payload.agentId);
-
-				if (!agent || agent.userId !== userId) {
-					throw new BadRequestError();
-				}
-
-				if (agent.prompts) {
-					inputMessages = agent.prompts?.map((item) =>
-						convertPrompt2LlmMessage(item)
-					);
-				}
-			}
+			let inputMessages = await initLlmInputMessages(userId, payload);
 
 			inputMessages = [
 				...inputMessages,
@@ -91,14 +70,110 @@ const agentHandler = (io: Server, socket: Socket) => {
 				llmMessage.content
 			);
 
-			console.log(updatedMessage);
-
 			io.to(participantRooms).emit(
 				ChatEvent.UPDATE_CONVERSATION_MESSAGE,
 				updatedMessage
 			);
 		}
 	);
+
+	wrapSocketErrorHandler(
+		socket,
+		AgentEvent.AGENT_REPLY_CHANNEL,
+		async (payload: AgentReplyPayload) => {
+			const userId = socket.data.session.id as string;
+			const replyToMessage = await channelService.getMessageById(
+				payload.replyTo
+			);
+
+			const provider: LlmProvider = await getProvider(socket, userId, payload);
+
+			// emit pending message
+			const newMessage = await channelService.createMessage(
+				userId,
+				'MODEL',
+				true,
+				{
+					...payload,
+					channelId: replyToMessage.channelId,
+					content: '',
+				}
+			);
+
+			const channelRoom = CHANNEL_PREFIX + newMessage.channelId;
+			io.to(channelRoom).emit(ChatEvent.NEW_CHANNEL_MESSAGE, newMessage);
+
+			let inputMessages = await initLlmInputMessages(userId, payload);
+
+			const historyMessages = await channelService.getMessageHistory(
+				replyToMessage.channelId,
+				replyToMessage.createdAt,
+				TAKE_MESSAGES_DEFAULT
+			);
+
+			inputMessages = [
+				...inputMessages,
+				...historyMessages.reverse().map(
+					(item) =>
+						({
+							role: 'user',
+							content: item.content,
+						} as LlmMessageZType)
+				),
+			];
+			const llmMessage = await provider.completeMessage(
+				payload.model,
+				inputMessages
+			);
+
+			const updatedMessage = await channelService.updateMessageContent(
+				newMessage.id,
+				false,
+				llmMessage.content
+			);
+
+			io.to(channelRoom).emit(ChatEvent.UPDATE_CHANNEL_MESSAGE, updatedMessage);
+		}
+	);
 };
 
 export default agentHandler;
+
+async function getProvider(
+	socket: Socket,
+	userId: string,
+	payload: AgentReplyPayload
+) {
+	if (!socket.data.providerMap) {
+		socket.data.providerMap = await userService.initProviders(userId);
+	}
+
+	const provider: LlmProvider = socket.data.providerMap.get(payload.provider);
+
+	if (!provider) {
+		throw new ForbiddenError('Please provide a valid api key to continue.');
+	}
+
+	return provider;
+}
+
+async function initLlmInputMessages(
+	userId: string,
+	payload: AgentReplyPayload
+) {
+	let inputMessages = [] as LlmMessageZType[];
+	if (payload.agentId) {
+		const agent = await agentService.getWithPromptsById(payload.agentId);
+
+		if (!agent || agent.userId !== userId) {
+			throw new BadRequestError();
+		}
+
+		if (agent.prompts) {
+			inputMessages = agent.prompts?.map((item) =>
+				convertPrompt2LlmMessage(item)
+			);
+		}
+	}
+	return inputMessages;
+}

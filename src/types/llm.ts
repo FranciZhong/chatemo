@@ -68,7 +68,7 @@ export const AgentSchema = z.object({
 export type AgentZType = z.infer<typeof AgentSchema>;
 
 export const AgentProfilePayloadSchema = z.object({
-	name: z.string().min(4).max(32),
+	name: z.string().min(5).max(32),
 	description: z.string().max(1024).optional(),
 	image: z.string().optional(),
 });

@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, NavModalTab } from '@/lib/constants';
+import { ApiUrl, ImgUrl, NavModalTab } from '@/lib/constants';
 import useAgentStore from '@/store/agentStore';
 import useModalStore from '@/store/modalStore';
 import { FormatResponse } from '@/types/common';
@@ -52,8 +52,8 @@ const CreateAgentBox: React.FC = () => {
 			const agent = response.data.data;
 			if (agent) {
 				newAgent(agent);
+				closeModal();
 			}
-			closeModal();
 		} catch (error) {
 			toast({
 				title: 'Error',
@@ -68,7 +68,7 @@ const CreateAgentBox: React.FC = () => {
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					<AvatarUploader
-						image={image}
+						image={image || ImgUrl.AGENT_AVATAR_ALT}
 						onChange={(url: string) => form.setValue('image', url)}
 					/>
 
