@@ -128,6 +128,7 @@ const ChatMessage: React.FC<Props> = ({
 										alt="Image"
 										width={280}
 										height={210}
+										style={{ width: '100%', height: 'auto' }}
 									/>
 								</div>
 							)}

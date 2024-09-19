@@ -8,6 +8,10 @@ type ConversationStore = {
 	newConversation: (conversation: ConversationZType) => void;
 	updateConversation: (conversation: ConversationZType) => void;
 	removeConversation: (conversationId: string) => void;
+	pushMessages: (
+		conversationId: string,
+		messages: ConversationMessageZType[]
+	) => void;
 	newMessage: (message: ConversationMessageZType) => void;
 	updateMessage: (message: ConversationMessageZType) => void;
 	removeMessage: (payload: ParentChildIdPayload) => void;
@@ -57,6 +61,33 @@ const useConversationStore = create<ConversationStore>((set) => ({
 			conversations: state.conversations.filter(
 				(item) => item.id !== conversationId
 			),
+		}));
+	},
+
+	pushMessages: (
+		conversationId: string,
+		messages: ConversationMessageZType[]
+	) => {
+		set((state) => ({
+			...state,
+			conversations: [
+				...state.conversations
+					.filter((conversation) => conversation.id === conversationId)
+					.map((conversation) => {
+						const messageIdSet = new Set(
+							conversation.messages?.map((item) => item.id)
+						);
+
+						return {
+							...conversation,
+							messages: [
+								...(conversation.messages || []),
+								...messages.filter((item) => !messageIdSet.has(item.id)),
+							],
+						};
+					}),
+				...state.conversations.filter((item) => item.id !== conversationId),
+			],
 		}));
 	},
 

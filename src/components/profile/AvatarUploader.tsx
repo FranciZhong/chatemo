@@ -38,12 +38,14 @@ const AvatarUploader: React.FC<Props> = ({ image, onChange }) => {
 		setUploadMessage(' ');
 
 		if (!allowedImageTypes.includes(selectedFile.type)) {
+			setIsUploading(false);
 			setIsError(true);
 			setUploadMessage('Unacceptable file type.');
 			return;
 		}
 
 		if (selectedFile.size > MAX_IMAGE_FILE_SIZE) {
+			setIsUploading(false);
 			setIsError(true);
 			setUploadMessage('Image file cannot be larger than 5MB.');
 			return;

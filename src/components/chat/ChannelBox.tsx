@@ -26,7 +26,6 @@ import { useCallback, useEffect, useState } from 'react';
 import AgentHelpButton from '../AgentHelpButton';
 import DeleteButton from '../DeleteButton';
 import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { useToast } from '../ui/use-toast';
 import ChatEditer from './ChatEditer';
@@ -37,7 +36,7 @@ interface Props {
 }
 
 const ChannelBox: React.FC<Props> = ({ channelId }) => {
-	const { channels, updateChannel } = useChannelStore();
+	const { channels, pushMessages } = useChannelStore();
 	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
@@ -46,13 +45,13 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 		provider: LlmProviderName.OPENAI,
 		model: 'gpt-4o-mini',
 	});
+	const [moreMessages, setMoreMessages] = useState(true);
+	const [replyTo, setReplyTo] = useState<BasicChannelMessageZType | null>(null);
 
 	const channel = channels.find((item) => item.id === channelId)!;
 	if (!channel) {
 		redirect(PageUrl.CHAT);
 	}
-
-	const [replyTo, setReplyTo] = useState<BasicChannelMessageZType | null>(null);
 
 	const handleReplyTo = useCallback(
 		(messageId: string) => {
@@ -66,38 +65,39 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 
 	const deleteReplyTo = useCallback(() => setReplyTo(null), [setReplyTo]);
 
-	useEffect(() => {
-		const updateChannelMessages = async () => {
-			if (
-				!channel?.messages ||
-				channel.messages.length < TAKE_MESSAGES_DEFAULT
-			) {
-				try {
-					const response = await axiosInstance.get<
-						FormatResponse<ChannelMessageZType[]>
-					>(ApiUrl.GET_CHANNEL_MESSAGES, {
-						params: {
-							channelId: channel.id,
-							skip: 0,
-							take: TAKE_MESSAGES_DEFAULT,
-						},
-					});
-					const messages = response.data.data;
-					updateChannel({
-						...channel,
-						messages,
-					});
-				} catch (error) {
-					toast({
-						title: 'Error',
-						description: 'Something went wrong.',
-					});
-				}
+	const fetchMessages = async () => {
+		if (!moreMessages) {
+			return;
+		}
+		try {
+			const response = await axiosInstance.get<
+				FormatResponse<ChannelMessageZType[]>
+			>(ApiUrl.GET_CHANNEL_MESSAGES, {
+				params: {
+					channelId: channel.id,
+					skip: channel.messages?.length || 0,
+					take: TAKE_MESSAGES_DEFAULT,
+				},
+			});
+			const messages = response.data.data;
+			if (messages && messages?.length !== 0) {
+				pushMessages(channelId, messages);
+			} else {
+				setMoreMessages(false);
 			}
-		};
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: 'Something went wrong.',
+			});
+		}
+	};
 
-		updateChannelMessages();
-	}, [channel, toast, updateChannel]);
+	useEffect(() => {
+		if (moreMessages && !channel?.messages) {
+			fetchMessages();
+		}
+	}, [channel, moreMessages, fetchMessages]);
 
 	const handleSubmit = useCallback(
 		(payload: MessagePayload) => {
@@ -163,14 +163,14 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 
 	return (
 		<div className="w-full h-full flex flex-col justify-end">
-			<ScrollArea className="flex-1">
-				<ChatMessageList
-					participants={channel.memberships || []}
-					messages={channel.messages || []}
-					onReplyTo={handleReplyTo}
-					messageActions={messageActions}
-				/>
-			</ScrollArea>
+			<ChatMessageList
+				participants={channel.memberships || []}
+				messages={channel.messages || []}
+				onReplyTo={handleReplyTo}
+				onScrollTop={fetchMessages}
+				messageActions={messageActions}
+				className="flex-1"
+			/>
 			<Separator orientation="horizontal" />
 			<ChatEditer
 				replyTo={replyTo}

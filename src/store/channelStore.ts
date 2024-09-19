@@ -14,6 +14,7 @@ type ChannelStore = {
 	removeChannel: (channelId: string) => void;
 	newMembership: (membership: ChannelMembershipZType) => void;
 	removeMembership: (channelId: string, membershipId: string) => void;
+	pushMessages: (channelId: string, messages: ChannelMessageZType[]) => void;
 	newMessage: (message: ChannelMessageZType) => void;
 	updateMessage: (message: ChannelMessageZType) => void;
 	removeMessage: (payload: ParentChildIdPayload) => void;
@@ -90,6 +91,30 @@ const useChannelStore = create<ChannelStore>((set) => ({
 					  }
 					: channel
 			),
+		}));
+	},
+
+	pushMessages: (channelId: string, messages: ChannelMessageZType[]) => {
+		set((state) => ({
+			...state,
+			channels: [
+				...state.channels
+					.filter((channel) => channel.id === channelId)
+					.map((channel) => {
+						const messageIdSet = new Set(
+							channel.messages?.map((item) => item.id)
+						);
+
+						return {
+							...channel,
+							messages: [
+								...(channel.messages || []),
+								...messages.filter((item) => !messageIdSet.has(item.id)),
+							],
+						};
+					}),
+				...state.channels.filter((item) => item.id !== channelId),
+			],
 		}));
 	},
 

@@ -26,7 +26,6 @@ import { useCallback, useEffect, useState } from 'react';
 import AgentHelpButton from '../AgentHelpButton';
 import DeleteButton from '../DeleteButton';
 import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { useToast } from '../ui/use-toast';
 import ChatEditer from './ChatEditer';
@@ -37,7 +36,7 @@ interface Props {
 }
 
 const ConversationBox: React.FC<Props> = ({ conversationId }) => {
-	const { conversations, updateConversation } = useConversationStore();
+	const { conversations, pushMessages } = useConversationStore();
 	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
@@ -45,6 +44,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 		provider: LlmProviderName.OPENAI,
 		model: 'gpt-4o-mini',
 	});
+	const [moreMessages, setMoreMessages] = useState<boolean>(true);
 
 	const conversation = conversations.find(
 		(item) => item.id === conversationId
@@ -70,38 +70,40 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 
 	const deleteReplyTo = useCallback(() => setReplyTo(null), [setReplyTo]);
 
-	useEffect(() => {
-		const updateConversationMessages = async () => {
-			if (
-				!conversation?.messages ||
-				conversation.messages.length < TAKE_MESSAGES_DEFAULT
-			) {
-				try {
-					const response = await axiosInstance.get<
-						FormatResponse<ConversationMessageZType[]>
-					>(ApiUrl.GET_CONVERSATION_MESSAGES, {
-						params: {
-							conversationId: conversation.id,
-							skip: 0,
-							take: TAKE_MESSAGES_DEFAULT,
-						},
-					});
-					const messages = response.data.data;
-					updateConversation({
-						...conversation,
-						messages,
-					});
-				} catch (error) {
-					toast({
-						title: 'Error',
-						description: 'Something went wrong.',
-					});
-				}
-			}
-		};
+	const fetchMessages = async () => {
+		if (!moreMessages) {
+			return;
+		}
 
-		updateConversationMessages();
-	}, [conversation, toast, updateConversation]);
+		try {
+			const response = await axiosInstance.get<
+				FormatResponse<ConversationMessageZType[]>
+			>(ApiUrl.GET_CONVERSATION_MESSAGES, {
+				params: {
+					conversationId: conversation.id,
+					skip: conversation.messages?.length || 0,
+					take: TAKE_MESSAGES_DEFAULT,
+				},
+			});
+			const messages = response.data.data;
+			if (messages && messages?.length !== 0) {
+				pushMessages(conversationId, messages);
+			} else {
+				setMoreMessages(false);
+			}
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: 'Something went wrong.',
+			});
+		}
+	};
+
+	useEffect(() => {
+		if (!conversation?.messages) {
+			fetchMessages();
+		}
+	}, [conversation, fetchMessages]);
 
 	const handleSubmit = useCallback(
 		(payload: MessagePayload) => {
@@ -167,14 +169,14 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 
 	return (
 		<div className="w-full h-full flex flex-col justify-end">
-			<ScrollArea className="flex-1">
-				<ChatMessageList
-					participants={conversation.participants || []}
-					messages={conversation.messages || []}
-					onReplyTo={handleReplyTo}
-					messageActions={messageActions}
-				/>
-			</ScrollArea>
+			<ChatMessageList
+				participants={conversation.participants || []}
+				messages={conversation.messages || []}
+				onReplyTo={handleReplyTo}
+				onScrollTop={fetchMessages}
+				messageActions={messageActions}
+				className="flex-1"
+			/>
 			<Separator orientation="horizontal" />
 			<ChatEditer
 				replyTo={replyTo}
