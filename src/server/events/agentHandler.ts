@@ -1,5 +1,5 @@
 import { TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
-import { AgentEvent, ChatEvent } from '@/lib/events';
+import { AgentEvent, ChannelEvent, ConversationEvent } from '@/lib/events';
 import { convertPrompt2LlmMessage } from '@/lib/utils';
 import { AgentReplyPayload, LlmMessageZType, LlmProvider } from '@/types/llm';
 import { Server, Socket } from 'socket.io';
@@ -45,7 +45,7 @@ const agentHandler = (io: Server, socket: Socket) => {
 			);
 
 			io.to(participantRooms).emit(
-				ChatEvent.NEW_CONVERSATION_MESSAGE,
+				ConversationEvent.NEW_CONVERSATION_MESSAGE,
 				newMessage
 			);
 
@@ -71,7 +71,7 @@ const agentHandler = (io: Server, socket: Socket) => {
 			);
 
 			io.to(participantRooms).emit(
-				ChatEvent.UPDATE_CONVERSATION_MESSAGE,
+				ConversationEvent.UPDATE_CONVERSATION_MESSAGE,
 				updatedMessage
 			);
 		}
@@ -101,7 +101,7 @@ const agentHandler = (io: Server, socket: Socket) => {
 			);
 
 			const channelRoom = CHANNEL_PREFIX + newMessage.channelId;
-			io.to(channelRoom).emit(ChatEvent.NEW_CHANNEL_MESSAGE, newMessage);
+			io.to(channelRoom).emit(ChannelEvent.NEW_CHANNEL_MESSAGE, newMessage);
 
 			let inputMessages = await initLlmInputMessages(userId, payload);
 
@@ -132,7 +132,10 @@ const agentHandler = (io: Server, socket: Socket) => {
 				llmMessage.content
 			);
 
-			io.to(channelRoom).emit(ChatEvent.UPDATE_CHANNEL_MESSAGE, updatedMessage);
+			io.to(channelRoom).emit(
+				ChannelEvent.UPDATE_CHANNEL_MESSAGE,
+				updatedMessage
+			);
 		}
 	);
 };

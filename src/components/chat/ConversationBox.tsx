@@ -4,9 +4,10 @@ import axiosInstance from '@/lib/axios';
 import {
 	ApiUrl,
 	LlmProviderName,
+	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
 } from '@/lib/constants';
-import { AgentEvent, ChatEvent } from '@/lib/events';
+import { AgentEvent, ConversationEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useConversationStore from '@/store/conversationStore';
 import useSocketStore from '@/store/socketStore';
@@ -17,11 +18,13 @@ import {
 	MessagePayload,
 	MessageZType,
 } from '@/types/chat';
-import { FormatResponse } from '@/types/common';
+import { FormatResponse, IdPayload } from '@/types/common';
 import { AgentReplyPayload, LlmModelZType } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
+import { redirect } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import AgentHelpButton from '../AgentHelpButton';
+import DeleteButton from '../DeleteButton';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
@@ -47,6 +50,10 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 		(item) => item.id === conversationId
 	)!;
 
+	if (!conversation) {
+		redirect(PageUrl.CHAT);
+	}
+
 	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(
 		null
 	);
@@ -65,7 +72,10 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 
 	useEffect(() => {
 		const updateConversationMessages = async () => {
-			if (!conversation?.messages) {
+			if (
+				!conversation?.messages ||
+				conversation.messages.length < TAKE_MESSAGES_DEFAULT
+			) {
 				try {
 					const response = await axiosInstance.get<
 						FormatResponse<ConversationMessageZType[]>
@@ -99,13 +109,23 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 				...payload,
 				conversationId,
 			};
-			socket?.emit(ChatEvent.SEND_CONVERSATION_MESSAGE, convPayload);
+			socket?.emit(ConversationEvent.SEND_CONVERSATION_MESSAGE, convPayload);
 		},
 		[socket, conversationId]
 	);
 
 	const messageActions = useCallback(
 		() => [
+			(message: MessageZType) => (
+				<DeleteButton
+					key={`delete-message-${message.id}`}
+					onDelete={() => {
+						socket?.emit(ConversationEvent.DELETE_CONVERSATION_MESSAGE, {
+							referToId: message.id,
+						} as IdPayload);
+					}}
+				/>
+			),
 			(message: MessageZType) => (
 				<Button
 					key={`agent-none-${message.id}`}

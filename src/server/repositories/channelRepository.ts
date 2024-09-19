@@ -1,5 +1,10 @@
 import { ChannelPayload } from '@/types/chat';
-import { Prisma, PrismaClient, ValidStatus } from '@prisma/client';
+import {
+	AvailableType,
+	Prisma,
+	PrismaClient,
+	ValidStatus,
+} from '@prisma/client';
 
 const create = (
 	prisma: PrismaClient | Prisma.TransactionClient,
@@ -19,7 +24,8 @@ const create = (
 
 const selectByIds = (
 	prisma: PrismaClient | Prisma.TransactionClient,
-	channelIds: string[]
+	channelIds: string[],
+	includeMemberships: boolean
 ) => {
 	return prisma.channel.findMany({
 		where: {
@@ -29,7 +35,10 @@ const selectByIds = (
 			valid: ValidStatus.VALID,
 		},
 		include: {
-			memberships: {
+			memberships: includeMemberships && {
+				where: {
+					valid: ValidStatus.VALID,
+				},
 				include: {
 					user: true,
 				},
@@ -38,6 +47,21 @@ const selectByIds = (
 	});
 };
 
-const channelRepository = { create, selectByIds };
+const selectByNamePrefix = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	prefix: string
+) => {
+	return prisma.channel.findMany({
+		where: {
+			name: {
+				startsWith: prefix,
+			},
+			type: AvailableType.PUBLIC,
+			valid: ValidStatus.VALID,
+		},
+	});
+};
+
+const channelRepository = { create, selectByIds, selectByNamePrefix };
 
 export default channelRepository;

@@ -5,11 +5,34 @@ const create = (
 	userId: string,
 	channelId: string
 ) => {
-	return prisma.channelMembership.create({
-		data: {
+	return prisma.channelMembership.upsert({
+		where: {
+			channelId_userId: {
+				channelId,
+				userId,
+			},
+		},
+		update: {
+			valid: ValidStatus.VALID,
+		},
+		create: {
 			userId,
 			channelId,
 			valid: ValidStatus.VALID,
+		},
+		include: {
+			user: true,
+		},
+	});
+};
+
+const selectById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string
+) => {
+	return prisma.channelMembership.findUnique({
+		where: {
+			id,
 		},
 	});
 };
@@ -26,6 +49,42 @@ const selectByUserId = (
 	});
 };
 
-const channelMembershipRepository = { create, selectByUserId };
+const selectByChannelUser = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	channelId: string,
+	userId: string
+) => {
+	return prisma.channelMembership.findUnique({
+		where: {
+			channelId_userId: {
+				channelId,
+				userId,
+			},
+		},
+	});
+};
+
+const updateValidById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	valid: ValidStatus
+) => {
+	return prisma.channelMembership.update({
+		where: {
+			id,
+		},
+		data: {
+			valid,
+		},
+	});
+};
+
+const channelMembershipRepository = {
+	create,
+	selectById,
+	selectByUserId,
+	selectByChannelUser,
+	updateValidById,
+};
 
 export default channelMembershipRepository;

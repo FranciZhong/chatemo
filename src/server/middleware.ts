@@ -14,6 +14,7 @@ export const wrapErrorHandler = (
 		try {
 			return await handler(req, res);
 		} catch (error) {
+			// todo error req
 			console.error(error);
 			if (error instanceof ApiError) {
 				res.status(error.statusCode).json({ error: error.message });

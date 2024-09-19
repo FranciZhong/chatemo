@@ -222,7 +222,7 @@ model ChannelMembership {
   channelId String
   channel   Channel     @relation(fields: [channelId], references: [id])
 
-  @@unique([userId, channelId])
+  @@unique([channelId, userId])
 }
 
 enum ChannelRequestType {
@@ -236,10 +236,10 @@ model ChannelRequest {
   updatedAt  DateTime           @updatedAt
   type       ChannelRequestType
   status     RequestStatus
-  fromUserId String
-  fromUser   User               @relation("SentChannelRequests", fields: [fromUserId], references: [id])
-  toUserId   String
-  toUser     User               @relation("ReceivedChannelRequests", fields: [toUserId], references: [id])
+  senderId   String
+  sender     User               @relation("SentChannelRequests", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User               @relation("ReceivedChannelRequests", fields: [receiverId], references: [id])
   channelId  String
   channel    Channel            @relation(fields: [channelId], references: [id])
 }

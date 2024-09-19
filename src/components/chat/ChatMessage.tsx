@@ -1,18 +1,14 @@
 import { ImgUrl } from '@/lib/constants';
 import { parseFormatedDateTime } from '@/lib/date';
-import { ChatEvent } from '@/lib/events';
 import { cn } from '@/lib/utils';
-import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
 import { MessageZType } from '@/types/chat';
-import { IdPayload } from '@/types/common';
 import { UserZType } from '@/types/user';
 import { ArrowTopRightIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
 import { memo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import CopyButton from '../CopyButton';
-import DeleteButton from '../DeleteButton';
 import MarkdownContent from '../MarkdownContent';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -21,7 +17,7 @@ import LoadingContent from './LoadingContent';
 import RepliedMessage from './RepliedMessage';
 
 interface Props {
-	sender: UserZType;
+	sender?: UserZType;
 	message: MessageZType;
 	onReplyTo: (messageId: string) => void;
 	actions?: React.ReactNode[];
@@ -34,10 +30,7 @@ const ChatMessage: React.FC<Props> = ({
 	actions,
 }) => {
 	const { user } = useUserStore();
-	const isCurrentUser = user?.id === sender.id && message.type === 'USER';
-
-	const { socket } = useSocketStore();
-
+	const isCurrentUser = user?.id === sender?.id && message.type === 'USER';
 	const [mouseOn, setMouseOn] = useState(false);
 	const [showButtons] = useDebounce(mouseOn, 500);
 
@@ -55,19 +48,13 @@ const ChatMessage: React.FC<Props> = ({
 	const getName = () => {
 		switch (message.type) {
 			case 'USER':
-				return isCurrentUser ? user?.name : sender.name;
+				return isCurrentUser ? user?.name : sender?.name || 'Anonymouse';
 			case 'MODEL':
 				return (
 					message.agent?.name ||
 					`[${message.provider?.toUpperCase()}] ${message.model}`
 				);
 		}
-	};
-
-	const handleDelete = () => {
-		socket?.emit(ChatEvent.DELETE_CONVERSATION_MESSAGE, {
-			referToId: message.id,
-		} as IdPayload);
 	};
 
 	return (
@@ -115,7 +102,7 @@ const ChatMessage: React.FC<Props> = ({
 									>
 										<ArrowTopRightIcon className="icon-size" />
 									</Button>
-									<DeleteButton onDelete={handleDelete} />
+
 									{actions}
 								</div>
 								<ScrollBar orientation="horizontal" className="invisible" />

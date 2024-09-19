@@ -17,6 +17,7 @@ import { RequestStatus, ValidStatus } from '@prisma/client';
 import { ConflictError, NotFoundError } from '../error';
 import AuthropicProvider from '../gateways/providers/anthropicProvider';
 import OpenAiProvider from '../gateways/providers/openAiProvider';
+import channelRequestRepository from '../repositories/channelRequestRepository';
 import friendRequestRepository from '../repositories/friendRequestRepository';
 import friendshipRepository from '../repositories/friendshipRepository';
 import userRepository from '../repositories/userRepository';
@@ -43,18 +44,46 @@ const getNotificationsByUserId = async (userId: string) => {
 		RequestStatus.PENDING
 	);
 
+	const channelRequests = await channelRequestRepository.selectByReceiverId(
+		prisma,
+		userId,
+		RequestStatus.PENDING
+	);
+
 	let notifications: NotificationZType[] = [];
 	friendRequests
-		.map((request) => ({
-			type: NotificationType.FRIEND_REQUEST,
-			referToId: request.id,
-			from: UserSchema.parse(request.sender),
-			title: NotificationType.FRIEND_REQUEST,
-			// todo description
-		}))
+		.map(
+			(request) =>
+				({
+					type: NotificationType.FRIEND_REQUEST,
+					referToId: request.id,
+					from: UserSchema.parse(request.sender),
+					title: NotificationType.FRIEND_REQUEST,
+					// todo description
+				} as NotificationZType)
+		)
+		.forEach((notification) => notifications.push(notification));
+
+	channelRequests
+		.map(
+			(request) =>
+				({
+					type: NotificationType.JOIN_CHANNEL_REQUEST,
+					referToId: request.id,
+					referTo: request,
+					from: UserSchema.parse(request.sender),
+					title: NotificationType.JOIN_CHANNEL_REQUEST,
+				} as NotificationZType)
+		)
 		.forEach((notification) => notifications.push(notification));
 
 	return notifications;
+};
+
+const getFriendRequestById = async (requestId: string) => {
+	const request = await friendRequestRepository.selectById(prisma, requestId);
+
+	return FriendRequestSchema.parse(request);
 };
 
 const searchByName = async (name: string) => {
@@ -149,6 +178,7 @@ const userService = {
 	getByIds,
 	getProfileById,
 	getNotificationsByUserId,
+	getFriendRequestById,
 	searchByName,
 	sendFriendRequest,
 	updateProfile,

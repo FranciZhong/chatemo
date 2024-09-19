@@ -1,7 +1,12 @@
 'use client';
 
 import { ModalType } from '@/lib/constants';
-import { AgentEvent, ChatEvent, UserEvent } from '@/lib/events';
+import {
+	AgentEvent,
+	ChannelEvent,
+	ConversationEvent,
+	UserEvent,
+} from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useChannelStore from '@/store/channelStore';
 import useConversationStore from '@/store/conversationStore';
@@ -11,6 +16,7 @@ import useNotificationStore from '@/store/notificationStore';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
 import {
+	ChannelMembershipZType,
 	ChannelMessageZType,
 	ChannelZType,
 	ConversationMessageZType,
@@ -21,6 +27,7 @@ import { AgentZType, LlmModelZType } from '@/types/llm';
 import { NotificationZType, UserProfileZType } from '@/types/user';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
+import MembershipsModal from '../modal/MembershipsModal';
 import NavModal from '../modal/NavModal';
 import NotificationModal from '../modal/NotificationModal';
 import ProfileModal from '../modal/ProfileModal';
@@ -41,7 +48,7 @@ interface Props {
 const ChatLayout: React.FC<Props> = (props) => {
 	const [isLoading, setLoading] = useState(true);
 	const { socket, connect } = useSocketStore();
-	const { setProfile } = useUserStore();
+	const { user, setProfile } = useUserStore();
 	const { setNotifications, pushNotification } = useNotificationStore();
 	const {
 		setConversations,
@@ -53,6 +60,10 @@ const ChatLayout: React.FC<Props> = (props) => {
 	const { setAgents } = useAgentStore();
 	const {
 		setChannels,
+		newChannel,
+		removeChannel,
+		newMembership,
+		removeMembership,
 		newMessage: newChannelMessage,
 		updateMessage: updateChannelMessage,
 		removeMessage: removeChannelMessage,
@@ -100,33 +111,61 @@ const ChatLayout: React.FC<Props> = (props) => {
 					),
 				});
 			});
-			socket.on(UserEvent.NEW_FRIENDSHIP, (payload: ConversationZType) =>
-				newConversation(payload)
+
+			// friend conversations
+			socket.on(
+				ConversationEvent.NEW_FRIENDSHIP,
+				(payload: ConversationZType) => newConversation(payload)
 			);
 			socket.on(
-				ChatEvent.NEW_CONVERSATION_MESSAGE,
+				ConversationEvent.NEW_CONVERSATION_MESSAGE,
 				(payload: ConversationMessageZType) => newConversationMessage(payload)
 			);
 			socket.on(
-				ChatEvent.UPDATE_CONVERSATION_MESSAGE,
+				ConversationEvent.UPDATE_CONVERSATION_MESSAGE,
 				(payload: ConversationMessageZType) =>
 					updateConversationMessage(payload)
 			);
 			socket.on(
-				ChatEvent.REMOVE_CONVERSATION_MESSAGE,
+				ConversationEvent.REMOVE_CONVERSATION_MESSAGE,
 				(payload: ParentChildIdPayload) => removeConversationMessage(payload)
 			);
-			socket.on(ChatEvent.NEW_CHANNEL_MESSAGE, (payload: ChannelMessageZType) =>
-				newChannelMessage(payload)
+
+			// channels
+			socket.on(ChannelEvent.JOIN_NEW_CHANNEL, (payload: ChannelZType) => {
+				newChannel(payload);
+				socket.emit(ChannelEvent.JOIN_CHANNEL_ROOM, payload.id);
+			});
+			socket.on(
+				ChannelEvent.NEW_CHANNEL_MEMBERSHIP,
+				(payload: ChannelMembershipZType) => {
+					newMembership(payload);
+				}
 			);
 			socket.on(
-				ChatEvent.UPDATE_CHANNEL_MESSAGE,
+				ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP,
+				(payload: ChannelMembershipZType) => {
+					if (payload.userId === user?.id) {
+						removeChannel(payload.channelId);
+					} else {
+						removeMembership(payload.channelId, payload.id);
+					}
+				}
+			);
+			socket.on(
+				ChannelEvent.NEW_CHANNEL_MESSAGE,
+				(payload: ChannelMessageZType) => newChannelMessage(payload)
+			);
+			socket.on(
+				ChannelEvent.UPDATE_CHANNEL_MESSAGE,
 				(payload: ChannelMessageZType) => updateChannelMessage(payload)
 			);
 			socket.on(
-				ChatEvent.REMOVE_CHANNEL_MESSAGE,
+				ChannelEvent.REMOVE_CHANNEL_MESSAGE,
 				(payload: ParentChildIdPayload) => removeChannelMessage(payload)
 			);
+
+			// agents
 			socket.on(AgentEvent.AVAILABLE_MODELS, (models: LlmModelZType[]) => {
 				setAvailableModels(models);
 			});
@@ -142,6 +181,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 			<NavModal />
 			<ProfileModal />
 			<NotificationModal />
+			<MembershipsModal />
 			<div className="w-screen h-screen flex">
 				{/* todo window size issue */}
 				<NavSidebar />

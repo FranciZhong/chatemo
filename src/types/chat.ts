@@ -1,5 +1,10 @@
-import { AvailableType, ConversationType } from '@prisma/client';
+import {
+	AvailableType,
+	ChannelRequestType,
+	ConversationType,
+} from '@prisma/client';
 import { z } from 'zod';
+import { RequestStatusEnumSchema, ValidStatusEnumSchema } from './common';
 import { AgentSchema, LlmProviderNameSchema } from './llm';
 import { FriendshipSchema, UserSchema } from './user';
 
@@ -110,6 +115,7 @@ export type ChannelMessagePayload = z.infer<typeof ChannelMessagePayloadSchema>;
 
 export const ChannelMembershipSchema = ParticipantSchema.extend({
 	channelId: z.string(),
+	valid: ValidStatusEnumSchema,
 });
 
 export type ChannelMembershipZType = z.infer<typeof ChannelMembershipSchema>;
@@ -144,3 +150,23 @@ export const ChannelPayloadSchema = z.object({
 });
 
 export type ChannelPayload = z.infer<typeof ChannelPayloadSchema>;
+
+export const ChannelRequestTypeSchema = z.enum([
+	ChannelRequestType.INVITE,
+	ChannelRequestType.JOIN,
+]);
+
+export type ChannelRequestTypeZType = z.infer<typeof ChannelRequestTypeSchema>;
+
+export const ChannelRequestSchema = z.object({
+	id: z.string(),
+	createdAt: z.date(),
+	type: ChannelRequestTypeSchema,
+	senderId: z.string(),
+	receiverId: z.string(),
+	channelId: z.string(),
+	channel: ChannelSchema.optional(),
+	status: RequestStatusEnumSchema,
+});
+
+export type ChannelRequestZType = z.infer<typeof ChannelRequestSchema>;

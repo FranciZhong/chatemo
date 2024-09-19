@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { ImgUrl, PageUrl } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 import { ChannelZType } from '@/types/chat';
 import LinkTab from './LinkTab';
 
@@ -17,7 +18,10 @@ const ChannelLink: React.FC<Props> = ({ channel }) => {
 			title={channel.name || ' '}
 			description={
 				<Badge
-					className={channel.type === 'PRIVATE' ? 'bg-secondary' : 'bg-primary'}
+					className={cn(
+						'w-16 justify-center',
+						channel.type === 'PRIVATE' ? 'bg-secondary' : 'bg-primary'
+					)}
 				>
 					{channel.type}
 				</Badge>

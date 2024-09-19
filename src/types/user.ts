@@ -13,11 +13,11 @@ export type ProfilePayload = z.infer<typeof ProfilePayloadSchema>;
 
 export const UserSchema = z.object({
 	id: z.string(),
+	createdAt: z.date(),
 	name: z.string().min(5).max(32).optional().nullable(),
 	email: z.string().email().optional().nullable(),
 	image: z.string().url().optional().nullable(),
 	description: z.string().max(1024).optional().nullable(),
-	createdAt: z.date().optional().nullable(),
 });
 
 export type UserZType = z.infer<typeof UserSchema>;
@@ -51,14 +51,9 @@ export const UserProfileSchema = UserSchema.extend({
 
 export type UserProfileZType = z.infer<typeof UserProfileSchema>;
 
-export const FriendRequestPayloadSchema = z.object({
-	receiverId: z.string(),
-});
-
-export type FriendRequestPayload = z.infer<typeof FriendRequestPayloadSchema>;
-
 export const FriendRequestSchema = z.object({
 	id: z.string(),
+	createdAt: z.date(),
 	senderId: z.string(),
 	receiverId: z.string(),
 	status: RequestStatusEnumSchema,
@@ -67,6 +62,7 @@ export type FriendRequestZType = z.infer<typeof FriendRequestSchema>;
 
 export const FriendshipSchema = z.object({
 	id: z.string(),
+	createdAt: z.date(),
 	userId: z.string(),
 	friendId: z.string(),
 	status: ValidStatusEnumSchema,
@@ -76,7 +72,10 @@ export const FriendshipSchema = z.object({
 export type FriendShipZType = z.infer<typeof FriendRequestSchema>;
 
 export const NotificationSchema = z.object({
-	type: z.enum([NotificationType.FRIEND_REQUEST]),
+	type: z.enum([
+		NotificationType.FRIEND_REQUEST,
+		NotificationType.JOIN_CHANNEL_REQUEST,
+	]),
 	referToId: z.string().optional(),
 	referTo: z.any().optional(),
 	from: UserSchema.optional(),

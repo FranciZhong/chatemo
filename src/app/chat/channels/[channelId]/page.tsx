@@ -1,6 +1,7 @@
 'use server';
 
 import ChannelBox from '@/components/chat/ChannelBox';
+import MembershipsTrigger from '@/components/layout/MembershipsTrigger';
 import NavTopbar from '@/components/layout/NavTopbar';
 import { Separator } from '@/components/ui/separator';
 import { PageUrl } from '@/lib/constants';
@@ -16,11 +17,16 @@ interface Props {
 
 const page: React.FC<Props> = async ({ params: { channelId } }) => {
 	try {
-		await channelService.getChannelById(channelId);
+		// check exist and throw not found
+		await channelService.getChannelById(channelId, false);
+
+		const NavTopTriggers: React.ReactNode[] = [
+			<MembershipsTrigger key="memberships-trigger" />,
+		];
 
 		return (
 			<div className="h-full w-full flex flex-col">
-				<NavTopbar />
+				<NavTopbar triggers={NavTopTriggers} />
 				<Separator orientation="horizontal" />
 				<div className="flex-1 overflow-hidden">
 					<ChannelBox channelId={channelId} />

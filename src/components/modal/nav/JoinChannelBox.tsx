@@ -1,9 +1,9 @@
-import UserCard from '@/components/profile/UserCard';
+import ChannelCard from '@/components/profile/ChannelCard';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
 import { ApiUrl, NavModalTab } from '@/lib/constants';
+import { ChannelZType } from '@/types/chat';
 import { FormatResponse, IdPayload } from '@/types/common';
-import { UserZType } from '@/types/user';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import NotFound from '../../NotFound';
 import SearchCard from '../../SearchCard';
@@ -11,35 +11,31 @@ import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Separator } from '../../ui/separator';
 
-const FindFriendBox: React.FC = () => {
-	const [userPrefix, setUserPrefix] = useState('');
-	const [matchedUsers, setMatchedUsers] = useState([] as UserZType[]);
+const JoinChannelBox: React.FC = () => {
+	const [channelPrefix, setChannelPrefix] = useState('');
+	const [matchedChannels, setMatchedChannels] = useState([] as ChannelZType[]);
 	const searchInputRef = useRef(null);
 	const { toast } = useToast();
 
 	const handleSearch = useCallback(async () => {
-		if (!userPrefix) {
-			setMatchedUsers([]);
+		if (!channelPrefix) {
+			setMatchedChannels([]);
 			return;
 		}
 
-		const response = await axiosInstance.get<FormatResponse<UserZType[]>>(
-			ApiUrl.USER_SEARCH,
+		const response = await axiosInstance.get<FormatResponse<ChannelZType[]>>(
+			ApiUrl.CHANNEL_SEARCH,
 			{
 				params: {
-					name: userPrefix,
+					name: channelPrefix,
 				},
 			}
 		);
 
-		const res = response.data;
-
-		// handle response error / message from server
-
-		if (res.data) {
-			setMatchedUsers(res.data);
+		if (response.data.data) {
+			setMatchedChannels(response.data.data);
 		}
-	}, [userPrefix]);
+	}, [channelPrefix]);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -61,7 +57,7 @@ const FindFriendBox: React.FC = () => {
 		// todo if use dialog for description
 		try {
 			await axiosInstance.post<FormatResponse<any>>(
-				ApiUrl.SEND_FRIEND_REQUEST,
+				ApiUrl.SEND_CHANNEL_REQUEST,
 				{ referToId } as IdPayload
 			);
 		} catch (error) {
@@ -74,25 +70,30 @@ const FindFriendBox: React.FC = () => {
 
 	return (
 		<div className="w-full flex flex-col gap-4">
-			<h2 className="heading">{NavModalTab.FIND_FRIEND.toLocaleUpperCase()}</h2>
+			<h2 className="heading">
+				{NavModalTab.JOIN_CHANNEL.toLocaleUpperCase()}
+			</h2>
 			<p className="text-md text-muted-foreground">
-				You can add friends with their username on Chatemo.
+				You can request to join public channels.
 			</p>
 			<div className="w-full flex gap-2">
 				<Input
 					ref={searchInputRef}
-					value={userPrefix}
-					onChange={(e) => setUserPrefix(e.target.value)}
-					placeholder="Type a friend name starting with..."
+					value={channelPrefix}
+					onChange={(e) => setChannelPrefix(e.target.value)}
+					placeholder="Type a channel name starting with..."
 				/>
 				<Button onClick={handleSearch}>Search</Button>
 			</div>
 			<Separator orientation="horizontal" />
-			{matchedUsers.length !== 0 ? (
+			{matchedChannels.length !== 0 ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-					{matchedUsers.map((user) => (
-						<SearchCard key={user.id} onClick={handleSendRequest(user.id)}>
-							<UserCard user={user} />
+					{matchedChannels.map((channel) => (
+						<SearchCard
+							key={channel.id}
+							onClick={handleSendRequest(channel.id)}
+						>
+							<ChannelCard channel={channel} />
 						</SearchCard>
 					))}
 				</div>
@@ -103,4 +104,4 @@ const FindFriendBox: React.FC = () => {
 	);
 };
 
-export default FindFriendBox;
+export default JoinChannelBox;

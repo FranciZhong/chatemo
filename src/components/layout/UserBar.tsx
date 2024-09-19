@@ -12,7 +12,7 @@ const UserBar: React.FC = () => {
 	return (
 		<div className="h-16 w-full px-4 flex gap-2 justify-between items-center">
 			<ItemContainer className="flex-1 px-2 py-1">
-				<UserCard user={user} isCurrent={true}>
+				<UserCard user={user!} isCurrent={true}>
 					<div className="text-secondary text-sm font-light">online</div>
 				</UserCard>
 			</ItemContainer>

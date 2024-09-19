@@ -1,4 +1,4 @@
-import { ChatEvent } from '@/lib/events';
+import { ChannelEvent, ConversationEvent } from '@/lib/events';
 import {
 	ChannelMessagePayload,
 	ConversationMessagePayload,
@@ -6,7 +6,7 @@ import {
 import { IdPayload, ParentChildIdPayload } from '@/types/common';
 import { Server, Socket } from 'socket.io';
 import { CHANNEL_PREFIX, USER_PREFFIX } from '.';
-import { ForbiddenError } from '../error';
+import { BadRequestError, ForbiddenError } from '../error';
 import { wrapSocketErrorHandler } from '../middleware';
 import channelService from '../services/channelService';
 import conversationService from '../services/conversationService';
@@ -14,7 +14,7 @@ import conversationService from '../services/conversationService';
 const chatHandler = (io: Server, socket: Socket) => {
 	wrapSocketErrorHandler(
 		socket,
-		ChatEvent.SEND_CONVERSATION_MESSAGE,
+		ConversationEvent.SEND_CONVERSATION_MESSAGE,
 		async (payload: ConversationMessagePayload) => {
 			const senderId = socket.data.session.id as string;
 
@@ -34,13 +34,16 @@ const chatHandler = (io: Server, socket: Socket) => {
 				(item) => USER_PREFFIX + item.userId
 			);
 
-			io.to(participantRooms).emit(ChatEvent.NEW_CONVERSATION_MESSAGE, message);
+			io.to(participantRooms).emit(
+				ConversationEvent.NEW_CONVERSATION_MESSAGE,
+				message
+			);
 		}
 	);
 
 	wrapSocketErrorHandler(
 		socket,
-		ChatEvent.DELETE_CONVERSATION_MESSAGE,
+		ConversationEvent.DELETE_CONVERSATION_MESSAGE,
 		async (payload: IdPayload) => {
 			const senderId = socket.data.session.id as string;
 
@@ -64,16 +67,38 @@ const chatHandler = (io: Server, socket: Socket) => {
 				(item) => USER_PREFFIX + item.userId
 			);
 
-			io.to(participantRooms).emit(ChatEvent.REMOVE_CONVERSATION_MESSAGE, {
-				parentId: message.conversationId,
-				childId: message.id,
-			} as ParentChildIdPayload);
+			io.to(participantRooms).emit(
+				ConversationEvent.REMOVE_CONVERSATION_MESSAGE,
+				{
+					parentId: message.conversationId,
+					childId: message.id,
+				} as ParentChildIdPayload
+			);
 		}
 	);
 
 	wrapSocketErrorHandler(
 		socket,
-		ChatEvent.SEND_CHANNEL_MESSAGE,
+		ChannelEvent.JOIN_CHANNEL_ROOM,
+		async (channelId: string) => {
+			const senderId = socket.data.session.id as string;
+			const membership = await channelService.getMembershipByChannelUser(
+				channelId,
+				senderId
+			);
+			if (!membership || membership.valid === 'INVALID') {
+				throw new BadRequestError();
+			}
+
+			const channelRoom = CHANNEL_PREFIX + channelId;
+			socket.join(channelRoom);
+			socket.on('disconnect', () => socket.leave(channelRoom));
+		}
+	);
+
+	wrapSocketErrorHandler(
+		socket,
+		ChannelEvent.SEND_CHANNEL_MESSAGE,
 		async (payload: ChannelMessagePayload) => {
 			const senderId = socket.data.session.id as string;
 
@@ -85,7 +110,7 @@ const chatHandler = (io: Server, socket: Socket) => {
 			);
 
 			io.to(CHANNEL_PREFIX + payload.channelId).emit(
-				ChatEvent.NEW_CHANNEL_MESSAGE,
+				ChannelEvent.NEW_CHANNEL_MESSAGE,
 				message
 			);
 		}
@@ -93,7 +118,7 @@ const chatHandler = (io: Server, socket: Socket) => {
 
 	wrapSocketErrorHandler(
 		socket,
-		ChatEvent.DELETE_CHANNEL_MESSAGE,
+		ChannelEvent.DELETE_CHANNEL_MESSAGE,
 		async (payload: IdPayload) => {
 			const senderId = socket.data.session.id as string;
 
@@ -104,7 +129,7 @@ const chatHandler = (io: Server, socket: Socket) => {
 
 			await channelService.deleteMessage(payload.referToId);
 			io.to(CHANNEL_PREFIX + message.channelId).emit(
-				ChatEvent.REMOVE_CHANNEL_MESSAGE,
+				ChannelEvent.REMOVE_CHANNEL_MESSAGE,
 				{
 					parentId: message.channelId,
 					childId: message.id,

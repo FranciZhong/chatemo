@@ -4,9 +4,10 @@ import axiosInstance from '@/lib/axios';
 import {
 	ApiUrl,
 	LlmProviderName,
+	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
 } from '@/lib/constants';
-import { AgentEvent, ChatEvent } from '@/lib/events';
+import { AgentEvent, ChannelEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useChannelStore from '@/store/channelStore';
 import useSocketStore from '@/store/socketStore';
@@ -17,11 +18,13 @@ import {
 	MessagePayload,
 	MessageZType,
 } from '@/types/chat';
-import { FormatResponse } from '@/types/common';
+import { FormatResponse, IdPayload } from '@/types/common';
 import { AgentReplyPayload, LlmModelZType } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
+import { redirect } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import AgentHelpButton from '../AgentHelpButton';
+import DeleteButton from '../DeleteButton';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
@@ -45,6 +48,9 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 	});
 
 	const channel = channels.find((item) => item.id === channelId)!;
+	if (!channel) {
+		redirect(PageUrl.CHAT);
+	}
 
 	const [replyTo, setReplyTo] = useState<BasicChannelMessageZType | null>(null);
 
@@ -62,7 +68,10 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 
 	useEffect(() => {
 		const updateChannelMessages = async () => {
-			if (!channel?.messages) {
+			if (
+				!channel?.messages ||
+				channel.messages.length < TAKE_MESSAGES_DEFAULT
+			) {
 				try {
 					const response = await axiosInstance.get<
 						FormatResponse<ChannelMessageZType[]>
@@ -96,13 +105,23 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 				...payload,
 				channelId,
 			};
-			socket?.emit(ChatEvent.SEND_CHANNEL_MESSAGE, channelPayload);
+			socket?.emit(ChannelEvent.SEND_CHANNEL_MESSAGE, channelPayload);
 		},
 		[socket, channelId]
 	);
 
 	const messageActions = useCallback(
 		() => [
+			(message: MessageZType) => (
+				<DeleteButton
+					key={`delete-message-${message.id}`}
+					onDelete={() => {
+						socket?.emit(ChannelEvent.DELETE_CHANNEL_MESSAGE, {
+							referToId: message.id,
+						} as IdPayload);
+					}}
+				/>
+			),
 			(message: MessageZType) => (
 				<Button
 					key={`agent-none-${message.id}`}

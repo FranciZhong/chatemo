@@ -1,16 +1,6 @@
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { TrashIcon } from '@radix-ui/react-icons';
+import WarningTrigger from './WarningTrigger';
 
 interface Props {
 	title?: string;
@@ -18,31 +8,17 @@ interface Props {
 	onDelete: () => void;
 }
 
-const DeleteButton: React.FC<Props> = ({
-	title = 'Are you sure?',
-	description = 'This action might not be able to rallback.',
-	onDelete,
-}) => {
+const DeleteButton: React.FC<Props> = ({ title, description, onDelete }) => {
 	return (
-		<AlertDialog>
-			<AlertDialogTrigger asChild>
-				<Button size="xs" variant="outline" className="hover:bg-accent">
-					<TrashIcon className="icon-size" />
-				</Button>
-			</AlertDialogTrigger>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>{title}</AlertDialogTitle>
-					<AlertDialogDescription>{description}</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction className="bg-accent" onClick={onDelete}>
-						Continue
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+		<WarningTrigger
+			title={title}
+			description={description}
+			onContinue={onDelete}
+		>
+			<Button size="xs" variant="outline" className="hover:bg-accent">
+				<TrashIcon className="icon-size" />
+			</Button>
+		</WarningTrigger>
 	);
 };
 

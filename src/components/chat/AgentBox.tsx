@@ -1,11 +1,11 @@
 'use client';
 
 import axiosInstance from '@/lib/axios';
-import { ApiUrl } from '@/lib/constants';
+import { ApiUrl, PageUrl } from '@/lib/constants';
 import useAgentStore from '@/store/agentStore';
 import { FormatResponse } from '@/types/common';
 import { AgentPromptPayload, AgentZType } from '@/types/llm';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { useState } from 'react';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
@@ -23,7 +23,7 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 	const agent = agents.find((item) => item.id === agentId);
 
 	if (!agent) {
-		notFound();
+		redirect(PageUrl.CHAT);
 	}
 
 	const handleSubmit = async () => {

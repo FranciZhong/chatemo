@@ -31,6 +31,9 @@ export enum ApiUrl {
 	// channel
 	CREATE_CHANNEL = '/api/channel/create',
 	GET_CHANNEL_MESSAGES = '/api/channel/messages',
+	CHANNEL_SEARCH = '/api/channel/search',
+	SEND_CHANNEL_REQUEST = '/api/channel/request',
+	REMOVE_CHANNEL_MEMBERSHIP = '/api/channel/membership/remove',
 }
 
 export enum Theme {
@@ -42,6 +45,7 @@ export enum ModalType {
 	NAV_MODAL = 'NavModal',
 	PROFILE_MODAL = 'ProfileModal',
 	NOTIFICATION_MODAL = 'NotificationModal',
+	MEMBERSHIP_MODAL = 'MembershipsModal',
 }
 
 export enum SidebarTab {
@@ -65,6 +69,7 @@ export enum ProfileModalTab {
 
 export enum NotificationType {
 	FRIEND_REQUEST = 'Friend Request',
+	JOIN_CHANNEL_REQUEST = 'Join Channel Request',
 }
 
 export enum AvatarSize {

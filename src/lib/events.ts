@@ -4,16 +4,15 @@ export enum UserEvent {
 	// notification
 	NEW_NOTIFICATION = 'new_notification',
 
-	// friend request
-	RESPOND_FRIEND_REQUEST = 'respond_friend_request',
-	NEW_FRIENDSHIP = 'new_friendship',
-
 	// configs
 	UPDATE_APIKEYS = 'update_apikeys',
 }
 
-export enum ChatEvent {
-	// conversations
+export enum ConversationEvent {
+	// friend request
+	RESPOND_FRIEND_REQUEST = 'respond_friend_request',
+	NEW_FRIENDSHIP = 'new_friendship',
+	// chat
 	SEND_CONVERSATION_MESSAGE = 'send_conversation_message',
 	NEW_CONVERSATION_MESSAGE = 'new_conversation_message',
 	UPDATE_CONVERSATION_MESSAGE = 'update_conversation_message',
@@ -21,7 +20,15 @@ export enum ChatEvent {
 	DELETE_CONVERSATION_MESSAGE = 'delete_conversation_message',
 	// emit to clients
 	REMOVE_CONVERSATION_MESSAGE = 'remove_conversation_message',
+}
 
+export enum ChannelEvent {
+	JOIN_CHANNEL_ROOM = 'join_channel_room',
+	// channel request
+	RESPOND_JOIN_CHANNEL = 'respond_join_channel',
+	JOIN_NEW_CHANNEL = 'join_new_channel',
+	NEW_CHANNEL_MEMBERSHIP = 'new_channel_membership',
+	REMOVE_CHANNEL_MEMBERSHIP = 'remove_channel_membership',
 	// channels
 	SEND_CHANNEL_MESSAGE = 'send_channel_message',
 	NEW_CHANNEL_MESSAGE = 'new_channel_message',
