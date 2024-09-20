@@ -100,7 +100,11 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 	};
 
 	useEffect(() => {
-		if (!conversation?.messages) {
+		if (
+			moreMessages &&
+			(!conversation?.messages ||
+				conversation.messages.length < TAKE_MESSAGES_DEFAULT)
+		) {
 			fetchMessages();
 		}
 	}, [conversation, fetchMessages]);

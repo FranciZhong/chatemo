@@ -1,26 +1,38 @@
-import { ConversationEvent } from '@/lib/events';
+import { toast } from '@/components/ui/use-toast';
+import axiosInstance from '@/lib/axios';
+import { ApiUrl } from '@/lib/constants';
 import useNotificationStore from '@/store/notificationStore';
-import useSocketStore from '@/store/socketStore';
-import { AcceptRejectPayload, AcceptRejectStatusZType } from '@/types/common';
+import {
+	AcceptRejectPayload,
+	AcceptRejectStatusZType,
+	FormatResponse,
+} from '@/types/common';
 import { NotificationZType } from '@/types/user';
-import AcceptRejectCard from './AcceptRejectCard';
-import UserCard from './UserCard';
+import AcceptRejectCard from '../../AcceptRejectCard';
+import UserCard from '../UserCard';
 
 interface Props {
 	notification: NotificationZType;
 }
 
 const FriendRequestCard: React.FC<Props> = ({ notification }) => {
-	const { socket } = useSocketStore();
 	const { removeNotification } = useNotificationStore();
 
-	const handleAccept = (status: AcceptRejectStatusZType) => {
-		if (socket) {
-			socket.emit(ConversationEvent.RESPOND_FRIEND_REQUEST, {
-				referToId: notification.referToId,
-				status,
-			} as AcceptRejectPayload);
+	const handleAccept = async (status: AcceptRejectStatusZType) => {
+		try {
+			await axiosInstance.post<FormatResponse<any>>(
+				ApiUrl.RESPOND_FRIEND_REQUEST,
+				{
+					referToId: notification.referToId,
+					status,
+				} as AcceptRejectPayload
+			);
 			removeNotification(notification.referToId!);
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: 'Something went wrong.',
+			});
 		}
 	};
 

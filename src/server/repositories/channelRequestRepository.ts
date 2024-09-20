@@ -71,6 +71,23 @@ const selectByChannelSender = (
 	});
 };
 
+const selectByChannelReceiver = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	channelId: string,
+	receiverId: string,
+	type: ChannelRequestType,
+	status: RequestStatus
+) => {
+	return prisma.channelRequest.findFirst({
+		where: {
+			channelId,
+			receiverId,
+			type,
+			status,
+		},
+	});
+};
+
 const uploadStatusById = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	id: string,
@@ -91,6 +108,7 @@ const channelRequestRepository = {
 	selectById,
 	selectByReceiverId,
 	selectByChannelSender,
+	selectByChannelReceiver,
 	uploadStatusById,
 };
 

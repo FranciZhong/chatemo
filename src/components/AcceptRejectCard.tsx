@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { CheckIcon, Cross2Icon } from '@radix-ui/react-icons';
-import IconButton from '../IconButton';
+import IconButton from './IconButton';
 
 interface Props {
 	children: React.ReactNode;

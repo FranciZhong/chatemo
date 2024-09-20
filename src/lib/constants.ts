@@ -20,6 +20,7 @@ export enum ApiUrl {
 	// user
 	USER_SEARCH = '/api/user/search',
 	SEND_FRIEND_REQUEST = '/api/user/request',
+	RESPOND_FRIEND_REQUEST = '/api/user/respond',
 	UPDATE_USER_PROFILE = '/api/user/profile/update',
 	UPDATE_APIKEYS_CONFIG = '/api/user/config/apikeys',
 	// conversation
@@ -33,6 +34,8 @@ export enum ApiUrl {
 	GET_CHANNEL_MESSAGES = '/api/channel/messages',
 	CHANNEL_SEARCH = '/api/channel/search',
 	SEND_CHANNEL_REQUEST = '/api/channel/request',
+	SEND_CHANNEL_INVITE = '/api/channel/invite',
+	CHANNEL_RESPOND_REQUEST = '/api/channel/respond',
 	REMOVE_CHANNEL_MEMBERSHIP = '/api/channel/membership/remove',
 }
 
@@ -46,6 +49,7 @@ export enum ModalType {
 	PROFILE_MODAL = 'ProfileModal',
 	NOTIFICATION_MODAL = 'NotificationModal',
 	MEMBERSHIP_MODAL = 'MembershipsModal',
+	CHANNEL_INVITE_MODAL = 'ChannelInviteModal',
 }
 
 export enum SidebarTab {
@@ -70,6 +74,7 @@ export enum ProfileModalTab {
 export enum NotificationType {
 	FRIEND_REQUEST = 'Friend Request',
 	JOIN_CHANNEL_REQUEST = 'Join Channel Request',
+	INVITE_CHANNEL_REQUEST = 'Invite to Join Channel',
 }
 
 export enum AvatarSize {

@@ -30,10 +30,10 @@ const socketHandler = (io: Server) => {
 			const providerMap = await userService.initProviders(userId);
 			socket.data.providerMap = providerMap;
 
-			let availableModels = [] as LlmModelZType[];
+			const availableModels = [] as LlmModelZType[];
 			for (const provider of Array.from(providerMap.values())) {
 				const models = await provider.getModels();
-				availableModels = [...availableModels, ...models];
+				availableModels.push(...models);
 			}
 
 			socket.emit(AgentEvent.AVAILABLE_MODELS, availableModels);
@@ -45,8 +45,6 @@ const socketHandler = (io: Server) => {
 		}
 
 		socket.on('disconnect', () => {
-			socket.leave(userRoom);
-			channels.forEach((channel) => socket.leave(CHANNEL_PREFIX + channel.id));
 			console.log(` Socket [${socket.id}] ${userRoom} disconnected`);
 		});
 

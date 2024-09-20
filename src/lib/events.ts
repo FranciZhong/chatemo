@@ -10,7 +10,6 @@ export enum UserEvent {
 
 export enum ConversationEvent {
 	// friend request
-	RESPOND_FRIEND_REQUEST = 'respond_friend_request',
 	NEW_FRIENDSHIP = 'new_friendship',
 	// chat
 	SEND_CONVERSATION_MESSAGE = 'send_conversation_message',
@@ -24,8 +23,8 @@ export enum ConversationEvent {
 
 export enum ChannelEvent {
 	JOIN_CHANNEL_ROOM = 'join_channel_room',
+	LEAVE_CHANNEL_ROOM = 'leave_channel_room',
 	// channel request
-	RESPOND_JOIN_CHANNEL = 'respond_join_channel',
 	JOIN_NEW_CHANNEL = 'join_new_channel',
 	NEW_CHANNEL_MEMBERSHIP = 'new_channel_membership',
 	REMOVE_CHANNEL_MEMBERSHIP = 'remove_channel_membership',

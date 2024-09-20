@@ -75,6 +75,7 @@ export const NotificationSchema = z.object({
 	type: z.enum([
 		NotificationType.FRIEND_REQUEST,
 		NotificationType.JOIN_CHANNEL_REQUEST,
+		NotificationType.INVITE_CHANNEL_REQUEST,
 	]),
 	referToId: z.string().optional(),
 	referTo: z.any().optional(),

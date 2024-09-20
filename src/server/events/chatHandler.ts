@@ -92,7 +92,14 @@ const chatHandler = (io: Server, socket: Socket) => {
 
 			const channelRoom = CHANNEL_PREFIX + channelId;
 			socket.join(channelRoom);
-			socket.on('disconnect', () => socket.leave(channelRoom));
+		}
+	);
+
+	wrapSocketErrorHandler(
+		socket,
+		ChannelEvent.LEAVE_CHANNEL_ROOM,
+		async (channelId: string) => {
+			socket.leave(CHANNEL_PREFIX + channelId);
 		}
 	);
 
@@ -123,6 +130,10 @@ const chatHandler = (io: Server, socket: Socket) => {
 			const senderId = socket.data.session.id as string;
 
 			const message = await channelService.getMessageById(payload.referToId);
+			if (!message) {
+				return;
+			}
+
 			if (message.senderId !== senderId) {
 				throw new ForbiddenError('Cannot delete a message from other members.');
 			}

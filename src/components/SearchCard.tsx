@@ -3,7 +3,7 @@ import IconButton from './IconButton';
 
 interface Props {
 	children: React.ReactNode;
-	onClick: () => Promise<void>;
+	onClick: () => Promise<void> | void;
 }
 
 const SearchCard: React.FC<Props> = ({ children, onClick }) => {

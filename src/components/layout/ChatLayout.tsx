@@ -27,6 +27,7 @@ import { AgentZType, LlmModelZType } from '@/types/llm';
 import { NotificationZType, UserProfileZType } from '@/types/user';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
+import ChannelInviteModal from '../modal/ChannelInviteModal';
 import MembershipsModal from '../modal/MembershipsModal';
 import NavModal from '../modal/NavModal';
 import NotificationModal from '../modal/NotificationModal';
@@ -147,6 +148,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 				(payload: ChannelMembershipZType) => {
 					if (payload.userId === user?.id) {
 						removeChannel(payload.channelId);
+						socket.emit(ChannelEvent.LEAVE_CHANNEL_ROOM, payload.channelId);
 					} else {
 						removeMembership(payload.channelId, payload.id);
 					}
@@ -182,6 +184,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 			<ProfileModal />
 			<NotificationModal />
 			<MembershipsModal />
+			<ChannelInviteModal />
 			<div className="w-screen h-screen flex">
 				{/* todo window size issue */}
 				<NavSidebar />

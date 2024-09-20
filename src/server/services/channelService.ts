@@ -48,12 +48,40 @@ const createJoinRequest = async (
 	);
 
 	if (existRequest) {
-		throw new ConflictError('A request is already sent.');
+		return null;
 	}
 
 	const request = await channelRequestRepository.create(
 		prisma,
 		ChannelRequestType.JOIN,
+		senderId,
+		receiverId,
+		channelId
+	);
+
+	return ChannelRequestSchema.parse(request);
+};
+
+const createInviteRequest = async (
+	senderId: string,
+	receiverId: string,
+	channelId: string
+) => {
+	const existRequest = await channelRequestRepository.selectByChannelReceiver(
+		prisma,
+		channelId,
+		receiverId,
+		ChannelRequestType.INVITE,
+		RequestStatus.PENDING
+	);
+
+	if (existRequest) {
+		throw new ConflictError('A request is already sent.');
+	}
+
+	const request = await channelRequestRepository.create(
+		prisma,
+		ChannelRequestType.INVITE,
 		senderId,
 		receiverId,
 		channelId
@@ -149,7 +177,7 @@ const getChannelMessages = async (
 const getMessageById = async (messageId: string) => {
 	const message = await channelMessageRepository.selectById(prisma, messageId);
 
-	return ChannelMessageSchema.parse(message);
+	return message ? ChannelMessageSchema.parse(message) : null;
 };
 
 const getMessageHistory = async (
@@ -170,7 +198,7 @@ const getMessageHistory = async (
 const getChannelRequestById = async (requestId: string) => {
 	const request = await channelRequestRepository.selectById(prisma, requestId);
 
-	return ChannelRequestSchema.parse(request);
+	return request ? ChannelRequestSchema.parse(request) : request;
 };
 
 const getMembershipById = async (membershipId: string) => {
@@ -179,7 +207,7 @@ const getMembershipById = async (membershipId: string) => {
 		membershipId
 	);
 
-	return ChannelMembershipSchema.parse(membership);
+	return membership ? ChannelMembershipSchema.parse(membership) : null;
 };
 
 const updateMessageContent = async (
@@ -194,7 +222,7 @@ const updateMessageContent = async (
 		content
 	);
 
-	return ChannelMessageSchema.parse(message);
+	return message ? ChannelMessageSchema.parse(message) : null;
 };
 
 const rejectRequest = async (requestId: string) => {
@@ -206,7 +234,7 @@ const rejectRequest = async (requestId: string) => {
 };
 
 const buildMembership = async (requestId: string) => {
-	return await prisma.$transaction(async (client) => {
+	const membership = await prisma.$transaction(async (client) => {
 		const request = await channelRequestRepository.uploadStatusById(
 			client,
 			requestId,
@@ -224,6 +252,8 @@ const buildMembership = async (requestId: string) => {
 
 		return membership;
 	});
+
+	return ChannelMembershipSchema.parse(membership);
 };
 
 const removeMembershipById = async (membershipId: string) => {
@@ -245,6 +275,7 @@ const deleteMessage = async (messageId: string) => {
 const channelService = {
 	createChannel,
 	createJoinRequest,
+	createInviteRequest,
 	createMessage,
 	getChannelsByUserId,
 	getChannelById,

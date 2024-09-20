@@ -94,7 +94,10 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 	};
 
 	useEffect(() => {
-		if (moreMessages && !channel?.messages) {
+		if (
+			moreMessages &&
+			(!channel?.messages || channel.messages.length < TAKE_MESSAGES_DEFAULT)
+		) {
 			fetchMessages();
 		}
 	}, [channel, moreMessages, fetchMessages]);
