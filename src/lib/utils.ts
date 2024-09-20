@@ -28,3 +28,13 @@ export const convertPrompt2LlmMessage = (
 	role: 'system',
 	content: prompt.content,
 });
+
+export const parseIntVal = (val: any) => {
+	if (typeof val === 'string') {
+		const parsed = parseInt(val, 10);
+		if (!isNaN(parsed)) {
+			return parsed;
+		}
+	}
+	return val;
+};

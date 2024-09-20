@@ -18,7 +18,7 @@ import {
 	MessagePayload,
 	MessageZType,
 } from '@/types/chat';
-import { FormatResponse, IdPayload } from '@/types/common';
+import { FormatResponse, IdPayload, SkipTakeQuery } from '@/types/common';
 import { AgentReplyPayload, LlmModelZType } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
 import { redirect } from 'next/navigation';
@@ -80,10 +80,10 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 				FormatResponse<ConversationMessageZType[]>
 			>(ApiUrl.GET_CONVERSATION_MESSAGES, {
 				params: {
-					conversationId: conversation.id,
+					referToId: conversation.id,
 					skip: conversation.messages?.length || 0,
 					take: TAKE_MESSAGES_DEFAULT,
-				},
+				} as SkipTakeQuery,
 			});
 			const messages = response.data.data;
 			if (messages && messages?.length !== 0) {

@@ -1,3 +1,4 @@
+import { parseIntVal } from '@/lib/utils';
 import { RequestStatus, ValidStatus } from '@prisma/client';
 import { z } from 'zod';
 
@@ -48,6 +49,14 @@ export const ParentChildIdPayloadSchema = z.object({
 });
 
 export type ParentChildIdPayload = z.infer<typeof ParentChildIdPayloadSchema>;
+
+export const SkipTakeQuerySchema = z.object({
+	referToId: z.string(),
+	skip: z.preprocess(parseIntVal, z.number().int()),
+	take: z.preprocess(parseIntVal, z.number().int()),
+});
+
+export type SkipTakeQuery = z.infer<typeof SkipTakeQuerySchema>;
 
 export const FilePresignPayloadSchema = z.object({
 	fileName: z.string(),

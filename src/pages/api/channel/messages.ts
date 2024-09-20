@@ -2,7 +2,11 @@ import { BadRequestError, MethodNotAllowedError } from '@/server/error';
 import { wrapErrorHandler } from '@/server/middleware';
 import channelService from '@/server/services/channelService';
 import { ChannelMessageZType } from '@/types/chat';
-import { FormatResponse } from '@/types/common';
+import {
+	FormatResponse,
+	SkipTakeQuery,
+	SkipTakeQuerySchema,
+} from '@/types/common';
 import { HttpStatusCode } from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -11,27 +15,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	let channelId: string;
-	let skipNum: number;
-	let takeNum: number;
-
+	let query: SkipTakeQuery;
 	try {
-		channelId = req.query.channelId as string;
-		const { skip, take } = req.query;
-		if (!channelId || !skip || !take) {
-			throw new BadRequestError();
-		}
-
-		skipNum = parseInt(skip as string);
-		takeNum = parseInt(take as string);
+		query = SkipTakeQuerySchema.parse(req.query);
 	} catch (error) {
 		throw new BadRequestError();
 	}
 
+	const { referToId, skip, take } = query;
+
 	const messages = await channelService.getChannelMessages(
-		channelId,
-		skipNum,
-		takeNum
+		referToId,
+		skip,
+		take
 	);
 
 	res.status(HttpStatusCode.Ok).json({
