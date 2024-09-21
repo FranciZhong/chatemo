@@ -41,7 +41,7 @@ const Editer: React.FC<Props> = ({
 	};
 
 	return (
-		<div className="w-full lg:max-h-[60%] p-1 flex flex-col gap-1">
+		<div className="w-full p-1 flex flex-col gap-1">
 			{children}
 			<div className="flex items-center gap-2">
 				<EmojiPickerButton onEmojiClick={handleClickEmoji} />

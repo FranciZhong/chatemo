@@ -35,13 +35,13 @@ const SettingMenuTrigger = () => {
 							key={value}
 							onClick={() => openModal(ModalType.PROFILE_MODAL, value)}
 						>
-							{value.toUpperCase()}
+							{value}
 						</DropdownMenuItem>
 					))}
 				</DropdownMenuGroup>
 				<Separator orientation="horizontal" />
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
+					<DropdownMenuItem onClick={handleSignOut}>logout</DropdownMenuItem>
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>

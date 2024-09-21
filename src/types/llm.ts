@@ -83,3 +83,19 @@ export const AgentReplyPayloadSchema = z.object({
 });
 
 export type AgentReplyPayload = z.infer<typeof AgentReplyPayloadSchema>;
+
+export const AgentPreviewPayloadSchema = LlmModelSchema.extend({
+	referToId: z.string(),
+	request: z.string(),
+	agentId: z.string().optional(),
+});
+
+export type AgentPreviewPayload = z.infer<typeof AgentPreviewPayloadSchema>;
+
+export const StreamMessagePayloadSchema = z.object({
+	referToId: z.string(),
+	finished: z.boolean(),
+	chunk: z.string().optional(),
+});
+
+export type StreamMessagePayload = z.infer<typeof StreamMessagePayloadSchema>;

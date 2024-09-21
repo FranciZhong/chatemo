@@ -24,7 +24,7 @@ const NavMenuTrigger = () => {
 						key={value}
 						onClick={() => openModal(ModalType.NAV_MODAL, value)}
 					>
-						{value.toUpperCase()}
+						{value}
 					</DropdownMenuItem>
 				))}
 			</DropdownMenuContent>

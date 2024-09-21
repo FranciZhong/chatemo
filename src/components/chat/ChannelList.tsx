@@ -33,7 +33,7 @@ const ChannelList: React.FC = () => {
 		} else {
 			setFilteredChannels(channels);
 		}
-	}, [query, setFilteredChannels]);
+	}, [query, channels, setFilteredChannels]);
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchInput(e.target.value);

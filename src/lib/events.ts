@@ -42,4 +42,6 @@ export enum AgentEvent {
 	AVAILABLE_MODELS = 'available_models',
 	AGENT_REPLY_CONVERSATION = 'agent_reply_conversation',
 	AGENT_REPLY_CHANNEL = 'agent_reply_channel',
+	START_PREVIEW_STREAM = 'start_preview_stream',
+	PREVIEW_STREAM_CHUNK = 'preview_stream_chunk',
 }

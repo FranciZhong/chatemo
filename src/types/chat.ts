@@ -32,6 +32,7 @@ export type MessageTypeZType = z.infer<typeof MessageTypeSchema>;
 
 export const BasicMessageSchema = z.object({
 	id: z.string(),
+	valid: ValidStatusEnumSchema,
 	loading: z.boolean(),
 	createdAt: z.date(),
 	updatedAt: z.date(),

@@ -1,10 +1,16 @@
 import { TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
 import { AgentEvent, ChannelEvent, ConversationEvent } from '@/lib/events';
 import { convertPrompt2LlmMessage } from '@/lib/utils';
-import { AgentReplyPayload, LlmMessageZType, LlmProvider } from '@/types/llm';
+import {
+	AgentPreviewPayload,
+	AgentReplyPayload,
+	LlmMessageZType,
+	LlmProvider,
+	StreamMessagePayload,
+} from '@/types/llm';
 import { Server, Socket } from 'socket.io';
 import { CHANNEL_PREFIX, USER_PREFFIX } from '.';
-import { BadRequestError, ForbiddenError } from '../error';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../error';
 import { wrapSocketErrorHandler } from '../middleware';
 import agentService from '../services/agentService';
 import channelService from '../services/channelService';
@@ -21,7 +27,11 @@ const agentHandler = (io: Server, socket: Socket) => {
 				payload.replyTo
 			);
 
-			const provider: LlmProvider = await getProvider(socket, userId, payload);
+			const provider: LlmProvider = await getProvider(
+				socket,
+				userId,
+				payload.provider
+			);
 
 			// emit pending message
 			const newMessage = await conversationService.createMessage(
@@ -86,7 +96,15 @@ const agentHandler = (io: Server, socket: Socket) => {
 				payload.replyTo
 			);
 
-			const provider: LlmProvider = await getProvider(socket, userId, payload);
+			if (!replyToMessage || replyToMessage.valid !== 'VALID') {
+				throw new NotFoundError();
+			}
+
+			const provider: LlmProvider = await getProvider(
+				socket,
+				userId,
+				payload.provider
+			);
 
 			// emit pending message
 			const newMessage = await channelService.createMessage(
@@ -138,26 +156,69 @@ const agentHandler = (io: Server, socket: Socket) => {
 			);
 		}
 	);
+
+	wrapSocketErrorHandler(
+		socket,
+		AgentEvent.START_PREVIEW_STREAM,
+		async (payload: AgentPreviewPayload) => {
+			const userId = socket.data.session.id as string;
+			const { referToId, request, provider, model, agentId } = payload;
+
+			const llmProvider: LlmProvider = await getProvider(
+				socket,
+				userId,
+				provider
+			);
+
+			const messages: LlmMessageZType[] = [];
+			if (agentId) {
+				const agent = await agentService.getWithPromptsById(agentId);
+				messages.push(
+					...(agent.prompts?.map(
+						(prompt) =>
+							({
+								role: 'system',
+								content: prompt.content,
+							} as LlmMessageZType)
+					) || [])
+				);
+			}
+
+			messages.push({
+				role: 'user',
+				content: request,
+			} as LlmMessageZType);
+
+			await llmProvider.streamMessage(model, messages, (chunk) => {
+				socket.emit(AgentEvent.PREVIEW_STREAM_CHUNK, {
+					referToId,
+					finished: false,
+					chunk,
+				} as StreamMessagePayload);
+			});
+
+			socket.emit(AgentEvent.PREVIEW_STREAM_CHUNK, {
+				referToId,
+				finished: true,
+			} as StreamMessagePayload);
+		}
+	);
 };
 
 export default agentHandler;
 
-async function getProvider(
-	socket: Socket,
-	userId: string,
-	payload: AgentReplyPayload
-) {
+async function getProvider(socket: Socket, userId: string, provider: string) {
 	if (!socket.data.providerMap) {
 		socket.data.providerMap = await userService.initProviders(userId);
 	}
 
-	const provider: LlmProvider = socket.data.providerMap.get(payload.provider);
+	const llmProvider: LlmProvider = socket.data.providerMap.get(provider);
 
-	if (!provider) {
+	if (!llmProvider) {
 		throw new ForbiddenError('Please provide a valid api key to continue.');
 	}
 
-	return provider;
+	return llmProvider;
 }
 
 async function initLlmInputMessages(

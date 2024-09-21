@@ -1,13 +1,13 @@
 import { allowedImageTypes, MAX_IMAGE_FILE_SIZE } from '@/lib/constants';
 import { BasicMessageZType, MessagePayload } from '@/types/chat';
-import { LlmModelZType } from '@/types/llm';
-import { Cross2Icon, ImageIcon, RocketIcon } from '@radix-ui/react-icons';
+import { AgentZType, LlmModelZType } from '@/types/llm';
+import { Cross2Icon, ImageIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
 import { useState } from 'react';
 import FileUploader from '../FileUploader';
 import IconButton from '../IconButton';
+import SelectAgentButton from '../SelectAgentButton';
 import SelectModelButton from '../SelectModelButton';
-import { ScrollArea } from '../ui/scroll-area';
 import AgentPreview from './AgentPreview';
 import Editer from './Editer';
 import RepliedMessage from './RepliedMessage';
@@ -29,28 +29,48 @@ const ChatEditer: React.FC<Props> = ({
 }) => {
 	const [messageContent, setMessageContent] = useState<string>('');
 	const [openPreview, setOpenPreview] = useState<boolean>(false);
+	const [previewRequest, setPreviewRequest] = useState<string>('');
+	const [previewAgent, setPreviewAgent] = useState<AgentZType | null>(null);
 	const [uploadedImage, setUploadedImage] = useState<string | undefined>(
 		undefined
 	);
+
+	const handleSelectedAgentChange = (agent: AgentZType | null) => {
+		setPreviewAgent(agent);
+		setOpenPreview(true);
+	};
+
+	const handleClosePreview = () => {
+		setOpenPreview(false);
+		setPreviewRequest('');
+	};
 
 	const handleDeleteImage = async () => {
 		setUploadedImage(undefined);
 	};
 
 	const handleSubmit = () => {
-		if (!messageContent.length && !uploadedImage) {
-			return;
+		if (openPreview) {
+			if (!messageContent.length) {
+				return;
+			}
+
+			setPreviewRequest(messageContent);
+		} else {
+			if (!messageContent.length && !uploadedImage) {
+				return;
+			}
+
+			const payload: MessagePayload = {
+				content: messageContent,
+				image: uploadedImage,
+				replyTo: replyTo?.id,
+			};
+
+			onSubmit(payload);
+			onDeleteReplyTo();
+			setUploadedImage(undefined);
 		}
-
-		const payload: MessagePayload = {
-			content: messageContent,
-			image: uploadedImage,
-			replyTo: replyTo?.id,
-		};
-
-		onSubmit(payload);
-		onDeleteReplyTo();
-		setUploadedImage(undefined);
 	};
 
 	const actions = [
@@ -69,12 +89,7 @@ const ChatEditer: React.FC<Props> = ({
 			selectedModel={selectedModel}
 			onSelectedModelChange={onSelectedModelChange}
 		/>,
-		<IconButton
-			key="agent-button"
-			onClick={() => setOpenPreview((value) => !value)}
-		>
-			<RocketIcon className="icon-size" />
-		</IconButton>,
+		<SelectAgentButton onSelectedAgentChange={handleSelectedAgentChange} />,
 	];
 
 	return (
@@ -85,9 +100,13 @@ const ChatEditer: React.FC<Props> = ({
 			actions={actions}
 		>
 			{openPreview && (
-				<ScrollArea className="w-full">
-					<AgentPreview request={messageContent} />
-				</ScrollArea>
+				<AgentPreview
+					request={previewRequest}
+					model={selectedModel}
+					agent={previewAgent}
+					onClose={handleClosePreview}
+					className="h-96"
+				/>
 			)}
 
 			{replyTo && (

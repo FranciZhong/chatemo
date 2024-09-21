@@ -45,6 +45,9 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 		model: 'gpt-4o-mini',
 	});
 	const [moreMessages, setMoreMessages] = useState<boolean>(true);
+	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(
+		null
+	);
 
 	const conversation = conversations.find(
 		(item) => item.id === conversationId
@@ -53,10 +56,6 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 	if (!conversation) {
 		redirect(PageUrl.CHAT);
 	}
-
-	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(
-		null
-	);
 
 	const handleReplyTo = useCallback(
 		(messageId: string) => {
@@ -107,7 +106,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 		) {
 			fetchMessages();
 		}
-	}, [conversation, fetchMessages]);
+	}, [conversation, moreMessages, fetchMessages]);
 
 	const handleSubmit = useCallback(
 		(payload: MessagePayload) => {
