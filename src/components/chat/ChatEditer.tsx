@@ -89,7 +89,10 @@ const ChatEditer: React.FC<Props> = ({
 			selectedModel={selectedModel}
 			onSelectedModelChange={onSelectedModelChange}
 		/>,
-		<SelectAgentButton onSelectedAgentChange={handleSelectedAgentChange} />,
+		<SelectAgentButton
+			key="preview-button"
+			onSelectedAgentChange={handleSelectedAgentChange}
+		/>,
 	];
 
 	return (

@@ -3,7 +3,7 @@ import {
 	LlmProviderName,
 	NotificationType,
 } from '@/lib/constants';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/server/db';
 import { LlmProvider } from '@/types/llm';
 import {
 	FriendRequestSchema,

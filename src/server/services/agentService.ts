@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { prisma } from '@/server/db';
 import { AgentProfilePayload, AgentSchema } from '@/types/llm';
 import agentRepository from '../repositories/agentRepository';
 

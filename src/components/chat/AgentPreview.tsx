@@ -67,7 +67,7 @@ const AgentPreview: React.FC<Props> = ({
 		return () => {
 			socket?.off(AgentEvent.PREVIEW_STREAM_CHUNK, previewListener);
 		};
-	}, [request, model, agent, setFinished]);
+	}, [request, model, agent, socket, setFinished]);
 
 	return (
 		<div className={cn('flex flex-col p-2 gap-2', className)}>

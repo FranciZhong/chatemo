@@ -1,9 +1,11 @@
 import { ApiUrl } from '@/lib/constants';
 import socketHandler from '@/server/events';
+import { pubClient, subClient } from '@/server/redis';
 import { NextApiResponseServerIO } from '@/types/socket';
 import { Server as HttpServer } from 'http';
 import { NextApiRequest } from 'next';
 import { Server as SocketServer } from 'socket.io';
+import { createAdapter } from 'socket.io-redis';
 
 const handler = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
 	if (!res.socket.server.io) {
@@ -14,6 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
 			path: ApiUrl.SOCKET,
 		});
 		res.socket.server.io = io;
+		io.adapter(createAdapter({ pubClient, subClient }));
 
 		socketHandler(io);
 

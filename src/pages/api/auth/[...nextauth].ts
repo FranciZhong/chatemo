@@ -1,5 +1,5 @@
 import { PageUrl } from '@/lib/constants';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/server/db';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';

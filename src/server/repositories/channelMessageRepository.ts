@@ -96,6 +96,7 @@ const selectByCreateAtOffset = (
 			createdAt: {
 				lte: createAt,
 			},
+			valid: ValidStatus.VALID,
 		},
 		take,
 		orderBy: {

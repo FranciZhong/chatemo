@@ -65,7 +65,7 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 
 	const deleteReplyTo = useCallback(() => setReplyTo(null), [setReplyTo]);
 
-	const fetchMessages = async () => {
+	const fetchMessages = useCallback(async () => {
 		if (!moreMessages) {
 			return;
 		}
@@ -81,7 +81,7 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 			});
 			const messages = response.data.data;
 			if (messages && messages?.length !== 0) {
-				pushMessages(channelId, messages);
+				pushMessages(channel.id, messages);
 			} else {
 				setMoreMessages(false);
 			}
@@ -91,7 +91,7 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 				description: 'Something went wrong.',
 			});
 		}
-	};
+	}, [moreMessages, channel, pushMessages, setMoreMessages, toast]);
 
 	useEffect(() => {
 		if (

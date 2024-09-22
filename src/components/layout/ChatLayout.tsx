@@ -17,13 +17,10 @@ import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
 import {
 	ChannelMembershipZType,
-	ChannelMessageZType,
 	ChannelZType,
-	ConversationMessageZType,
 	ConversationZType,
 } from '@/types/chat';
-import { ParentChildIdPayload } from '@/types/common';
-import { AgentZType, LlmModelZType } from '@/types/llm';
+import { AgentZType } from '@/types/llm';
 import { NotificationZType, UserProfileZType } from '@/types/user';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
@@ -84,95 +81,177 @@ const ChatLayout: React.FC<Props> = (props) => {
 		setConversations(props.conversations);
 		setAgents(props.agents);
 		setChannels(props.channels);
-	}, [props, setProfile, setNotifications]);
+	}, [
+		props,
+		setProfile,
+		setNotifications,
+		setConversations,
+		setAgents,
+		setChannels,
+	]);
 
 	// init socket and event listeners
 	useEffect(() => {
 		if (!socket) {
 			connect(process.env.HOSTNAME || 'localhost:3000');
-		} else {
-			socket.on(UserEvent.ERROR_ACCTION, (error: string) => {
-				toast({
-					title: 'Error',
-					description: error,
-				});
-			});
-			socket.on(UserEvent.NEW_NOTIFICATION, (payload: NotificationZType) => {
-				pushNotification(payload);
-				toast({
-					title: payload.type,
-					description: 'Check your notification box.',
-					action: (
-						<ToastAction
-							onClick={() => openModal(ModalType.NOTIFICATION_MODAL)}
-							altText="Details"
-						>
-							Details
-						</ToastAction>
-					),
-				});
-			});
-
-			// friend conversations
-			socket.on(
-				ConversationEvent.NEW_FRIENDSHIP,
-				(payload: ConversationZType) => newConversation(payload)
-			);
-			socket.on(
-				ConversationEvent.NEW_CONVERSATION_MESSAGE,
-				(payload: ConversationMessageZType) => newConversationMessage(payload)
-			);
-			socket.on(
-				ConversationEvent.UPDATE_CONVERSATION_MESSAGE,
-				(payload: ConversationMessageZType) =>
-					updateConversationMessage(payload)
-			);
-			socket.on(
-				ConversationEvent.REMOVE_CONVERSATION_MESSAGE,
-				(payload: ParentChildIdPayload) => removeConversationMessage(payload)
-			);
-
-			// channels
-			socket.on(ChannelEvent.JOIN_NEW_CHANNEL, (payload: ChannelZType) => {
-				newChannel(payload);
-				socket.emit(ChannelEvent.JOIN_CHANNEL_ROOM, payload.id);
-			});
-			socket.on(
-				ChannelEvent.NEW_CHANNEL_MEMBERSHIP,
-				(payload: ChannelMembershipZType) => {
-					newMembership(payload);
-				}
-			);
-			socket.on(
-				ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP,
-				(payload: ChannelMembershipZType) => {
-					if (payload.userId === user?.id) {
-						removeChannel(payload.channelId);
-						socket.emit(ChannelEvent.LEAVE_CHANNEL_ROOM, payload.channelId);
-					} else {
-						removeMembership(payload.channelId, payload.id);
-					}
-				}
-			);
-			socket.on(
-				ChannelEvent.NEW_CHANNEL_MESSAGE,
-				(payload: ChannelMessageZType) => newChannelMessage(payload)
-			);
-			socket.on(
-				ChannelEvent.UPDATE_CHANNEL_MESSAGE,
-				(payload: ChannelMessageZType) => updateChannelMessage(payload)
-			);
-			socket.on(
-				ChannelEvent.REMOVE_CHANNEL_MESSAGE,
-				(payload: ParentChildIdPayload) => removeChannelMessage(payload)
-			);
-
-			// agents
-			socket.on(AgentEvent.AVAILABLE_MODELS, (models: LlmModelZType[]) => {
-				setAvailableModels(models);
-			});
 		}
 	}, [socket, connect]);
+
+	useEffect(() => {
+		if (!socket) {
+			return;
+		}
+
+		const handleErrorAction = (error: string) => {
+			toast({
+				title: 'Error',
+				description: error,
+			});
+		};
+
+		socket.on(UserEvent.ERROR_ACCTION, handleErrorAction);
+
+		const handleNewNotification = (payload: NotificationZType) => {
+			pushNotification(payload);
+			toast({
+				title: payload.type,
+				description: 'Check your notification box.',
+				action: (
+					<ToastAction
+						onClick={() => openModal(ModalType.NOTIFICATION_MODAL)}
+						altText="Details"
+					>
+						Details
+					</ToastAction>
+				),
+			});
+		};
+		socket.on(UserEvent.NEW_NOTIFICATION, handleNewNotification);
+
+		return () => {
+			socket.off(UserEvent.ERROR_ACCTION, handleErrorAction);
+			socket.off(UserEvent.NEW_NOTIFICATION, handleNewNotification);
+		};
+	}, [socket, toast, pushNotification, openModal]);
+
+	// friend conversations listeners
+	useEffect(() => {
+		if (!socket) {
+			return;
+		}
+
+		socket.on(ConversationEvent.NEW_FRIENDSHIP, newConversation);
+		socket.on(
+			ConversationEvent.NEW_CONVERSATION_MESSAGE,
+			newConversationMessage
+		);
+		socket.on(
+			ConversationEvent.UPDATE_CONVERSATION_MESSAGE,
+			updateConversationMessage
+		);
+		socket.on(
+			ConversationEvent.REMOVE_CONVERSATION_MESSAGE,
+			removeConversationMessage
+		);
+
+		return () => {
+			socket.off(ConversationEvent.NEW_FRIENDSHIP, newConversation);
+			socket.off(
+				ConversationEvent.NEW_CONVERSATION_MESSAGE,
+				newConversationMessage
+			);
+			socket.off(
+				ConversationEvent.UPDATE_CONVERSATION_MESSAGE,
+				updateConversationMessage
+			);
+			socket.off(
+				ConversationEvent.REMOVE_CONVERSATION_MESSAGE,
+				removeConversationMessage
+			);
+		};
+	}, [
+		socket,
+		newConversation,
+		newConversationMessage,
+		updateConversationMessage,
+		removeConversationMessage,
+	]);
+
+	// channels listeners
+	useEffect(() => {
+		if (!socket) {
+			return;
+		}
+
+		const handleJoinNewChannel = (payload: ChannelZType) => {
+			newChannel(payload);
+			socket.emit(ChannelEvent.JOIN_CHANNEL_ROOM, payload.id);
+		};
+
+		socket.on(ChannelEvent.JOIN_NEW_CHANNEL, handleJoinNewChannel);
+
+		socket.on(ChannelEvent.NEW_CHANNEL_MEMBERSHIP, newMembership);
+
+		const handleRemoveChannelMembership = (payload: ChannelMembershipZType) => {
+			if (payload.userId === user?.id) {
+				removeChannel(payload.channelId);
+				socket.emit(ChannelEvent.LEAVE_CHANNEL_ROOM, payload.channelId);
+			} else {
+				removeMembership(payload.channelId, payload.id);
+			}
+		};
+
+		socket.on(
+			ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP,
+			handleRemoveChannelMembership
+		);
+
+		socket.on(ChannelEvent.NEW_CHANNEL_MESSAGE, newChannelMessage);
+
+		socket.on(ChannelEvent.UPDATE_CHANNEL_MESSAGE, updateChannelMessage);
+
+		socket.on(ChannelEvent.REMOVE_CHANNEL_MESSAGE, removeChannelMessage);
+
+		return () => {
+			socket.off(ChannelEvent.JOIN_NEW_CHANNEL, handleJoinNewChannel);
+
+			socket.off(ChannelEvent.NEW_CHANNEL_MEMBERSHIP, newMembership);
+
+			socket.off(
+				ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP,
+				handleRemoveChannelMembership
+			);
+
+			socket.off(ChannelEvent.NEW_CHANNEL_MESSAGE, newChannelMessage);
+
+			socket.off(ChannelEvent.UPDATE_CHANNEL_MESSAGE, updateChannelMessage);
+
+			socket.off(ChannelEvent.REMOVE_CHANNEL_MESSAGE, removeChannelMessage);
+		};
+	}, [
+		socket,
+		user?.id,
+		newChannel,
+		newMembership,
+		removeChannel,
+		removeMembership,
+		newChannelMessage,
+		updateChannelMessage,
+		removeChannelMessage,
+	]);
+
+	// agent listeners
+	useEffect(() => {
+		if (!socket) {
+			return;
+		}
+
+		socket.on(AgentEvent.AVAILABLE_MODELS, setAvailableModels);
+
+		return () => {
+			socket.off(AgentEvent.AVAILABLE_MODELS, setAvailableModels);
+		};
+	}, [socket, setAvailableModels]);
 
 	if (isLoading) {
 		return <LoadingPage />;

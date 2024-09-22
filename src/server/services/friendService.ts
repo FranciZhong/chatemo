@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { prisma } from '@/server/db';
 import { ConversationSchema } from '@/types/chat';
 import { ConversationType, RequestStatus } from '@prisma/client';
 import { ConflictError, ForbiddenError } from '../error';

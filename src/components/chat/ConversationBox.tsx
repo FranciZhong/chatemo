@@ -69,7 +69,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 
 	const deleteReplyTo = useCallback(() => setReplyTo(null), [setReplyTo]);
 
-	const fetchMessages = async () => {
+	const fetchMessages = useCallback(async () => {
 		if (!moreMessages) {
 			return;
 		}
@@ -86,7 +86,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 			});
 			const messages = response.data.data;
 			if (messages && messages?.length !== 0) {
-				pushMessages(conversationId, messages);
+				pushMessages(conversation.id, messages);
 			} else {
 				setMoreMessages(false);
 			}
@@ -96,7 +96,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 				description: 'Something went wrong.',
 			});
 		}
-	};
+	}, [moreMessages, conversation, pushMessages, setMoreMessages, toast]);
 
 	useEffect(() => {
 		if (
