@@ -55,7 +55,7 @@ const ChatMessageList: React.FC<Props> = ({
 
 	useEffect(() => {
 		scroll2Bottom();
-	}, [messages]);
+	}, [scroll2Bottom]);
 
 	useEffect(() => {
 		if (lastIndex) {

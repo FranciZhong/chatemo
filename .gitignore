@@ -39,7 +39,8 @@ next-env.d.ts
 .env.local
 
 # migration
-/prisma/migrations
+# /prisma/migrations
 
 # test
-*/test.ts
+*/test.*
+test.*
