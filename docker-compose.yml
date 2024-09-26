@@ -2,7 +2,7 @@ version: '3.8'
 services:
   db:
     image: postgres:latest
-    container_name: chatemo_postgres
+    container_name: chatemo-postgres
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -10,7 +10,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - chatemo_postgres_data:/var/lib/postgresql/data
+      - chatemo-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U myuser']
@@ -28,11 +28,11 @@ services:
 
   redis:
     image: redis:latest
-    container_name: chatemo_redis
+    container_name: chatemo-redis
     ports:
       - '6379:6379'
     volumes:
-      - chatemo_redis_data:/data
+      - chatemo-redis-data:/data
     environment:
       - REDIS_PASSWORD=password
     healthcheck:
@@ -47,5 +47,5 @@ services:
           memory: '512M'
 
 volumes:
-  chatemo_postgres_data:
-  chatemo_redis_data:
+  chatemo-postgres-data:
+  chatemo-redis-data:
