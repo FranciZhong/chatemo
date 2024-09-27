@@ -210,6 +210,21 @@ const getMembershipById = async (membershipId: string) => {
 	return membership ? ChannelMembershipSchema.parse(membership) : null;
 };
 
+const closeChannel = async (channelId: string) => {
+	await prisma.$transaction(async (client) => {
+		await channelRepository.updateValidById(
+			client,
+			channelId,
+			ValidStatus.INVALID
+		);
+		await channelMembershipRepository.updateValidByChannelId(
+			client,
+			channelId,
+			ValidStatus.INVALID
+		);
+	});
+};
+
 const updateMessageContent = async (
 	messageId: string,
 	loading: boolean,
@@ -264,6 +279,10 @@ const removeMembershipById = async (membershipId: string) => {
 	);
 };
 
+const assignOwnership = async (channelId: string, ownerId: string) => {
+	await channelRepository.updateOwnerById(prisma, channelId, ownerId);
+};
+
 const deleteMessage = async (messageId: string) => {
 	await channelMessageRepository.updateValidById(
 		prisma,
@@ -286,10 +305,12 @@ const channelService = {
 	getMessageHistory,
 	getChannelRequestById,
 	getMembershipById,
+	closeChannel,
 	updateMessageContent,
 	rejectRequest,
 	buildMembership,
 	removeMembershipById,
+	assignOwnership,
 	deleteMessage,
 };
 

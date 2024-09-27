@@ -27,6 +27,10 @@ const MembershipsModal: React.FC = () => {
 	}
 
 	const channel: ChannelZType = channels.find((item) => item.id === channelId)!;
+	if (!channel) {
+		return null;
+	}
+
 	const memberships: ChannelMembershipZType[] = channel.memberships || [];
 
 	return (

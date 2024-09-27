@@ -1,7 +1,7 @@
 import SearchUserBox from '@/components/SearchUserBox';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, NavModalTab } from '@/lib/constants';
+import { ApiUrl, NavModalTab, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import { FormatResponse, IdPayload } from '@/types/common';
 
 const FindFriendBox: React.FC = () => {
@@ -15,10 +15,7 @@ const FindFriendBox: React.FC = () => {
 				{ referToId } as IdPayload
 			);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

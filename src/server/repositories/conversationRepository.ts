@@ -1,4 +1,9 @@
-import { ConversationType, Prisma, PrismaClient } from '@prisma/client';
+import {
+	ConversationType,
+	Prisma,
+	PrismaClient,
+	ValidStatus,
+} from '@prisma/client';
 
 const create = (
 	prisma: PrismaClient | Prisma.TransactionClient,
@@ -7,9 +12,7 @@ const create = (
 	return prisma.conversation.create({
 		data: {
 			type,
-		},
-		select: {
-			id: true,
+			valid: ValidStatus.VALID,
 		},
 	});
 };
@@ -25,6 +28,7 @@ const selectByIds = (
 			id: {
 				in: ids,
 			},
+			valid: ValidStatus.VALID,
 		},
 		include: {
 			participants: includePaticipants,
@@ -33,6 +37,21 @@ const selectByIds = (
 	});
 };
 
-const conversationRepository = { create, selectByIds };
+const updateValidById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	valid: ValidStatus
+) => {
+	return prisma.conversation.update({
+		where: {
+			id,
+		},
+		data: {
+			valid,
+		},
+	});
+};
+
+const conversationRepository = { create, selectByIds, updateValidById };
 
 export default conversationRepository;

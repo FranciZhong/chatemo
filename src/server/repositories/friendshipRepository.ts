@@ -17,11 +17,22 @@ const create = (
 			userId,
 			friendId,
 			conversationId,
-			status: ValidStatus.VALID,
+			valid: ValidStatus.VALID,
 		},
 		update: {
 			conversationId,
-			status: ValidStatus.VALID,
+			valid: ValidStatus.VALID,
+		},
+	});
+};
+
+const selectById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string
+) => {
+	return prisma.friendship.findUnique({
+		where: {
+			id,
 		},
 	});
 };
@@ -41,9 +52,26 @@ const selectByUserFriend = (
 	});
 };
 
+const updateValidByConversationId = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	conversationId: string,
+	valid: ValidStatus
+) => {
+	return prisma.friendship.updateMany({
+		where: {
+			conversationId,
+		},
+		data: {
+			valid,
+		},
+	});
+};
+
 const friendshipRepository = {
 	create,
+	selectById,
 	selectByUserFriend,
+	updateValidByConversationId,
 };
 
 export default friendshipRepository;

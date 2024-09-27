@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, ProfileModalTab } from '@/lib/constants';
+import { ApiUrl, ProfileModalTab, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import { UserEvent } from '@/lib/events';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
@@ -49,10 +49,7 @@ const ApiKeysBox: React.FC = () => {
 			setProfile(userProfile);
 			socket?.emit(UserEvent.UPDATE_APIKEYS);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

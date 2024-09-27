@@ -1,7 +1,7 @@
 'use client';
 
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, ModalType } from '@/lib/constants';
+import { ApiUrl, ModalType, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import useModalStore from '@/store/modalStore';
 import { FormatResponse, ParentChildIdPayload } from '@/types/common';
 import { useParams } from 'next/navigation';
@@ -35,10 +35,7 @@ const ChannelInviteModal: React.FC = () => {
 				} as ParentChildIdPayload
 			);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

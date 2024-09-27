@@ -3,6 +3,7 @@ import { UserEvent } from '@/lib/events';
 import {
 	BadRequestError,
 	ConflictError,
+	ForbiddenError,
 	MethodNotAllowedError,
 	UnauthorizedError,
 } from '@/server/error';
@@ -10,7 +11,7 @@ import { USER_PREFFIX } from '@/server/events';
 import { wrapErrorHandler } from '@/server/middleware';
 import channelService from '@/server/services/channelService';
 import userService from '@/server/services/userService';
-import { FormatResponse, IdPayloadSchema } from '@/types/common';
+import { FormatResponse, ParentChildIdPayloadSchema } from '@/types/common';
 import { NextApiResponseServerIO } from '@/types/socket';
 import { NotificationZType } from '@/types/user';
 import { HttpStatusCode } from 'axios';
@@ -32,29 +33,36 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new UnauthorizedError();
 	}
 
-	const { referToId: channelId } = IdPayloadSchema.parse(await req.body);
-	const channel = await channelService.getChannelById(channelId, true);
+	const { parentId: channelId, childId: receiverId } =
+		ParentChildIdPayloadSchema.parse(await req.body);
+
+	const channel = await channelService.getChannelById(channelId, false);
 	if (!channel) {
 		throw new BadRequestError();
 	}
 
-	const membership = await channelService.getMembershipByChannelUser(
-		channelId,
-		senderId
-	);
-	if (membership?.valid === 'VALID') {
-		throw new ConflictError('You have already joined this channel.');
+	if (channel.ownerId !== senderId) {
+		throw new ForbiddenError(
+			'Only the channel owner is allowed to invite people.'
+		);
 	}
 
-	const receiverId = channel.ownerId;
-	const request = await channelService.createJoinRequest(
+	const membership = await channelService.getMembershipByChannelUser(
+		channelId,
+		receiverId
+	);
+	if (membership?.valid === 'VALID') {
+		throw new ConflictError('This user has already joined this channel.');
+	}
+
+	const request = await channelService.createInviteRequest(
 		senderId,
 		receiverId,
 		channelId
 	);
 
 	res.status(HttpStatusCode.Created).json({
-		message: 'A join request to this channel is sent.',
+		message: 'A invite request to this user is sent.',
 	} as FormatResponse<any>);
 
 	// send notifications to receivers

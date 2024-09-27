@@ -19,10 +19,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const { success, data: payload } = IdPayloadSchema.safeParse(req.body);
+	const { success, data } = IdPayloadSchema.safeParse(req.body);
 	if (!success) {
 		throw new BadRequestError();
 	}
+	const { referToId: channelId } = data;
 
 	const token = await getToken({ req });
 	if (!token || !token.sub) {
@@ -30,30 +31,31 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const userId = token.sub;
-	const membership = await channelService.getMembershipById(payload.referToId);
+	const membership = await channelService.getMembershipByChannelUser(
+		channelId,
+		userId
+	);
 	if (!membership || membership.valid === 'INVALID') {
 		throw new BadRequestError();
 	}
 
-	const channel = await channelService.getChannelById(
-		membership.channelId,
-		false
-	);
-
-	if (channel.ownerId !== userId) {
-		throw new ForbiddenError();
+	const channel = await channelService.getChannelById(channelId, false);
+	if (channel.ownerId === userId) {
+		throw new ForbiddenError(
+			'Assign the ownership to another member before you leave.'
+		);
 	}
 
-	await channelService.removeMembershipById(payload.referToId);
+	await channelService.removeMembershipById(membership.id);
 
 	res.status(HttpStatusCode.Ok).json({
-		message: 'A membership is removed',
+		message: 'Successfully leave this channel.',
 	} as FormatResponse<undefined>);
 
-	// emit event to memberships
+	// emit event to members
 	const io = (res as NextApiResponseServerIO).socket.server.io;
 	if (membership && io) {
-		const channelRoom = CHANNEL_PREFIX + channel.id;
+		const channelRoom = CHANNEL_PREFIX + membership.channelId;
 		io.to(channelRoom).emit(ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP, membership);
 	}
 };

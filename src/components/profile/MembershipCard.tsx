@@ -1,12 +1,21 @@
 'use client';
 
 import axiosInstance from '@/lib/axios';
-import { ApiUrl } from '@/lib/constants';
+import {
+	ApiUrl,
+	CLOSE_CHANNEL_WARNING_DESC,
+	TOAST_ERROR_DEFAULT,
+} from '@/lib/constants';
+import useConversationStore from '@/store/conversationStore';
 import useUserStore from '@/store/userStore';
 import { ChannelMembershipZType } from '@/types/chat';
-import { FormatResponse, IdPayload } from '@/types/common';
+import {
+	FormatResponse,
+	IdPayload,
+	ParentChildIdPayload,
+} from '@/types/common';
 import { CrownIcon } from 'lucide-react';
-import { useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import ItemContainer from '../ItemContainer';
 import {
 	ContextMenu,
@@ -24,26 +33,69 @@ interface Props {
 }
 
 const MembershipCard: React.FC<Props> = ({ membership, ownerId }) => {
-	const deleteWarningRef = useRef<HTMLDivElement>(null);
+	const asignOwnershipWarningRef = useRef<HTMLDivElement | null>(null);
+	const leaveWarningRef = useRef<HTMLDivElement | null>(null);
+	const removeWarningRef = useRef<HTMLDivElement | null>(null);
+	const closeWarningRef = useRef<HTMLDivElement | null>(null);
 	const { user } = useUserStore();
+	const {} = useConversationStore();
 	const isOwner = user!.id === ownerId;
 	const isSelf = user!.id === membership.userId;
 
-	const handleRemoveMembership = async () => {
+	const handleConnect = useCallback(async () => {
 		try {
-			axiosInstance.post<FormatResponse<any>>(
+			await axiosInstance.post<FormatResponse<any>>(
+				ApiUrl.SEND_FRIEND_REQUEST,
+				{ referToId: membership.userId } as IdPayload
+			);
+		} catch (error) {
+			toast(TOAST_ERROR_DEFAULT);
+		}
+	}, [membership]);
+
+	const handleRemoveMembership = useCallback(async () => {
+		try {
+			await axiosInstance.post<FormatResponse<any>>(
 				ApiUrl.REMOVE_CHANNEL_MEMBERSHIP,
 				{
 					referToId: membership.id,
 				} as IdPayload
 			);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
-	};
+	}, [membership]);
+
+	const handleLeaveChannel = useCallback(async () => {
+		try {
+			await axiosInstance.post<FormatResponse<any>>(ApiUrl.LEAVE_CHANNEL, {
+				referToId: membership.channelId,
+			} as IdPayload);
+		} catch (error) {
+			toast(TOAST_ERROR_DEFAULT);
+		}
+	}, [membership]);
+
+	const handleAsignOwnership = useCallback(async () => {
+		try {
+			await axiosInstance.post<FormatResponse<any>>(ApiUrl.ASSIGN_OWNERSHIP, {
+				parentId: membership.channelId,
+				childId: membership.userId,
+			} as ParentChildIdPayload);
+		} catch (error) {
+			toast(TOAST_ERROR_DEFAULT);
+		}
+	}, [membership]);
+
+	const handleCloseChannel = useCallback(async () => {
+		try {
+			await axiosInstance.post<FormatResponse<any>>(ApiUrl.CLOSE_CHANNEL, {
+				referToId: membership.channelId,
+			} as IdPayload);
+		} catch (error) {
+			toast(TOAST_ERROR_DEFAULT);
+		}
+	}, [membership]);
 
 	return (
 		<div>
@@ -57,22 +109,59 @@ const MembershipCard: React.FC<Props> = ({ membership, ownerId }) => {
 					</ItemContainer>
 				</ContextMenuTrigger>
 				<ContextMenuContent>
-					<ContextMenuItem>Connect</ContextMenuItem>
+					{!isSelf && (
+						<ContextMenuItem onClick={handleConnect}>Connect</ContextMenuItem>
+					)}
 					{isOwner && !isSelf && (
 						<ContextMenuItem
-							onClick={() => deleteWarningRef.current?.click()}
+							onClick={() => asignOwnershipWarningRef.current?.click()}
+						>
+							Asign Ownnership
+						</ContextMenuItem>
+					)}
+					{!isOwner && isSelf && (
+						<ContextMenuItem
+							onClick={() => leaveWarningRef.current?.click()}
 							className="focus:bg-accent"
 						>
-							Remove
+							Leave Channel
+						</ContextMenuItem>
+					)}
+					{isOwner && !isSelf && (
+						<ContextMenuItem
+							onClick={() => removeWarningRef.current?.click()}
+							className="focus:bg-accent"
+						>
+							Remove Member
+						</ContextMenuItem>
+					)}
+					{isOwner && isSelf && (
+						<ContextMenuItem
+							onClick={() => closeWarningRef.current?.click()}
+							className="focus:bg-accent"
+						>
+							Close Channel
 						</ContextMenuItem>
 					)}
 				</ContextMenuContent>
 			</ContextMenu>
+			<WarningTrigger onContinue={handleLeaveChannel}>
+				<div ref={leaveWarningRef} />
+			</WarningTrigger>
 			<WarningTrigger onContinue={handleRemoveMembership}>
-				<div ref={deleteWarningRef} />
+				<div ref={removeWarningRef} />
+			</WarningTrigger>
+			<WarningTrigger onContinue={handleAsignOwnership}>
+				<div ref={asignOwnershipWarningRef} />
+			</WarningTrigger>
+			<WarningTrigger
+				onContinue={handleCloseChannel}
+				description={CLOSE_CHANNEL_WARNING_DESC}
+			>
+				<div ref={closeWarningRef} />
 			</WarningTrigger>
 		</div>
 	);
 };
 
-export default MembershipCard;
+export default memo(MembershipCard);

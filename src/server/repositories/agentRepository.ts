@@ -55,6 +55,7 @@ const selectByUserId = (
 	return prisma.agent.findMany({
 		where: {
 			userId,
+			valid: ValidStatus.VALID,
 		},
 		include: {
 			prompts: includePrompts && {
@@ -66,6 +67,21 @@ const selectByUserId = (
 	});
 };
 
-const agentRepository = { create, selectById, selectByUserId };
+const updateValidById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	valid: ValidStatus
+) => {
+	return prisma.agent.update({
+		where: {
+			id,
+		},
+		data: {
+			valid,
+		},
+	});
+};
+
+const agentRepository = { create, selectById, selectByUserId, updateValidById };
 
 export default agentRepository;

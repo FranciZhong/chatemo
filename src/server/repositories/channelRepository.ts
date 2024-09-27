@@ -62,6 +62,42 @@ const selectByNamePrefix = (
 	});
 };
 
-const channelRepository = { create, selectByIds, selectByNamePrefix };
+const updateOwnerById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	ownerId: string
+) => {
+	return prisma.channel.update({
+		where: {
+			id,
+		},
+		data: {
+			ownerId,
+		},
+	});
+};
+
+const updateValidById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	valid: ValidStatus
+) => {
+	return prisma.channel.update({
+		where: {
+			id,
+		},
+		data: {
+			valid,
+		},
+	});
+};
+
+const channelRepository = {
+	create,
+	selectByIds,
+	selectByNamePrefix,
+	updateOwnerById,
+	updateValidById,
+};
 
 export default channelRepository;

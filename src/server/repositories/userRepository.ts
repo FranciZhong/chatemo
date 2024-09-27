@@ -4,10 +4,18 @@ import { JsonObject } from '@prisma/client/runtime/library';
 
 const selectById = (
 	prisma: PrismaClient | Prisma.TransactionClient,
-	id: string
+	id: string,
+	includeFriendships?: boolean
 ) => {
 	return prisma.user.findFirst({
 		where: { id },
+		include: {
+			friendships: includeFriendships && {
+				where: {
+					userId: id,
+				},
+			},
+		},
 	});
 };
 

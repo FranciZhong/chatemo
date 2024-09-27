@@ -79,12 +79,28 @@ const updateValidById = (
 	});
 };
 
+const updateValidByChannelId = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	channelId: string,
+	valid: ValidStatus
+) => {
+	return prisma.channelMembership.updateMany({
+		where: {
+			channelId,
+		},
+		data: {
+			valid,
+		},
+	});
+};
+
 const channelMembershipRepository = {
 	create,
 	selectById,
 	selectByUserId,
 	selectByChannelUser,
 	updateValidById,
+	updateValidByChannelId,
 };
 
 export default channelMembershipRepository;

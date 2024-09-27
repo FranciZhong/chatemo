@@ -22,19 +22,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const token = await getToken({ req });
-	if (!token) {
+	if (!token || !token.sub) {
 		throw new UnauthorizedError();
 	}
 
 	const userId = token.sub;
 
-	if (!userId) {
-		throw new UnauthorizedError();
+	const { success, data } = AcceptRejectPayloadSchema.safeParse(req.body);
+
+	if (!success) {
+		throw new BadRequestError();
 	}
 
-	const { referToId: requestId, status } = AcceptRejectPayloadSchema.parse(
-		await req.body
-	);
+	const { referToId: requestId, status } = data;
 
 	const request = await userService.getFriendRequestById(requestId);
 	if (request.receiverId !== userId) {

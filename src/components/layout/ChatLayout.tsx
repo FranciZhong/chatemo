@@ -21,7 +21,11 @@ import {
 	ConversationZType,
 } from '@/types/chat';
 import { AgentZType } from '@/types/llm';
-import { NotificationZType, UserProfileZType } from '@/types/user';
+import {
+	FriendshipZType,
+	NotificationZType,
+	UserProfileZType,
+} from '@/types/user';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
 import ChannelInviteModal from '../modal/ChannelInviteModal';
@@ -46,11 +50,12 @@ interface Props {
 const ChatLayout: React.FC<Props> = (props) => {
 	const [isLoading, setLoading] = useState(true);
 	const { socket, connect } = useSocketStore();
-	const { user, setProfile } = useUserStore();
+	const { user, setProfile, newFriendship, removeFriendship } = useUserStore();
 	const { setNotifications, pushNotification } = useNotificationStore();
 	const {
 		setConversations,
 		newConversation,
+		removeConversation,
 		newMessage: newConversationMessage,
 		updateMessage: updateConversationMessage,
 		removeMessage: removeConversationMessage,
@@ -59,6 +64,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 	const {
 		setChannels,
 		newChannel,
+		updateChannel,
 		removeChannel,
 		newMembership,
 		removeMembership,
@@ -109,8 +115,6 @@ const ChatLayout: React.FC<Props> = (props) => {
 			});
 		};
 
-		socket.on(UserEvent.ERROR_ACCTION, handleErrorAction);
-
 		const handleNewNotification = (payload: NotificationZType) => {
 			pushNotification(payload);
 			toast({
@@ -126,6 +130,8 @@ const ChatLayout: React.FC<Props> = (props) => {
 				),
 			});
 		};
+
+		socket.on(UserEvent.ERROR_ACCTION, handleErrorAction);
 		socket.on(UserEvent.NEW_NOTIFICATION, handleNewNotification);
 
 		return () => {
@@ -140,7 +146,20 @@ const ChatLayout: React.FC<Props> = (props) => {
 			return;
 		}
 
-		socket.on(ConversationEvent.NEW_FRIENDSHIP, newConversation);
+		const handleNewFriendship = (payload: ConversationZType) => {
+			newConversation(payload);
+			payload.friendships
+				?.filter((friendship) => friendship.userId === user?.id)
+				.forEach((friendship) => newFriendship(friendship));
+		};
+
+		const handleRemoveFriendship = (payload: FriendshipZType) => {
+			removeConversation(payload.conversationId);
+			removeFriendship(payload.id);
+		};
+
+		socket.on(ConversationEvent.NEW_FRIENDSHIP, handleNewFriendship);
+		socket.on(ConversationEvent.REMOVE_FRIENDSHIP, handleRemoveFriendship);
 		socket.on(
 			ConversationEvent.NEW_CONVERSATION_MESSAGE,
 			newConversationMessage
@@ -155,7 +174,8 @@ const ChatLayout: React.FC<Props> = (props) => {
 		);
 
 		return () => {
-			socket.off(ConversationEvent.NEW_FRIENDSHIP, newConversation);
+			socket.off(ConversationEvent.NEW_FRIENDSHIP, handleNewFriendship);
+			socket.off(ConversationEvent.REMOVE_FRIENDSHIP, handleRemoveFriendship);
 			socket.off(
 				ConversationEvent.NEW_CONVERSATION_MESSAGE,
 				newConversationMessage
@@ -171,7 +191,11 @@ const ChatLayout: React.FC<Props> = (props) => {
 		};
 	}, [
 		socket,
+		user?.id,
+		newFriendship,
+		removeFriendship,
 		newConversation,
+		removeConversation,
 		newConversationMessage,
 		updateConversationMessage,
 		removeConversationMessage,
@@ -188,10 +212,6 @@ const ChatLayout: React.FC<Props> = (props) => {
 			socket.emit(ChannelEvent.JOIN_CHANNEL_ROOM, payload.id);
 		};
 
-		socket.on(ChannelEvent.JOIN_NEW_CHANNEL, handleJoinNewChannel);
-
-		socket.on(ChannelEvent.NEW_CHANNEL_MEMBERSHIP, newMembership);
-
 		const handleRemoveChannelMembership = (payload: ChannelMembershipZType) => {
 			if (payload.userId === user?.id) {
 				removeChannel(payload.channelId);
@@ -201,39 +221,36 @@ const ChatLayout: React.FC<Props> = (props) => {
 			}
 		};
 
+		socket.on(ChannelEvent.JOIN_NEW_CHANNEL, handleJoinNewChannel);
+		socket.on(ChannelEvent.UPDATE_CHANNEL_META, updateChannel);
+		socket.on(ChannelEvent.NEW_CHANNEL_MEMBERSHIP, newMembership);
 		socket.on(
 			ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP,
 			handleRemoveChannelMembership
 		);
-
 		socket.on(ChannelEvent.NEW_CHANNEL_MESSAGE, newChannelMessage);
-
 		socket.on(ChannelEvent.UPDATE_CHANNEL_MESSAGE, updateChannelMessage);
-
 		socket.on(ChannelEvent.REMOVE_CHANNEL_MESSAGE, removeChannelMessage);
 
 		return () => {
 			socket.off(ChannelEvent.JOIN_NEW_CHANNEL, handleJoinNewChannel);
-
+			socket.off(ChannelEvent.UPDATE_CHANNEL_META, updateChannel);
 			socket.off(ChannelEvent.NEW_CHANNEL_MEMBERSHIP, newMembership);
-
 			socket.off(
 				ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP,
 				handleRemoveChannelMembership
 			);
-
 			socket.off(ChannelEvent.NEW_CHANNEL_MESSAGE, newChannelMessage);
-
 			socket.off(ChannelEvent.UPDATE_CHANNEL_MESSAGE, updateChannelMessage);
-
 			socket.off(ChannelEvent.REMOVE_CHANNEL_MESSAGE, removeChannelMessage);
 		};
 	}, [
 		socket,
 		user?.id,
 		newChannel,
-		newMembership,
+		updateChannel,
 		removeChannel,
+		newMembership,
 		removeMembership,
 		newChannelMessage,
 		updateChannelMessage,

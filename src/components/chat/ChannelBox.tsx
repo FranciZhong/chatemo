@@ -6,6 +6,7 @@ import {
 	LlmProviderName,
 	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
+	TOAST_ERROR_DEFAULT,
 } from '@/lib/constants';
 import { AgentEvent, ChannelEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
@@ -86,10 +87,7 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 				setMoreMessages(false);
 			}
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	}, [moreMessages, channel, pushMessages, setMoreMessages, toast]);
 

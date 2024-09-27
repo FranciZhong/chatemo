@@ -22,11 +22,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const token = await getToken({ req });
-	if (!token) {
+	if (!token || !token.sub) {
 		throw new UnauthorizedError();
 	}
 
-	const userId = token.sub!;
+	const userId = token.sub;
 	const user = await userService.updateProfile(userId, payload);
 
 	res.status(HttpStatusCode.Ok).json({

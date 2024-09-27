@@ -14,7 +14,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, ImgUrl, ProfileModalTab } from '@/lib/constants';
+import {
+	ApiUrl,
+	ImgUrl,
+	ProfileModalTab,
+	TOAST_ERROR_DEFAULT,
+} from '@/lib/constants';
 import useModalStore from '@/store/modalStore';
 import useUserStore from '@/store/userStore';
 import { FormatResponse } from '@/types/common';
@@ -52,10 +57,7 @@ const USerProfileBox: React.FC = () => {
 				closeModal();
 			}
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

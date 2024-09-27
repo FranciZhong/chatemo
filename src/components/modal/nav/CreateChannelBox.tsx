@@ -2,7 +2,7 @@
 
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, NavModalTab } from '@/lib/constants';
+import { ApiUrl, NavModalTab, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import { ChannelEvent } from '@/lib/events';
 import useChannelStore from '@/store/channelStore';
 import useModalStore from '@/store/modalStore';
@@ -30,10 +30,7 @@ const CreateChannelBox: React.FC = () => {
 				socket?.emit(ChannelEvent.JOIN_CHANNEL_ROOM, channel.id);
 			}
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

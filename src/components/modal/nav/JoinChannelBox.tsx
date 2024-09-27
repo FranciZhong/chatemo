@@ -1,7 +1,7 @@
 import ChannelCard from '@/components/profile/ChannelCard';
 import { useToast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, NavModalTab } from '@/lib/constants';
+import { ApiUrl, NavModalTab, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import { ChannelZType } from '@/types/chat';
 import { FormatResponse, IdPayload } from '@/types/common';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -61,10 +61,7 @@ const JoinChannelBox: React.FC = () => {
 				{ referToId } as IdPayload
 			);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

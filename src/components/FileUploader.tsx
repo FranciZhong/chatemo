@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import { ApiUrl } from '@/lib/constants';
+import { ApiUrl, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import {
 	FilePresignPayload,
 	FilePresignResponse,
@@ -85,10 +85,7 @@ const FileUploader: React.FC<Props> = ({
 
 			onChange(fileUrl);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

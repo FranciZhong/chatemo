@@ -2,16 +2,13 @@ import { NotificationType } from '@/lib/constants';
 import { UserEvent } from '@/lib/events';
 import {
 	BadRequestError,
-	ConflictError,
-	ForbiddenError,
 	MethodNotAllowedError,
 	UnauthorizedError,
 } from '@/server/error';
 import { USER_PREFFIX } from '@/server/events';
 import { wrapErrorHandler } from '@/server/middleware';
-import channelService from '@/server/services/channelService';
 import userService from '@/server/services/userService';
-import { FormatResponse, ParentChildIdPayloadSchema } from '@/types/common';
+import { FormatResponse, IdPayloadSchema } from '@/types/common';
 import { NextApiResponseServerIO } from '@/types/socket';
 import { NotificationZType } from '@/types/user';
 import { HttpStatusCode } from 'axios';
@@ -24,45 +21,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const token = await getToken({ req });
-	if (!token) {
+	if (!token || !token.sub) {
 		throw new UnauthorizedError();
 	}
 
 	const senderId = token.sub;
-	if (!senderId) {
-		throw new UnauthorizedError();
-	}
 
-	const { parentId: channelId, childId: receiverId } =
-		ParentChildIdPayloadSchema.parse(await req.body);
-
-	const channel = await channelService.getChannelById(channelId, true);
-	if (!channel) {
+	const { success, data } = IdPayloadSchema.safeParse(req.body);
+	if (!success) {
 		throw new BadRequestError();
 	}
 
-	if (channel.ownerId !== senderId) {
-		throw new ForbiddenError(
-			'Only the channel owner is allowed to invite people.'
-		);
-	}
-
-	const membership = await channelService.getMembershipByChannelUser(
-		channelId,
-		receiverId
-	);
-	if (membership?.valid === 'VALID') {
-		throw new ConflictError('This user has already joined this channel.');
-	}
-
-	const request = await channelService.createInviteRequest(
-		senderId,
-		receiverId,
-		channelId
-	);
+	const receiverId = data.referToId;
+	const request = await userService.sendFriendRequest(senderId, receiverId);
 
 	res.status(HttpStatusCode.Created).json({
-		message: 'A invite request to this user is sent.',
+		message: 'A friend request is sent.',
 	} as FormatResponse<any>);
 
 	// send notifications to receivers
@@ -72,11 +46,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		const receiverRoom = USER_PREFFIX + receiverId;
 		io.to(receiverRoom).emit(UserEvent.NEW_NOTIFICATION, {
-			type: NotificationType.JOIN_CHANNEL_REQUEST,
+			type: NotificationType.FRIEND_REQUEST,
 			referToId: request.id,
 			referTo: request,
 			from: sender,
-			title: NotificationType.JOIN_CHANNEL_REQUEST,
+			title: NotificationType.FRIEND_REQUEST,
 		} as NotificationZType);
 	}
 };

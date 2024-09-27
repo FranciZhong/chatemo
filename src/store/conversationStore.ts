@@ -6,7 +6,7 @@ type ConversationStore = {
 	conversations: ConversationZType[];
 	setConversations: (conversations: ConversationZType[]) => void;
 	newConversation: (conversation: ConversationZType) => void;
-	updateConversation: (conversation: ConversationZType) => void;
+	// updateConversation: (conversation: ConversationZType) => void;
 	removeConversation: (conversationId: string) => void;
 	pushMessages: (
 		conversationId: string,
@@ -37,23 +37,23 @@ const useConversationStore = create<ConversationStore>((set) => ({
 		}));
 	},
 
-	updateConversation: (conversation: ConversationZType) => {
-		set((state) => ({
-			...state,
-			conversations: [
-				...state.conversations.map((item) => {
-					if (item.id === conversation.id) {
-						return {
-							...item,
-							...conversation,
-						};
-					} else {
-						return item;
-					}
-				}),
-			],
-		}));
-	},
+	// updateConversation: (conversation: ConversationZType) => {
+	// 	set((state) => ({
+	// 		...state,
+	// 		conversations: [
+	// 			...state.conversations.map((item) => {
+	// 				if (item.id === conversation.id) {
+	// 					return {
+	// 						...item,
+	// 						...conversation,
+	// 					};
+	// 				} else {
+	// 					return item;
+	// 				}
+	// 			}),
+	// 		],
+	// 	}));
+	// },
 
 	removeConversation: (conversationId: string) => {
 		set((state) => ({

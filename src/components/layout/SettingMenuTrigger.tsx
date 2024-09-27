@@ -41,7 +41,7 @@ const SettingMenuTrigger = () => {
 				</DropdownMenuGroup>
 				<Separator orientation="horizontal" />
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={handleSignOut}>logout</DropdownMenuItem>
+					<DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>

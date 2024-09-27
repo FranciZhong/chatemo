@@ -14,7 +14,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, ImgUrl, NavModalTab } from '@/lib/constants';
+import {
+	ApiUrl,
+	ImgUrl,
+	NavModalTab,
+	TOAST_ERROR_DEFAULT,
+} from '@/lib/constants';
 import useAgentStore from '@/store/agentStore';
 import useModalStore from '@/store/modalStore';
 import { FormatResponse } from '@/types/common';
@@ -55,10 +60,7 @@ const CreateAgentBox: React.FC = () => {
 				closeModal();
 			}
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

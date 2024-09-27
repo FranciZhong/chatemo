@@ -7,6 +7,8 @@ import { prisma } from '@/server/db';
 import { LlmProvider } from '@/types/llm';
 import {
 	FriendRequestSchema,
+	FriendshipSchema,
+	FriendshipZType,
 	NotificationZType,
 	ProfilePayload,
 	UserConfigZType,
@@ -18,8 +20,10 @@ import { ConflictError, NotFoundError } from '../error';
 import AuthropicProvider from '../gateways/providers/anthropicProvider';
 import OpenAiProvider from '../gateways/providers/openAiProvider';
 import channelRequestRepository from '../repositories/channelRequestRepository';
+import conversationRepository from '../repositories/conversationRepository';
 import friendRequestRepository from '../repositories/friendRequestRepository';
 import friendshipRepository from '../repositories/friendshipRepository';
+import participantRepository from '../repositories/participantRepository';
 import userRepository from '../repositories/userRepository';
 
 const getByIds = async (ids: string[]) => {
@@ -29,7 +33,7 @@ const getByIds = async (ids: string[]) => {
 };
 
 const getProfileById = async (id: string) => {
-	const user = await userRepository.selectById(prisma, id);
+	const user = await userRepository.selectById(prisma, id, true);
 	if (!user) {
 		throw new NotFoundError('No user found');
 	}
@@ -86,6 +90,27 @@ const getFriendRequestById = async (requestId: string) => {
 	return FriendRequestSchema.parse(request);
 };
 
+const getFriendshipsById = async (friendshipId: string) => {
+	const userFriendship = await friendshipRepository.selectById(
+		prisma,
+		friendshipId
+	);
+	if (!userFriendship) {
+		return [] as FriendshipZType[];
+	}
+
+	const friendFriendship = await friendshipRepository.selectByUserFriend(
+		prisma,
+		userFriendship.friendId,
+		userFriendship.userId
+	);
+
+	return [
+		FriendshipSchema.parse(userFriendship),
+		FriendshipSchema.parse(friendFriendship),
+	];
+};
+
 const searchByName = async (name: string) => {
 	const users = await userRepository.selectStartWithName(
 		prisma,
@@ -111,7 +136,7 @@ const sendFriendRequest = async (senderId: string, receiverId: string) => {
 		senderId,
 		receiverId
 	);
-	if (existFrienship?.status === ValidStatus.VALID) {
+	if (existFrienship?.valid === ValidStatus.VALID) {
 		throw new ConflictError('This user is already your friend.');
 	}
 
@@ -130,6 +155,26 @@ const sendFriendRequest = async (senderId: string, receiverId: string) => {
 	});
 
 	return request ? FriendRequestSchema.parse(request) : null;
+};
+
+const deleteConversation = async (conversationId: string) => {
+	await prisma.$transaction(async (client) => {
+		await conversationRepository.updateValidById(
+			client,
+			conversationId,
+			ValidStatus.INVALID
+		);
+		await participantRepository.updateValidByConversationId(
+			client,
+			conversationId,
+			ValidStatus.INVALID
+		);
+		await friendshipRepository.updateValidByConversationId(
+			client,
+			conversationId,
+			ValidStatus.INVALID
+		);
+	});
 };
 
 const updateProfile = async (userId: string, payload: ProfilePayload) => {
@@ -179,8 +224,10 @@ const userService = {
 	getProfileById,
 	getNotificationsByUserId,
 	getFriendRequestById,
+	getFriendshipsById,
 	searchByName,
 	sendFriendRequest,
+	deleteConversation,
 	updateProfile,
 	updateConfig,
 	initProviders,

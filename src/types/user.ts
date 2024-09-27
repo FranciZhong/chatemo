@@ -45,12 +45,6 @@ export const UserConfigSchema = z.object({
 
 export type UserConfigZType = z.infer<typeof UserConfigSchema>;
 
-export const UserProfileSchema = UserSchema.extend({
-	config: UserConfigSchema.optional(),
-});
-
-export type UserProfileZType = z.infer<typeof UserProfileSchema>;
-
 export const FriendRequestSchema = z.object({
 	id: z.string(),
 	createdAt: z.date(),
@@ -65,11 +59,19 @@ export const FriendshipSchema = z.object({
 	createdAt: z.date(),
 	userId: z.string(),
 	friendId: z.string(),
-	status: ValidStatusEnumSchema,
+	conversationId: z.string(),
+	valid: ValidStatusEnumSchema,
 	friend: UserSchema.optional(),
 });
 
-export type FriendShipZType = z.infer<typeof FriendRequestSchema>;
+export type FriendshipZType = z.infer<typeof FriendshipSchema>;
+
+export const UserProfileSchema = UserSchema.extend({
+	config: UserConfigSchema.optional(),
+	friendships: z.array(FriendshipSchema),
+});
+
+export type UserProfileZType = z.infer<typeof UserProfileSchema>;
 
 export const NotificationSchema = z.object({
 	type: z.enum([

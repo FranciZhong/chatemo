@@ -5,7 +5,7 @@ import {
 	MethodNotAllowedError,
 	UnauthorizedError,
 } from '@/server/error';
-import { CHANNEL_PREFIX } from '@/server/events';
+import { USER_PREFFIX } from '@/server/events';
 import { wrapErrorHandler } from '@/server/middleware';
 import channelService from '@/server/services/channelService';
 import { FormatResponse, IdPayloadSchema } from '@/types/common';
@@ -19,10 +19,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const { success, data: payload } = IdPayloadSchema.safeParse(req.body);
+	const { success, data } = IdPayloadSchema.safeParse(req.body);
 	if (!success) {
 		throw new BadRequestError();
 	}
+	const { referToId: channelId } = data;
 
 	const token = await getToken({ req });
 	if (!token || !token.sub) {
@@ -30,31 +31,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const userId = token.sub;
-	const membership = await channelService.getMembershipById(payload.referToId);
-	if (!membership || membership.valid === 'INVALID') {
-		throw new BadRequestError();
-	}
-
-	const channel = await channelService.getChannelById(
-		membership.channelId,
-		false
-	);
-
+	const channel = await channelService.getChannelById(channelId, true);
 	if (channel.ownerId !== userId) {
 		throw new ForbiddenError();
 	}
 
-	await channelService.removeMembershipById(payload.referToId);
+	await channelService.closeChannel(channelId);
 
 	res.status(HttpStatusCode.Ok).json({
-		message: 'A membership is removed',
+		message: 'Successfully close this channel',
 	} as FormatResponse<undefined>);
 
-	// emit event to memberships
+	// emit event to members
 	const io = (res as NextApiResponseServerIO).socket.server.io;
-	if (membership && io) {
-		const channelRoom = CHANNEL_PREFIX + channel.id;
-		io.to(channelRoom).emit(ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP, membership);
+	if (io) {
+		channel.memberships?.forEach((membership) => {
+			io.to(USER_PREFFIX + membership.userId).emit(
+				ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP,
+				membership
+			);
+		});
 	}
 };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, PageUrl } from '@/lib/constants';
+import { ApiUrl, PageUrl, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import useAgentStore from '@/store/agentStore';
 import { FormatResponse } from '@/types/common';
 import { AgentPromptPayload, AgentZType } from '@/types/llm';
@@ -38,10 +38,7 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 				updateAgent(agent);
 			}
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

@@ -4,6 +4,7 @@ import {
 	ApiUrl,
 	AvatarSize,
 	MAX_IMAGE_FILE_SIZE,
+	TOAST_ERROR_DEFAULT,
 } from '@/lib/constants';
 import { cn, getAvatarSizeStyle } from '@/lib/utils';
 import {
@@ -91,10 +92,7 @@ const AvatarUploader: React.FC<Props> = ({ image, onChange }) => {
 			setIsUploading(false);
 			setIsError(true);
 			setUploadMessage('Something went wrong.');
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

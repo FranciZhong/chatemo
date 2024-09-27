@@ -130,6 +130,7 @@ export type AvailableTypeZType = z.infer<typeof AvailableTypeSchema>;
 
 export const ChannelSchema = z.object({
 	id: z.string(),
+	valid: ValidStatusEnumSchema,
 	createdAt: z.date(),
 	type: AvailableTypeSchema,
 	ownerId: z.string(),

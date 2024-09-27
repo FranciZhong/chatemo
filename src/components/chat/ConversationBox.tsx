@@ -6,6 +6,7 @@ import {
 	LlmProviderName,
 	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
+	TOAST_ERROR_DEFAULT,
 } from '@/lib/constants';
 import { AgentEvent, ConversationEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
@@ -91,10 +92,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 				setMoreMessages(false);
 			}
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	}, [moreMessages, conversation, pushMessages, setMoreMessages, toast]);
 

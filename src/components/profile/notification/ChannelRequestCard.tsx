@@ -1,6 +1,6 @@
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, AvatarSize } from '@/lib/constants';
+import { ApiUrl, AvatarSize, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import useNotificationStore from '@/store/notificationStore';
 import {
 	AcceptRejectPayload,
@@ -30,10 +30,7 @@ const ChannelRequestCard: React.FC<Props> = ({ notification }) => {
 			);
 			removeNotification(notification.referToId!);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Something went wrong.',
-			});
+			toast(TOAST_ERROR_DEFAULT);
 		}
 	};
 

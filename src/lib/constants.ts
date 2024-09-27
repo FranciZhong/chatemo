@@ -19,24 +19,30 @@ export enum ApiUrl {
 	FILE_PRESIGN = '/api/file/presign',
 	// user
 	USER_SEARCH = '/api/user/search',
-	SEND_FRIEND_REQUEST = '/api/user/request',
-	RESPOND_FRIEND_REQUEST = '/api/user/respond',
 	UPDATE_USER_PROFILE = '/api/user/profile/update',
 	UPDATE_APIKEYS_CONFIG = '/api/user/config/apikeys',
+	// friendship
+	SEND_FRIEND_REQUEST = '/api/friend/request',
+	RESPOND_FRIEND_REQUEST = '/api/friend/respond',
+	DELETE_FRIENDSHIP = '/api/friend/delete',
 	// conversation
 	GET_CONVERSATION_MESSAGES = '/api/conversation/messages',
 	// agent
 	CREATE_AGENT = '/api/agent/create',
+	DELETE_AGENT = '/api/agent/delete',
 	GET_ALL_AGENT = '/api/agent/all',
 	AGENT_PROMPT = '/api/agent/prompt',
 	// channel
 	CREATE_CHANNEL = '/api/channel/create',
+	CLOSE_CHANNEL = '/api/channel/close',
 	GET_CHANNEL_MESSAGES = '/api/channel/messages',
 	CHANNEL_SEARCH = '/api/channel/search',
-	SEND_CHANNEL_REQUEST = '/api/channel/request',
-	SEND_CHANNEL_INVITE = '/api/channel/invite',
-	CHANNEL_RESPOND_REQUEST = '/api/channel/respond',
+	SEND_CHANNEL_REQUEST = '/api/channel/membership/request',
+	SEND_CHANNEL_INVITE = '/api/channel/membership/invite',
+	CHANNEL_RESPOND_REQUEST = '/api/channel/membership/respond',
 	REMOVE_CHANNEL_MEMBERSHIP = '/api/channel/membership/remove',
+	LEAVE_CHANNEL = '/api/channel/membership/leave',
+	ASSIGN_OWNERSHIP = '/api/channel/membership/ownership',
 }
 
 export enum Theme {
@@ -59,16 +65,16 @@ export enum SidebarTab {
 }
 
 export enum NavModalTab {
-	FIND_FRIEND = 'find friend',
-	ADD_AGENT = 'add agent',
-	JOIN_CHANNEL = 'join channel',
-	CREATE_CHANNEL = 'create channel',
+	FIND_FRIEND = 'Find Friend',
+	ADD_AGENT = 'Add Agent',
+	JOIN_CHANNEL = 'Join Channel',
+	CREATE_CHANNEL = 'Create Channel',
 }
 
 export enum ProfileModalTab {
-	USER_PROFILE = 'user profile',
-	API_KEYS = 'api keys',
-	MODEL_SETTING = 'model setting',
+	USER_PROFILE = 'User Profile',
+	API_KEYS = 'Api Keys',
+	MODEL_SETTING = 'Model Setting',
 }
 
 export enum NotificationType {
@@ -111,3 +117,11 @@ export const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;
 export const DEFAULT_SELECT_LIMIT = 20;
 export const TAKE_MESSAGES_DEFAULT = 20;
 export const TAKE_MESSAGES_LIMIT = 50;
+
+// text
+export const TOAST_ERROR_DEFAULT = {
+	title: 'Error',
+	description: 'Something went wrong.',
+};
+export const CLOSE_CHANNEL_WARNING_DESC =
+	'This channel will be closed forever and all members are lost. If you want to keep this channel, please asign this channel to someone else.';

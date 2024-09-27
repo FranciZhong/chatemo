@@ -1,12 +1,12 @@
 import {
 	BadRequestError,
+	ForbiddenError,
 	MethodNotAllowedError,
 	UnauthorizedError,
 } from '@/server/error';
 import { wrapErrorHandler } from '@/server/middleware';
-import userService from '@/server/services/userService';
-import { FormatResponse } from '@/types/common';
-import { ApiConfigSchema, UserProfileZType } from '@/types/user';
+import agentService from '@/server/services/agentService';
+import { FormatResponse, IdPayloadSchema } from '@/types/common';
 import { HttpStatusCode } from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getToken } from 'next-auth/jwt';
@@ -16,8 +16,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const apiConfig = ApiConfigSchema.parse(req.body);
-	if (!apiConfig) {
+	const { success, data: payload } = IdPayloadSchema.safeParse(req.body);
+	if (!success) {
 		throw new BadRequestError();
 	}
 
@@ -27,19 +27,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const userId = token.sub;
-	const userProfile = await userService.getProfileById(userId);
+	const agent = await agentService.getAgentById(payload.referToId);
+	if (!agent || agent.userId !== userId) {
+		throw new ForbiddenError();
+	}
 
-	let config = {
-		...userProfile.config,
-		apiConfig,
-	};
-
-	const user = await userService.updateConfig(userId, config);
+	await agentService.removeAgentById(payload.referToId);
 
 	res.status(HttpStatusCode.Ok).json({
-		data: user,
-		message: 'API keys successfully updated.',
-	} as FormatResponse<UserProfileZType>);
+		message: `Your agent ${agent?.name} is removed.`,
+	} as FormatResponse<undefined>);
 };
 
 export default wrapErrorHandler(handler);

@@ -1,13 +1,12 @@
-import { ChannelEvent } from '@/lib/events';
+import { ConversationEvent } from '@/lib/events';
 import {
 	BadRequestError,
-	ForbiddenError,
 	MethodNotAllowedError,
 	UnauthorizedError,
 } from '@/server/error';
-import { CHANNEL_PREFIX } from '@/server/events';
+import { USER_PREFFIX } from '@/server/events';
 import { wrapErrorHandler } from '@/server/middleware';
-import channelService from '@/server/services/channelService';
+import userService from '@/server/services/userService';
 import { FormatResponse, IdPayloadSchema } from '@/types/common';
 import { NextApiResponseServerIO } from '@/types/socket';
 import { HttpStatusCode } from 'axios';
@@ -19,42 +18,39 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const { success, data: payload } = IdPayloadSchema.safeParse(req.body);
-	if (!success) {
-		throw new BadRequestError();
-	}
-
 	const token = await getToken({ req });
 	if (!token || !token.sub) {
 		throw new UnauthorizedError();
 	}
 
 	const userId = token.sub;
-	const membership = await channelService.getMembershipById(payload.referToId);
-	if (!membership || membership.valid === 'INVALID') {
+
+	const { success, data: payload } = IdPayloadSchema.safeParse(req.body);
+	if (!success) {
 		throw new BadRequestError();
 	}
 
-	const channel = await channelService.getChannelById(
-		membership.channelId,
-		false
-	);
+	const friendships = await userService.getFriendshipsById(payload.referToId);
 
-	if (channel.ownerId !== userId) {
-		throw new ForbiddenError();
+	if (friendships.length === 0 || friendships.at(0)?.userId !== userId) {
+		throw new BadRequestError();
 	}
 
-	await channelService.removeMembershipById(payload.referToId);
+	await userService.deleteConversation(friendships.at(0)!.conversationId);
 
 	res.status(HttpStatusCode.Ok).json({
-		message: 'A membership is removed',
+		message: 'A friend connection is deleted.',
 	} as FormatResponse<undefined>);
 
-	// emit event to memberships
+	// emit events to update conversation
 	const io = (res as NextApiResponseServerIO).socket.server.io;
-	if (membership && io) {
-		const channelRoom = CHANNEL_PREFIX + channel.id;
-		io.to(channelRoom).emit(ChannelEvent.REMOVE_CHANNEL_MEMBERSHIP, membership);
+	if (io) {
+		friendships.forEach((friendship) => {
+			io.to(USER_PREFFIX + friendship.userId).emit(
+				ConversationEvent.REMOVE_FRIENDSHIP,
+				friendship
+			);
+		});
 	}
 };
 
