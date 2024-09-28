@@ -104,8 +104,6 @@ export default class AuthropicProvider implements LlmProvider {
 			});
 		}
 
-		console.log(parsedMessages);
-
 		return parsedMessages;
 	}
 

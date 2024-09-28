@@ -1,13 +1,6 @@
-import useSocketStore from '@/store/socketStore';
 import { MessageZType, ParticipantZType } from '@/types/chat';
 import { UserZType } from '@/types/user';
-import React, {
-	RefObject,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '../ui/scroll-area';
 import ChatMessage from './ChatMessage';
 
@@ -28,13 +21,13 @@ const ChatMessageList: React.FC<Props> = ({
 	messageActions,
 	className,
 }) => {
-	const { socket } = useSocketStore();
 	const [isHovered, setIsHovered] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 	const messageRefs = useRef<RefObject<HTMLDivElement>[]>([]);
 	messageRefs.current = messages.map(
 		(_, i) => messageRefs.current[i] || React.createRef()
 	);
+	const [lastestId, setLatestId] = useState<string | null>(null);
 	const [lastIndex, setLastIndex] = useState<number | null>(null);
 
 	const handleScroll = onScrollTop
@@ -47,15 +40,15 @@ const ChatMessageList: React.FC<Props> = ({
 		  }
 		: undefined;
 
-	const scroll2Bottom = useCallback(() => {
-		if (!isHovered) {
-			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-		}
-	}, [isHovered, messagesEndRef]);
-
 	useEffect(() => {
-		scroll2Bottom();
-	}, [scroll2Bottom]);
+		const lastestMessage = messages.at(0);
+		if (lastestMessage && lastestMessage.id !== lastestId) {
+			setLatestId(lastestMessage.id);
+			if (!isHovered) {
+				messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+			}
+		}
+	}, [messages, lastestId, setLatestId, isHovered, messagesEndRef]);
 
 	useEffect(() => {
 		if (lastIndex) {
