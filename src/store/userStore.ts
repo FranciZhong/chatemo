@@ -4,6 +4,7 @@ import { create } from 'zustand';
 interface UserStore {
 	user: UserProfileZType | null;
 	setProfile: (user: UserProfileZType) => void;
+	updateProfile: (user: UserProfileZType) => void;
 	clearProfile: () => void;
 	newFriendship: (friendship: FriendshipZType) => void;
 	removeFriendship: (friendshipId: string) => void;
@@ -19,6 +20,14 @@ const useUserStore = create<UserStore>((set) => ({
 		set((state) => ({
 			...state,
 			user,
+		})),
+	updateProfile: (user: UserProfileZType) =>
+		set((state) => ({
+			...state,
+			user: {
+				...state.user,
+				...user,
+			},
 		})),
 	clearProfile: () =>
 		set((state) => ({

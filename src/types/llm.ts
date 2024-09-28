@@ -1,10 +1,13 @@
 import { LlmProviderName } from '@/lib/constants';
 import { z } from 'zod';
+import { MessageZType } from './chat';
 
 export interface LlmProvider {
 	getModels: () => Promise<LlmModelZType[]>;
 
 	isAvailable: () => Promise<boolean>;
+
+	prepareChatMessages: (messages: MessageZType[]) => LlmMessageZType[];
 
 	completeMessage: (
 		model: string,

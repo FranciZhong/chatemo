@@ -68,7 +68,7 @@ export type FriendshipZType = z.infer<typeof FriendshipSchema>;
 
 export const UserProfileSchema = UserSchema.extend({
 	config: UserConfigSchema.optional(),
-	friendships: z.array(FriendshipSchema),
+	friendships: z.array(FriendshipSchema).optional(),
 });
 
 export type UserProfileZType = z.infer<typeof UserProfileSchema>;

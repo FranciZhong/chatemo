@@ -108,7 +108,7 @@ const ChatEditer: React.FC<Props> = ({
 					model={selectedModel}
 					agent={previewAgent}
 					onClose={handleClosePreview}
-					className="h-96"
+					className="h-96 md:h-[480px]"
 				/>
 			)}
 

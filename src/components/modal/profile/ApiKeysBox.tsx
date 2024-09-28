@@ -26,7 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
 const ApiKeysBox: React.FC = () => {
-	const { user, setProfile } = useUserStore();
+	const { user, updateProfile } = useUserStore();
 	const { socket } = useSocketStore();
 	const apiConfig = user?.config?.apiConfig;
 
@@ -46,7 +46,7 @@ const ApiKeysBox: React.FC = () => {
 
 			const userProfile = response.data.data!;
 
-			setProfile(userProfile);
+			updateProfile(userProfile);
 			socket?.emit(UserEvent.UPDATE_APIKEYS);
 		} catch (error) {
 			toast(TOAST_ERROR_DEFAULT);

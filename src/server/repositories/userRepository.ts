@@ -10,11 +10,7 @@ const selectById = (
 	return prisma.user.findFirst({
 		where: { id },
 		include: {
-			friendships: includeFriendships && {
-				where: {
-					userId: id,
-				},
-			},
+			friendships: includeFriendships,
 		},
 	});
 };

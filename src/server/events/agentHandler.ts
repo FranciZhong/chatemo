@@ -131,13 +131,7 @@ const agentHandler = (io: Server, socket: Socket) => {
 
 			inputMessages = [
 				...inputMessages,
-				...historyMessages.reverse().map(
-					(item) =>
-						({
-							role: 'user',
-							content: item.content,
-						} as LlmMessageZType)
-				),
+				...provider.prepareChatMessages(historyMessages),
 			];
 			const llmMessage = await provider.completeMessage(
 				payload.model,

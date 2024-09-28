@@ -50,10 +50,9 @@ const ChatMessage: React.FC<Props> = ({
 			case 'USER':
 				return isCurrentUser ? user?.name : sender?.name || 'Anonymouse';
 			case 'MODEL':
-				return (
-					message.agent?.name ||
-					`[${message.provider?.toUpperCase()}] ${message.model}`
-				);
+				return message.agent
+					? `${message.agent?.name} (${message.model})`
+					: `[${message.provider?.toUpperCase()}] ${message.model}`;
 		}
 	};
 

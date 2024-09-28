@@ -1,15 +1,24 @@
 'use client';
 
 import axiosInstance from '@/lib/axios';
-import { ApiUrl, PageUrl, TOAST_ERROR_DEFAULT } from '@/lib/constants';
+import {
+	ApiUrl,
+	LlmProviderName,
+	PageUrl,
+	TOAST_ERROR_DEFAULT,
+} from '@/lib/constants';
 import useAgentStore from '@/store/agentStore';
 import { FormatResponse } from '@/types/common';
-import { AgentPromptPayload, AgentZType } from '@/types/llm';
+import { AgentPromptPayload, AgentZType, LlmModelZType } from '@/types/llm';
+import { RocketIcon } from '@radix-ui/react-icons';
 import { redirect } from 'next/navigation';
 import { useState } from 'react';
+import IconButton from '../IconButton';
+import SelectModelButton from '../SelectModelButton';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { toast } from '../ui/use-toast';
+import AgentPreview from './AgentPreview';
 import AgentPrompt from './AgentPrompt';
 import Editer from './Editer';
 
@@ -19,6 +28,12 @@ interface Props {
 
 const AgentBox: React.FC<Props> = ({ agentId }) => {
 	const [messageContent, setMessageContent] = useState('');
+	const [selectedModel, setSelectedModel] = useState<LlmModelZType>({
+		provider: LlmProviderName.OPENAI,
+		model: 'gpt-4o-mini',
+	});
+	const [openPreview, setOpenPreview] = useState<boolean>(false);
+	const [previewRequest, setPreviewRequest] = useState<string>('');
 	const { agents, updateAgent } = useAgentStore();
 	const agent = agents.find((item) => item.id === agentId);
 
@@ -26,19 +41,49 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 		redirect(PageUrl.CHAT);
 	}
 
-	const handleSubmit = async () => {
-		try {
-			const response = await axiosInstance.post<FormatResponse<AgentZType>>(
-				ApiUrl.AGENT_PROMPT,
-				{ agentId, content: messageContent } as AgentPromptPayload
-			);
+	const handleOpenPreview = () => {
+		setOpenPreview(true);
+		setPreviewRequest(messageContent);
+		setMessageContent('');
+	};
 
-			const agent = response.data.data;
-			if (agent) {
-				updateAgent(agent);
+	const handleClosePreview = () => {
+		setOpenPreview(false);
+		setPreviewRequest('');
+	};
+
+	const actions = [
+		<SelectModelButton
+			key="model-button"
+			selectedModel={selectedModel}
+			onSelectedModelChange={setSelectedModel}
+		/>,
+		<IconButton key="preview-button" onClick={handleOpenPreview}>
+			<RocketIcon className="icon-size" />
+		</IconButton>,
+	];
+
+	const handleSubmit = async () => {
+		if (openPreview) {
+			if (!messageContent.length) {
+				return;
 			}
-		} catch (error) {
-			toast(TOAST_ERROR_DEFAULT);
+
+			setPreviewRequest(messageContent);
+		} else {
+			try {
+				const response = await axiosInstance.post<FormatResponse<AgentZType>>(
+					ApiUrl.AGENT_PROMPT,
+					{ agentId, content: messageContent } as AgentPromptPayload
+				);
+
+				const agent = response.data.data;
+				if (agent) {
+					updateAgent(agent);
+				}
+			} catch (error) {
+				toast(TOAST_ERROR_DEFAULT);
+			}
 		}
 	};
 
@@ -61,7 +106,18 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 				messageContent={messageContent}
 				setMessageContent={setMessageContent}
 				onSubmit={handleSubmit}
-			/>
+				actions={actions}
+			>
+				{openPreview && (
+					<AgentPreview
+						request={previewRequest}
+						model={selectedModel}
+						agent={agent}
+						onClose={handleClosePreview}
+						className="h-96 md:h-[480px]"
+					/>
+				)}
+			</Editer>
 		</div>
 	);
 };

@@ -1,5 +1,6 @@
 import { LlmProviderName } from '@/lib/constants';
 import { LlmProviderError } from '@/server/error';
+import { MessageZType } from '@/types/chat';
 import { LlmMessageZType, LlmModelZType, LlmProvider } from '@/types/llm';
 import Anthropic, { AnthropicError } from '@anthropic-ai/sdk';
 import {
@@ -59,6 +60,53 @@ export default class AuthropicProvider implements LlmProvider {
 		]);
 
 		return message && message.content.length > 0;
+	}
+
+	public prepareChatMessages(messages: MessageZType[]): LlmMessageZType[] {
+		if (messages.length === 0) {
+			return [];
+		}
+		const lastMessage = messages.at(0);
+		const assistantMessages = messages
+			.reverse()
+			.filter((item) => item.type === 'MODEL');
+
+		const id2MessageMap = messages.reduce((map, item) => {
+			map.set(item.id, item);
+			return map;
+		}, new Map<string, MessageZType>());
+
+		const parsedMessages: LlmMessageZType[] = [];
+
+		for (const assistantMessage of assistantMessages) {
+			if (
+				assistantMessage.replyTo &&
+				id2MessageMap.has(assistantMessage.replyTo)
+			) {
+				const replyToMessage = {
+					role: 'user',
+					content: id2MessageMap.get(assistantMessage.replyTo)!.content,
+				} as LlmMessageZType;
+
+				const agentMessage = {
+					role: 'assistant',
+					content: assistantMessage.content,
+				} as LlmMessageZType;
+
+				parsedMessages.push(replyToMessage, agentMessage);
+			}
+		}
+
+		if (lastMessage?.type === 'USER') {
+			parsedMessages.push({
+				role: 'user',
+				content: lastMessage.content,
+			});
+		}
+
+		console.log(parsedMessages);
+
+		return parsedMessages;
 	}
 
 	public async completeMessage(

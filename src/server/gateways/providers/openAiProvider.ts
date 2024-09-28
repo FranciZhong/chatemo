@@ -1,5 +1,6 @@
 import { LlmProviderName } from '@/lib/constants';
 import { LlmProviderError } from '@/server/error';
+import { MessageZType } from '@/types/chat';
 import { LlmMessageZType, LlmModelZType, LlmProvider } from '@/types/llm';
 import OpenAI, { OpenAIError } from 'openai';
 
@@ -24,6 +25,18 @@ export default class OpenAiProvider implements LlmProvider {
 
 	public async isAvailable(): Promise<boolean> {
 		return (await this.getModels()).length !== 0;
+	}
+
+	public prepareChatMessages(messages: MessageZType[]): LlmMessageZType[] {
+		const parseMessages: LlmMessageZType[] = messages.reverse().map(
+			(item) =>
+				({
+					role: item.type === 'USER' ? 'user' : 'assistant',
+					content: item.content,
+				} as LlmMessageZType)
+		);
+
+		return parseMessages;
 	}
 
 	public async completeMessage(
