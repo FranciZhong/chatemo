@@ -39,7 +39,7 @@ const useUserStore = create<UserStore>((set) => ({
 			...state,
 			user: {
 				...state.user!,
-				friendships: [friendship, ...state.user!.friendships],
+				friendships: [friendship, ...(state.user!.friendships || [])],
 			},
 		})),
 	removeFriendship: (friendshipId: string) =>
@@ -47,7 +47,7 @@ const useUserStore = create<UserStore>((set) => ({
 			...state,
 			user: {
 				...state.user!,
-				friendships: state.user!.friendships.filter(
+				friendships: state.user!.friendships?.filter(
 					(item) => item.id !== friendshipId
 				),
 			},

@@ -92,7 +92,7 @@ CREATE TABLE "Friendship" (
     "userId" TEXT NOT NULL,
     "friendId" TEXT NOT NULL,
     "conversationId" TEXT NOT NULL,
-    "status" "ValidStatus" NOT NULL,
+    "valid" "ValidStatus" NOT NULL DEFAULT 'VALID',
 
     CONSTRAINT "Friendship_pkey" PRIMARY KEY ("id")
 );
@@ -100,6 +100,7 @@ CREATE TABLE "Friendship" (
 -- CreateTable
 CREATE TABLE "ConversationPartipant" (
     "id" TEXT NOT NULL,
+    "valid" "ValidStatus" NOT NULL DEFAULT 'VALID',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
@@ -111,6 +112,7 @@ CREATE TABLE "ConversationPartipant" (
 -- CreateTable
 CREATE TABLE "Conversation" (
     "id" TEXT NOT NULL,
+    "valid" "ValidStatus" NOT NULL DEFAULT 'VALID',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "type" "ConversationType" NOT NULL,
@@ -143,6 +145,7 @@ CREATE TABLE "Agent" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "valid" "ValidStatus" NOT NULL DEFAULT 'VALID',
     "name" TEXT NOT NULL,
     "description" TEXT,
     "image" TEXT,
