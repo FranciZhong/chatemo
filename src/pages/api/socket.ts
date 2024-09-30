@@ -1,6 +1,6 @@
 import { ApiUrl } from '@/lib/constants';
 import socketHandler from '@/server/events';
-import { pubClient, subClient } from '@/server/redis';
+import { initClient } from '@/server/redis';
 import { NextApiResponseServerIO } from '@/types/socket';
 import { Server as HttpServer } from 'http';
 import { NextApiRequest } from 'next';
@@ -17,6 +17,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
 		});
 		res.socket.server.io = io;
 		if (process.env.REDIS_HOST) {
+			const pubClient = initClient();
+			const subClient = initClient();
 			io.adapter(createAdapter({ pubClient, subClient }));
 		}
 
