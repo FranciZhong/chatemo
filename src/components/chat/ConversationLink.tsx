@@ -5,7 +5,7 @@ import { ApiUrl, ImgUrl, PageUrl, TOAST_ERROR_DEFAULT } from '@/lib/constants';
 import useUserStore from '@/store/userStore';
 import { ConversationZType } from '@/types/chat';
 import { FormatResponse, IdPayload } from '@/types/common';
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -40,7 +40,7 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 
 	const lastMessage = conversation.messages?.at(0);
 
-	const handleDelete = useCallback(async () => {
+	const handleDelete = async () => {
 		if (conversation.type === 'DIRECT') {
 			const friendship = conversation.friendships?.find(
 				(item) => item.userId === user?.id
@@ -60,7 +60,7 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 				toast(TOAST_ERROR_DEFAULT);
 			}
 		}
-	}, [conversation]);
+	};
 
 	return (
 		<div>
