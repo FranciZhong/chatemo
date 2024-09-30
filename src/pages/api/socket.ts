@@ -16,7 +16,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
 			path: ApiUrl.SOCKET,
 		});
 		res.socket.server.io = io;
-		io.adapter(createAdapter({ pubClient, subClient }));
+		if (process.env.REDIS_HOST) {
+			io.adapter(createAdapter({ pubClient, subClient }));
+		}
 
 		socketHandler(io);
 
