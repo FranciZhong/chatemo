@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-const initClient = () => {
+export const initClient = () => {
 	const client = new Redis(
 		process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
 		process.env.REDIS_HOST || 'localhost',
@@ -20,7 +20,3 @@ const initClient = () => {
 
 	return client;
 };
-
-export const pubClient = initClient();
-
-export const subClient = initClient();
