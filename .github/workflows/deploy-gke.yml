@@ -16,7 +16,6 @@ env:
   DEPLOYMENT_NAME: 'chatemo'
   REPOSITORY: 'francizhong'
   IMAGE: 'chatemo'
-  SERVICE_ACCOUNT: 'chatemo-ci-cd-sa@chatemo.iam.gserviceaccount.com'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/642179943052/locations/global/workloadIdentityPools/github-pool/providers/git-actions-provider'
 
 jobs:
@@ -41,7 +40,6 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           project_id: '${{ env.PROJECT_ID }}'
-          service_account: ${{ env.SERVICE_ACCOUNT }}
           workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
 
       # Authenticate Docker to Google Cloud Artifact Registry
