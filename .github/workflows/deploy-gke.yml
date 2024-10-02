@@ -62,6 +62,8 @@ jobs:
       # Build the Docker image
       - name: 'Build and push Docker container'
         run: |-
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GAR_LOCATION}-docker.pkg.dev
+
           DOCKER_TAG="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${GITHUB_SHA}"
 
           docker build \
