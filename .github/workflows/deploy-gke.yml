@@ -16,7 +16,7 @@ env:
   DEPLOYMENT_NAME: 'chatemo'
   REPOSITORY: 'francizhong'
   IMAGE: 'chatemo'
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/642179943052/locations/global/workloadIdentityPools/github-pool/providers/git-actions-provider'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/642179943052/locations/global/workloadIdentityPools/git-actions-pool/providers/git-actions-provider'
 
 jobs:
   setup-build-publish-deploy:
