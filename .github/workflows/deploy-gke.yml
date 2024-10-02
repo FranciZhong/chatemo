@@ -3,10 +3,10 @@ name: 'Build and Deploy to GKE'
 on:
   push:
     branches:
-      - '"deploy-workflow"'
+      - 'deploy-workflow'
   pull_request:
     branches:
-      - '"main"'
+      - 'main'
 
 env:
   PROJECT_ID: 'chatemo'
