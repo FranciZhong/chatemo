@@ -99,7 +99,10 @@ const ChatLayout: React.FC<Props> = (props) => {
 	// init socket and event listeners
 	useEffect(() => {
 		if (!socket) {
-			connect(process.env.HOSTNAME || 'localhost:3000');
+			console.log(
+				`Try to build a socket connected to ${process.env.NEXT_PUBLIC_SOCKET_HOST}`
+			);
+			connect(process.env.NEXT_PUBLIC_SOCKET_HOST || 'localhost:3000');
 		}
 	}, [socket, connect]);
 
