@@ -60,8 +60,8 @@ jobs:
           location: '${{ env.GKE_ZONE }}'
 
       # The KUBECONFIG env var is automatically exported and picked up by kubectl.
-      # - id: 'get-pods'
-      #   run: 'kubectl get pods'
+      - id: 'get-pods'
+        run: 'kubectl get pods'
 
       # Build the Docker image
       - name: 'Build and push Docker container'
