@@ -1,4 +1,4 @@
-name: 'CI/CD'
+name: 'CD'
 
 on:
   push:
@@ -9,15 +9,13 @@ on:
       - 'main'
 
 env:
-  PROJECT_ID: 'chatemo'
-  GAR_LOCATION: 'australia-southeast1'
-  GKE_CLUSTER: 'chatemo-cluster'
-  GKE_ZONE: 'australia-southeast1-c'
-  DEPLOYMENT_NAME: 'chatemo'
-  REPOSITORY: 'francizhong'
-  IMAGE: 'chatemo'
-  SERVICE_ACCOUNT: 'github-actions-sa@chatemo.iam.gserviceaccount.com'
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/642179943052/locations/global/workloadIdentityPools/git-actions-pool/providers/git-actions-provider'
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  GAR_LOCATION: ${{ secrets.GAR_LOCATION }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  DEPLOYMENT_NAME: ${{ secrets.DEPLOYMENT_NAME }}
+  REPOSITORY: ${{ secrets.REPOSITORY }}
+  IMAGE: ${{ secrets.IMAGE }}
 
 jobs:
   setup-build-publish-deploy:
@@ -41,8 +39,8 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           project_id: '${{ env.PROJECT_ID }}'
-          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
-          service_account: ${{ env.SERVICE_ACCOUNT }}
+          workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
 
       # Authenticate Docker to Google Cloud Artifact Registry
       - name: 'Docker Auth'
@@ -58,12 +56,6 @@ jobs:
         with:
           cluster_name: '${{ env.GKE_CLUSTER }}'
           location: '${{ env.GKE_ZONE }}'
-
-      # The KUBECONFIG env var is automatically exported and picked up by kubectl.
-      - id: 'get-pods'
-        run: |-
-          gcloud config list
-          kubectl get pods
 
       # Build the Docker image
       - name: 'Build and push Docker container'
