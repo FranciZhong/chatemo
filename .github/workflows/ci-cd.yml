@@ -73,8 +73,8 @@ jobs:
           DOCKER_TAG="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${GITHUB_SHA}"
 
           docker build \
-            --build-arg NEXT_PUBLIC_SOCKET_HOST="${env.NEXT_PUBLIC_SOCKET_HOST}"
             --tag "${DOCKER_TAG}" \
+            --build-arg NEXT_PUBLIC_SOCKET_HOST="${env.NEXT_PUBLIC_SOCKET_HOST}" \
             --build-arg GITHUB_SHA="${GITHUB_SHA}" \
             --build-arg GITHUB_REF="${GITHUB_REF}" \
             .
