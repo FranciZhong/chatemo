@@ -100,7 +100,7 @@ jobs:
             .
 
           docker push "${DOCKER_TAG}"
-          echo "::set-output name=image::${DOCKER_TAG}"
+          echo "image=${DOCKER_TAG}" >> $GITHUB_ENV
 
       # Deploy Redis
       - name: 'Deploy Chatemo in GKE'

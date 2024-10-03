@@ -75,7 +75,7 @@ jobs:
 
           docker push "${DOCKER_TAG}"
           docker push "${LATEST_DOCKER_TAG}"
-          echo "::set-output name=image::${DOCKER_TAG}"
+          echo "image=${DOCKER_TAG}" >> $GITHUB_ENV
 
       # Update the image in the GKE deployment
       - name: 'Update Image in GKE'
