@@ -61,20 +61,19 @@ jobs:
           location: '${{ env.GKE_ZONE }}'
 
       # The KUBECONFIG env var is automatically exported and picked up by kubectl.
-      - id: 'get-pods'
-        run: 'kubectl get pods'
+      # - id: 'get-pods'
+      #   run: 'kubectl get pods'
 
       # Build the Docker image
       - name: 'Build and push Docker container'
         id: build-image
-        env:
-          NEXT_PUBLIC_SOCKET_HOST: ${{ env.NEXT_PUBLIC_SOCKET_HOST }}
         run: |-
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GAR_LOCATION}-docker.pkg.dev
 
           DOCKER_TAG="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${GITHUB_SHA}"
 
           docker build \
+            --build-arg NEXT_PUBLIC_SOCKET_HOST="${env.NEXT_PUBLIC_SOCKET_HOST}"
             --tag "${DOCKER_TAG}" \
             --build-arg GITHUB_SHA="${GITHUB_SHA}" \
             --build-arg GITHUB_REF="${GITHUB_REF}" \
