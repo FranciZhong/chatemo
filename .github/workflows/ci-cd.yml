@@ -54,15 +54,16 @@ jobs:
 
       # Get the GKE credentials so we can deploy to the cluster
       - name: 'Set up GKE credentials'
-        uses: 'google-github-actions/get-gke-credentials@v0'
+        uses: 'google-github-actions/get-gke-credentials@v2'
         with:
           cluster_name: '${{ env.GKE_CLUSTER }}'
           location: '${{ env.GKE_ZONE }}'
-          credentials: '${{ secrets.GKE_SA_KEY }}'
 
       # The KUBECONFIG env var is automatically exported and picked up by kubectl.
       - id: 'get-pods'
-        run: 'kubectl get pods'
+        run: |-
+          gcloud config list
+          kubectl get pods
 
       # Build the Docker image
       - name: 'Build and push Docker container'
