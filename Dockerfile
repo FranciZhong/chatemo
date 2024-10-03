@@ -3,12 +3,6 @@ FROM --platform=linux/amd64 node:20-alpine AS builder
 
 WORKDIR /app
 
-# Build arguments
-ARG NEXT_PUBLIC_API_URL
-
-# Set environment variables
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
 COPY package.json package-lock.json ./
 RUN npm install
 
