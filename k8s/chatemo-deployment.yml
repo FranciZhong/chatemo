@@ -59,7 +59,7 @@ spec:
             - name: GOOGLE_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: env-config
+                  name: env-secret
                   key: GOOGLE_CLIENT_SECRET
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
