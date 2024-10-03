@@ -74,11 +74,11 @@ jobs:
             .
 
           docker push "${DOCKER_TAG}"
-          echo "::set-output name=image::DOCKER_TAG"
+          echo "::set-output name=image::${DOCKER_TAG}"
 
       # Update the image in the GKE deployment
       - name: 'Update Image in GKE'
         run: |-
-          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${env.IMAGE}=${{ steps.build-image.outputs.image }}
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${{env.IMAGE}}=${{ steps.build-image.outputs.image }}
           kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }}
           kubectl get services -o wide
