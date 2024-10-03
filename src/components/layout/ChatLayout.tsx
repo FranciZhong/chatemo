@@ -1,6 +1,6 @@
 'use client';
 
-import { ModalType } from '@/lib/constants';
+import { ModalType, SOCKET_HOST } from '@/lib/constants';
 import {
 	AgentEvent,
 	ChannelEvent,
@@ -102,7 +102,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 			console.log(
 				`Try to build a socket connected to ${process.env.NEXT_PUBLIC_SOCKET_HOST}`
 			);
-			connect(process.env.NEXT_PUBLIC_SOCKET_HOST || 'localhost:3000');
+			connect(process.env.NEXT_PUBLIC_SOCKET_HOST || SOCKET_HOST);
 		}
 	}, [socket, connect]);
 
