@@ -111,6 +111,7 @@ export const allowedImageTypes = [
 ];
 
 export const DEFAULT_TRANSFORM_DELAY = 300;
+export const SOCKET_HOST = 'http://www.chatemo.chat';
 export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
 export const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;
 

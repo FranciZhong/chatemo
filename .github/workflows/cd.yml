@@ -1,22 +1,21 @@
-name: 'Build and Deploy to GKE'
+name: 'CD'
 
 on:
   push:
     branches:
-      - '"deploy-workflow"'
+      - 'main'
   pull_request:
     branches:
-      - '"main"'
+      - 'main'
 
 env:
-  PROJECT_ID: 'chatemo'
-  GAR_LOCATION: 'australia-southeast1'
-  GKE_CLUSTER: 'chatemo-cluster'
-  GKE_ZONE: 'australia-southeast1-c'
-  DEPLOYMENT_NAME: 'chatemo'
-  REPOSITORY: 'francizhong'
-  IMAGE: 'chatemo'
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/642179943052/locations/global/workloadIdentityPools/github-pool/providers/git-actions-provider'
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  GAR_LOCATION: ${{ secrets.GAR_LOCATION }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  DEPLOYMENT_NAME: ${{ secrets.DEPLOYMENT_NAME }}
+  REPOSITORY: ${{ secrets.REPOSITORY }}
+  IMAGE: ${{ secrets.IMAGE }}
 
 jobs:
   setup-build-publish-deploy:
@@ -39,7 +38,9 @@ jobs:
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
         with:
-          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          project_id: '${{ env.PROJECT_ID }}'
+          workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
 
       # Authenticate Docker to Google Cloud Artifact Registry
       - name: 'Docker Auth'
@@ -58,28 +59,27 @@ jobs:
 
       # Build the Docker image
       - name: 'Build and push Docker container'
+        id: build-image
         run: |-
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GAR_LOCATION}-docker.pkg.dev
+
           DOCKER_TAG="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${GITHUB_SHA}"
+          LATEST_DOCKER_TAG="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:latest"
 
           docker build \
             --tag "${DOCKER_TAG}" \
+            --tag "${LATEST_DOCKER_TAG}" \
             --build-arg GITHUB_SHA="${GITHUB_SHA}" \
             --build-arg GITHUB_REF="${GITHUB_REF}" \
             .
 
           docker push "${DOCKER_TAG}"
+          docker push "${LATEST_DOCKER_TAG}"
+          echo "::set-output name=image::${DOCKER_TAG}"
 
-      # Set up kustomize
-      - name: 'Set up Kustomize'
+      # Update the image in the GKE deployment
+      - name: 'Update Image in GKE'
         run: |-
-          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.4.3/kustomize_v5.4.3_linux_amd64.tar.gz
-          chmod u+x ./kustomize
-
-      # Deploy the Docker image to the GKE cluster
-      - name: 'Deploy to GKE'
-        run: |-
-          # replacing the image name in the k8s template
-          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA
-          ./kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/$DEPLOYMENT_NAME
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${{env.IMAGE}}=${{ steps.build-image.outputs.image }}
+          kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }}
           kubectl get services -o wide

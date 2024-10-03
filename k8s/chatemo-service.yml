@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatemo
+spec:
+  type: LoadBalancer
+  selector:
+    app: chatemo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
