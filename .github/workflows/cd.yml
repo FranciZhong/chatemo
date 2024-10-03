@@ -64,14 +64,17 @@ jobs:
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GAR_LOCATION}-docker.pkg.dev
 
           DOCKER_TAG="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${GITHUB_SHA}"
+          LATEST_DOCKER_TAG="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:latest"
 
           docker build \
             --tag "${DOCKER_TAG}" \
+            --tag "${LATEST_DOCKER_TAG}" \
             --build-arg GITHUB_SHA="${GITHUB_SHA}" \
             --build-arg GITHUB_REF="${GITHUB_REF}" \
             .
 
           docker push "${DOCKER_TAG}"
+          docker push "${LATEST_DOCKER_TAG}"
           echo "::set-output name=image::${DOCKER_TAG}"
 
       # Update the image in the GKE deployment
