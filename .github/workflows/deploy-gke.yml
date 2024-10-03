@@ -61,6 +61,7 @@ jobs:
 
       # Build the Docker image
       - name: 'Build and push Docker container'
+        id: build-image
         run: |-
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${GAR_LOCATION}-docker.pkg.dev
 
@@ -73,19 +74,11 @@ jobs:
             .
 
           docker push "${DOCKER_TAG}"
+          echo "::set-output name=image::DOCKER_TAG"
 
-      # Set up kustomize
-      - name: 'Set up Kustomize'
+      # Update the image in the GKE deployment
+      - name: 'Update Image in GKE'
         run: |-
-          curl -sLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.4.3/kustomize_v5.4.3_linux_amd64.tar.gz
-          tar -xzf kustomize_v5.4.3_linux_amd64.tar.gz
-          mv kustomize /usr/local/bin/kustomize
-          chmod +x /usr/local/bin/kustomize
-
-      # Deploy the Docker image to the GKE cluster
-      - name: 'Deploy to GKE'
-        run: |-
-          kustomize edit set image ${{ env.REPOSITORY }}/${{ env.IMAGE }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ github.sha }}
-          kustomize build . | kubectl apply -f -
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${env.IMAGE}=${{ steps.build-image.outputs.image }}
           kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }}
           kubectl get services -o wide
