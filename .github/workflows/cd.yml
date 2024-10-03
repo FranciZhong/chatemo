@@ -3,7 +3,7 @@ name: 'CD'
 on:
   push:
     branches:
-      - 'deploy-workflow'
+      - 'main'
   pull_request:
     branches:
       - 'main'
@@ -75,7 +75,7 @@ jobs:
 
           docker push "${DOCKER_TAG}"
           docker push "${LATEST_DOCKER_TAG}"
-          echo "image=${DOCKER_TAG}" >> $GITHUB_ENV
+          echo "::set-output name=image::${DOCKER_TAG}"
 
       # Update the image in the GKE deployment
       - name: 'Update Image in GKE'
