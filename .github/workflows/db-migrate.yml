@@ -4,7 +4,7 @@ on:
     paths:
       - prisma/migrations/** # Only run this workflow when migrations are updated
     branches:
-      - main
+      - deploy-workflow
 
   pull_request:
     paths:

@@ -1,9 +1,7 @@
 name: 'Initialize Deployment to GKE'
 
 on:
-  push:
-    branches:
-      - 'deploy-workflow'
+  workflow_dispatch:
 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
