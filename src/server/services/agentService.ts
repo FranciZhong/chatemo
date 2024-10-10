@@ -1,5 +1,9 @@
 import { prisma } from '@/server/db';
-import { AgentProfilePayload, AgentSchema } from '@/types/llm';
+import {
+	AgentProfilePayload,
+	AgentSchema,
+	ModelConfigZType,
+} from '@/types/llm';
 import { ValidStatus } from '@prisma/client';
 import agentRepository from '../repositories/agentRepository';
 
@@ -33,6 +37,20 @@ const getAllByUserId = async (userId: string) => {
 const getWithPromptsById = async (agentId: string) => {
 	const agent = await agentRepository.selectById(prisma, agentId, true);
 
+	return agent ? AgentSchema.parse(agent) : null;
+};
+
+const updateConfigByAgentId = async (
+	agentId: string,
+	config: ModelConfigZType
+) => {
+	const agent = await agentRepository.updateConfigById(
+		prisma,
+		agentId,
+		config,
+		true
+	);
+
 	return AgentSchema.parse(agent);
 };
 
@@ -45,6 +63,7 @@ const agentService = {
 	getAgentById,
 	getAllByUserId,
 	getWithPromptsById,
+	updateConfigByAgentId,
 	removeAgentById,
 };
 

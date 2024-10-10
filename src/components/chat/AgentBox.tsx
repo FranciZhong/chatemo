@@ -8,6 +8,7 @@ import {
 	TOAST_ERROR_DEFAULT,
 } from '@/lib/constants';
 import useAgentStore from '@/store/agentStore';
+import useUserStore from '@/store/userStore';
 import { FormatResponse } from '@/types/common';
 import { AgentPromptPayload, AgentZType, LlmModelZType } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
@@ -28,14 +29,19 @@ interface Props {
 
 const AgentBox: React.FC<Props> = ({ agentId }) => {
 	const [messageContent, setMessageContent] = useState('');
-	const [selectedModel, setSelectedModel] = useState<LlmModelZType>({
-		provider: LlmProviderName.OPENAI,
-		model: 'gpt-4o-mini',
-	});
 	const [openPreview, setOpenPreview] = useState<boolean>(false);
 	const [previewRequest, setPreviewRequest] = useState<string>('');
+	const { user } = useUserStore();
 	const { agents, updateAgent } = useAgentStore();
 	const agent = agents.find((item) => item.id === agentId);
+
+	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
+		agent?.config?.defaultModel ||
+			user?.config?.modelConfig?.defaultModel || {
+				provider: LlmProviderName.OPENAI,
+				model: 'gpt-4o',
+			}
+	);
 
 	if (!agent) {
 		redirect(PageUrl.CHAT);

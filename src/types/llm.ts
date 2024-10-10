@@ -1,4 +1,4 @@
-import { LlmProviderName } from '@/lib/constants';
+import { LlmProviderName, LlmRole } from '@/lib/constants';
 import { z } from 'zod';
 import { MessageZType } from './chat';
 
@@ -11,19 +11,22 @@ export interface LlmProvider {
 
 	completeMessage: (
 		model: string,
-		messages: LlmMessageZType[]
+		messages: LlmMessageZType[],
+		params?: ModelParamsZType
 	) => Promise<LlmMessageZType>;
 
 	streamMessage: (
 		model: string,
 		messages: LlmMessageZType[],
-		callback: (chunk: string) => void
+		callback: (chunk: string) => void,
+		params?: ModelParamsZType
 	) => Promise<void>;
 }
 
 export const LlmProviderNameSchema = z.enum([
 	LlmProviderName.OPENAI,
 	LlmProviderName.ANTHROPIC,
+	LlmProviderName.GEMINI,
 ]);
 
 export const LlmModelSchema = z.object({
@@ -33,8 +36,25 @@ export const LlmModelSchema = z.object({
 
 export type LlmModelZType = z.infer<typeof LlmModelSchema>;
 
+export const ModelParamsSchema = z.object({
+	maxToken: z.number().int().min(50).max(10000),
+	temperature: z.number().min(0).max(2),
+	topP: z.number().min(0).max(1),
+	frequencyPenalty: z.number().min(-2).max(2),
+	presencePenalty: z.number().min(-2).max(2),
+});
+
+export type ModelParamsZType = z.infer<typeof ModelParamsSchema>;
+
+export const ModelConfigSchema = z.object({
+	defaultModel: LlmModelSchema.nullable().optional(),
+	modelParams: ModelParamsSchema.optional(),
+});
+
+export type ModelConfigZType = z.infer<typeof ModelConfigSchema>;
+
 export const LlmMessageSchema = z.object({
-	role: z.enum(['system', 'user', 'assistant']),
+	role: z.enum([LlmRole.SYSTEM, LlmRole.USER, LlmRole.ASSISTANT]),
 	content: z.string(),
 });
 
@@ -65,6 +85,7 @@ export const AgentSchema = z.object({
 	name: z.string(),
 	description: z.string().nullable().optional(),
 	image: z.string().nullable().optional(),
+	config: ModelConfigSchema.optional(),
 	prompts: z.array(AgentPromptSchema).optional(),
 });
 
@@ -77,6 +98,13 @@ export const AgentProfilePayloadSchema = z.object({
 });
 
 export type AgentProfilePayload = z.infer<typeof AgentProfilePayloadSchema>;
+
+export const AgentConfigPayloadSchema = z.object({
+	agentId: z.string(),
+	config: ModelConfigSchema,
+});
+
+export type AgentConfigPayload = z.infer<typeof AgentConfigPayloadSchema>;
 
 export const AgentReplyPayloadSchema = z.object({
 	replyTo: z.string(),

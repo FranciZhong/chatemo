@@ -1,6 +1,7 @@
-import { LlmProviderName, NotificationType } from '@/lib/constants';
+import { NotificationType } from '@/lib/constants';
 import { z } from 'zod';
 import { RequestStatusEnumSchema, ValidStatusEnumSchema } from './common';
+import { ModelConfigSchema } from './llm';
 
 export const ProfilePayloadSchema = z.object({
 	name: z.string().min(5).max(32),
@@ -25,18 +26,10 @@ export type UserZType = z.infer<typeof UserSchema>;
 export const ApiConfigSchema = z.object({
 	openaiApiKey: z.string().optional(),
 	anthropicApiKey: z.string().optional(),
+	geminiApiKey: z.string().optional(),
 });
 
 export type ApiConfigZType = z.infer<typeof ApiConfigSchema>;
-
-export const ModelConfigSchema = z.object({
-	defaultProvider: z
-		.enum([LlmProviderName.OPENAI, LlmProviderName.ANTHROPIC])
-		.optional(),
-	defaultModel: z.string().optional(),
-});
-
-export type ModelConfigZType = z.infer<typeof ModelConfigSchema>;
 
 export const UserConfigSchema = z.object({
 	apiConfig: ApiConfigSchema.optional(),

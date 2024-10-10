@@ -12,6 +12,7 @@ import { AgentEvent, ConversationEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useConversationStore from '@/store/conversationStore';
 import useSocketStore from '@/store/socketStore';
+import useUserStore from '@/store/userStore';
 import {
 	BasicConversationMessageZType,
 	ConversationMessagePayload,
@@ -41,10 +42,13 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
-	const [selectedModel, setSelectedModel] = useState<LlmModelZType>({
-		provider: LlmProviderName.OPENAI,
-		model: 'gpt-4o-mini',
-	});
+	const { user } = useUserStore();
+	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
+		user?.config?.modelConfig?.defaultModel || {
+			provider: LlmProviderName.OPENAI,
+			model: 'gpt-4o',
+		}
+	);
 	const [moreMessages, setMoreMessages] = useState<boolean>(true);
 	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(
 		null

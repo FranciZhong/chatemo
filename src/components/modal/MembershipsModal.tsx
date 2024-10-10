@@ -14,18 +14,19 @@ type ParamsType = {
 };
 
 const MembershipsModal: React.FC = () => {
-	const { channelId } = useParams() as ParamsType;
+	const params = useParams<ParamsType>();
 	const { isOpen, modalType, closeModal } = useModalStore();
 	const { channels } = useChannelStore();
-
-	if (!channelId) {
-		return null;
-	}
 
 	if (!isOpen || modalType !== ModalType.MEMBERSHIP_MODAL) {
 		return null;
 	}
 
+	if (!params) {
+		return null;
+	}
+
+	const channelId = params.channelId;
 	const channel: ChannelZType = channels.find((item) => item.id === channelId)!;
 	if (!channel) {
 		return null;

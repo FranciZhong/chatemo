@@ -47,7 +47,7 @@ const AgentPreview: React.FC<Props> = ({
 		socket?.emit(AgentEvent.START_PREVIEW_STREAM, {
 			...model,
 			referToId: previewId,
-			request,
+			request: request || 'hello',
 			agentId: agent?.id,
 		} as AgentPreviewPayload);
 

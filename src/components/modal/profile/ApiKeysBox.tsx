@@ -87,6 +87,19 @@ const ApiKeysBox: React.FC = () => {
 							</FormItem>
 						)}
 					/>
+					<FormField
+						control={form.control}
+						name="geminiApiKey"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Gemini API Key</FormLabel>
+								<FormControl>
+									<Input placeholder="AIxxx" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 					<div className="flex justify-end">
 						<Button type="submit">Update</Button>
 					</div>

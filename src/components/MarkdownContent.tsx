@@ -14,7 +14,7 @@ interface Props {
 
 const MarkdownContent: React.FC<Props> = ({ children, className }) => {
 	return (
-		<div className={cn('prose break-words break-all', className)}>
+		<div className={cn('prose break-words', className)}>
 			<ReactMarkdown
 				remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
 				rehypePlugins={[rehypePrism, rehypeKatex]}

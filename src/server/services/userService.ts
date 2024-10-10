@@ -11,6 +11,7 @@ import {
 	FriendshipZType,
 	NotificationZType,
 	ProfilePayload,
+	UserConfigSchema,
 	UserConfigZType,
 	UserProfileSchema,
 	UserSchema,
@@ -18,6 +19,7 @@ import {
 import { RequestStatus, ValidStatus } from '@prisma/client';
 import { ConflictError, NotFoundError } from '../error';
 import AuthropicProvider from '../gateways/providers/anthropicProvider';
+import GeminiProvider from '../gateways/providers/geminiProvider';
 import OpenAiProvider from '../gateways/providers/openAiProvider';
 import channelRequestRepository from '../repositories/channelRequestRepository';
 import conversationRepository from '../repositories/conversationRepository';
@@ -39,6 +41,15 @@ const getProfileById = async (id: string) => {
 	}
 
 	return UserProfileSchema.parse(user);
+};
+
+const getConfigById = async (id: string) => {
+	const user = await userRepository.selectById(prisma, id, false);
+	if (!user) {
+		throw new NotFoundError('No user found');
+	}
+
+	return UserConfigSchema.parse(user.config);
 };
 
 const getNotificationsByUserId = async (userId: string) => {
@@ -216,12 +227,25 @@ const initProviders = async (userId: string) => {
 		}
 	}
 
+	if (apiConfig?.geminiApiKey && apiConfig.geminiApiKey.length > 0) {
+		const gemeniProvider = new GeminiProvider(apiConfig.geminiApiKey);
+
+		try {
+			if (await gemeniProvider.isAvailable()) {
+				providerMap.set(LlmProviderName.GEMINI, gemeniProvider);
+			}
+		} catch (error) {
+			console.error(`User:${userId} fail to init gemeniProvider`, error);
+		}
+	}
+
 	return providerMap;
 };
 
 const userService = {
 	getByIds,
 	getProfileById,
+	getConfigById,
 	getNotificationsByUserId,
 	getFriendRequestById,
 	getFriendshipsById,

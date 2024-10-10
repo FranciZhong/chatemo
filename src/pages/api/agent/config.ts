@@ -1,16 +1,13 @@
 import {
 	BadRequestError,
+	ForbiddenError,
 	MethodNotAllowedError,
 	UnauthorizedError,
 } from '@/server/error';
 import { wrapErrorHandler } from '@/server/middleware';
-import userService from '@/server/services/userService';
+import agentService from '@/server/services/agentService';
 import { FormatResponse } from '@/types/common';
-import {
-	ApiConfigSchema,
-	UserConfigZType,
-	UserProfileZType,
-} from '@/types/user';
+import { AgentConfigPayloadSchema, AgentZType } from '@/types/llm';
 import { HttpStatusCode } from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getToken } from 'next-auth/jwt';
@@ -20,7 +17,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const { success, data: apiConfig } = ApiConfigSchema.safeParse(req.body);
+	const { success, data: payload } = AgentConfigPayloadSchema.safeParse(
+		req.body
+	);
 	if (!success) {
 		throw new BadRequestError();
 	}
@@ -31,19 +30,20 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const userId = token.sub;
-	const userProfile = await userService.getProfileById(userId);
+	const agent = await agentService.getAgentById(payload.agentId);
+	if (!agent || agent.userId !== userId) {
+		throw new ForbiddenError();
+	}
 
-	const config: UserConfigZType = {
-		...userProfile.config,
-		apiConfig,
-	};
-
-	const user = await userService.updateConfig(userId, config);
+	const updatedAgent = await agentService.updateConfigByAgentId(
+		payload.agentId,
+		payload.config
+	);
 
 	res.status(HttpStatusCode.Ok).json({
-		data: user,
-		message: 'API keys are successfully updated.',
-	} as FormatResponse<UserProfileZType>);
+		data: updatedAgent,
+		message: `Agent configuration is updated.`,
+	} as FormatResponse<AgentZType>);
 };
 
 export default wrapErrorHandler(handler);

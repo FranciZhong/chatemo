@@ -1,8 +1,17 @@
-import { LlmProviderName } from '@/lib/constants';
+import { LlmProviderName, LlmRole } from '@/lib/constants';
 import { LlmProviderError } from '@/server/error';
 import { MessageZType } from '@/types/chat';
-import { LlmMessageZType, LlmModelZType, LlmProvider } from '@/types/llm';
+import {
+	LlmMessageZType,
+	LlmModelZType,
+	LlmProvider,
+	ModelParamsZType,
+} from '@/types/llm';
 import OpenAI, { OpenAIError } from 'openai';
+import {
+	ChatCompletionCreateParamsNonStreaming,
+	ChatCompletionCreateParamsStreaming,
+} from 'openai/resources/index.mjs';
 
 export default class OpenAiProvider implements LlmProvider {
 	private client: OpenAI;
@@ -31,7 +40,7 @@ export default class OpenAiProvider implements LlmProvider {
 		const parseMessages: LlmMessageZType[] = messages.reverse().map(
 			(item) =>
 				({
-					role: item.type === 'USER' ? 'user' : 'assistant',
+					role: item.type === 'USER' ? LlmRole.USER : LlmRole.ASSISTANT,
 					content: item.content,
 				} as LlmMessageZType)
 		);
@@ -41,18 +50,31 @@ export default class OpenAiProvider implements LlmProvider {
 
 	public async completeMessage(
 		model: string,
-		messages: LlmMessageZType[]
+		messages: LlmMessageZType[],
+		params?: ModelParamsZType
 	): Promise<LlmMessageZType> {
 		try {
-			const completion = await this.client.chat.completions.create({
+			let input: ChatCompletionCreateParamsNonStreaming = {
 				model,
 				messages,
-			});
+			};
+			if (params) {
+				input = {
+					...input,
+					max_tokens: params.maxToken,
+					temperature: params.temperature,
+					top_p: params.topP,
+					frequency_penalty: params.frequencyPenalty,
+					presence_penalty: params.presencePenalty,
+				};
+			}
+
+			const completion = await this.client.chat.completions.create(input);
 
 			const returnedMessage = completion.choices[0].message;
 
 			return {
-				role: returnedMessage.role,
+				role: LlmRole.ASSISTANT,
 				content: returnedMessage.content || returnedMessage.refusal || '',
 			};
 		} catch (error) {
@@ -67,14 +89,27 @@ export default class OpenAiProvider implements LlmProvider {
 	public async streamMessage(
 		model: string,
 		messages: LlmMessageZType[],
-		callback: (chunk: string) => void
+		callback: (chunk: string) => void,
+		params?: ModelParamsZType
 	): Promise<void> {
 		try {
-			const stream = await this.client.chat.completions.create({
+			let input: ChatCompletionCreateParamsStreaming = {
 				stream: true,
 				model,
 				messages,
-			});
+			};
+			if (params) {
+				input = {
+					...input,
+					max_tokens: params.maxToken,
+					temperature: params.temperature,
+					top_p: params.topP,
+					frequency_penalty: params.frequencyPenalty,
+					presence_penalty: params.presencePenalty,
+				};
+			}
+
+			const stream = await this.client.chat.completions.create(input);
 
 			for await (const chunk of stream) {
 				callback(chunk.choices[0]?.delta?.content || '');

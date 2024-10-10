@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient, ValidStatus } from '@prisma/client';
+import { JsonObject } from '@prisma/client/runtime/library';
 
 const basicSelect = {
 	id: true,
@@ -82,6 +83,35 @@ const updateValidById = (
 	});
 };
 
-const agentRepository = { create, selectById, selectByUserId, updateValidById };
+const updateConfigById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	config: JsonObject,
+	includePrompts: boolean
+) => {
+	return prisma.agent.update({
+		where: {
+			id,
+		},
+		data: {
+			config,
+		},
+		include: {
+			prompts: includePrompts && {
+				where: {
+					valid: ValidStatus.VALID,
+				},
+			},
+		},
+	});
+};
+
+const agentRepository = {
+	create,
+	selectById,
+	selectByUserId,
+	updateValidById,
+	updateConfigById,
+};
 
 export default agentRepository;

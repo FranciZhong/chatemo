@@ -21,6 +21,7 @@ export enum ApiUrl {
 	USER_SEARCH = '/api/user/search',
 	UPDATE_USER_PROFILE = '/api/user/profile/update',
 	UPDATE_APIKEYS_CONFIG = '/api/user/config/apikeys',
+	UPDATE_MODEL_CONFIG = '/api/user/config/model',
 	// friendship
 	SEND_FRIEND_REQUEST = '/api/friend/request',
 	RESPOND_FRIEND_REQUEST = '/api/friend/respond',
@@ -32,6 +33,7 @@ export enum ApiUrl {
 	DELETE_AGENT = '/api/agent/delete',
 	GET_ALL_AGENT = '/api/agent/all',
 	AGENT_PROMPT = '/api/agent/prompt',
+	UPDATE_AGENT_CONFIG = '/api/agent/config',
 	// channel
 	CREATE_CHANNEL = '/api/channel/create',
 	CLOSE_CHANNEL = '/api/channel/close',
@@ -56,6 +58,7 @@ export enum ModalType {
 	NOTIFICATION_MODAL = 'NotificationModal',
 	MEMBERSHIP_MODAL = 'MembershipsModal',
 	CHANNEL_INVITE_MODAL = 'ChannelInviteModal',
+	AGENT_SETTING_MODAL = 'AgentSettingModal',
 }
 
 export enum SidebarTab {
@@ -94,6 +97,7 @@ export enum AvatarSize {
 export enum LlmProviderName {
 	OPENAI = 'openai',
 	ANTHROPIC = 'anthropic',
+	GEMINI = 'gemini',
 }
 
 export enum LlmRole {

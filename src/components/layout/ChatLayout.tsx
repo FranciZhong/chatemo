@@ -28,6 +28,7 @@ import {
 } from '@/types/user';
 import { useEffect, useState } from 'react';
 import LoadingPage from '../LoadingPage';
+import AgentSettingModal from '../modal/AgentSettingModal';
 import ChannelInviteModal from '../modal/ChannelInviteModal';
 import MembershipsModal from '../modal/MembershipsModal';
 import NavModal from '../modal/NavModal';
@@ -284,6 +285,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 			<NotificationModal />
 			<MembershipsModal />
 			<ChannelInviteModal />
+			<AgentSettingModal />
 			<div className="w-screen h-screen flex">
 				{/* todo window size issue */}
 				<NavSidebar />

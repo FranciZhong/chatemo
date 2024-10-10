@@ -23,7 +23,7 @@ const page: React.FC<Props> = async ({ params: { channelId } }) => {
 		// check if channel exist and throw not found
 		const channel = await channelService.getChannelById(channelId, false);
 
-		// todo check if membership exist and valid
+		// check if membership exist and valid
 		const session = await getServerSession(authOptions);
 		const userId = session!.user.id;
 
