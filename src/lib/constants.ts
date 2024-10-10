@@ -33,12 +33,14 @@ export enum ApiUrl {
 	DELETE_AGENT = '/api/agent/delete',
 	GET_ALL_AGENT = '/api/agent/all',
 	AGENT_PROMPT = '/api/agent/prompt',
+	UPDATE_AGENT_PROFILE = '/api/agent/profile',
 	UPDATE_AGENT_CONFIG = '/api/agent/config',
 	// channel
 	CREATE_CHANNEL = '/api/channel/create',
 	CLOSE_CHANNEL = '/api/channel/close',
 	GET_CHANNEL_MESSAGES = '/api/channel/messages',
 	CHANNEL_SEARCH = '/api/channel/search',
+	UPDATE_CHANNEL_PROFILE = '/api/channel/profile',
 	SEND_CHANNEL_REQUEST = '/api/channel/membership/request',
 	SEND_CHANNEL_INVITE = '/api/channel/membership/invite',
 	CHANNEL_RESPOND_REQUEST = '/api/channel/membership/respond',
@@ -58,6 +60,7 @@ export enum ModalType {
 	NOTIFICATION_MODAL = 'NotificationModal',
 	MEMBERSHIP_MODAL = 'MembershipsModal',
 	CHANNEL_INVITE_MODAL = 'ChannelInviteModal',
+	CHANNEL_SETTING_MODAL = 'ChannelSettingModal',
 	AGENT_SETTING_MODAL = 'AgentSettingModal',
 }
 
@@ -113,6 +116,11 @@ export const allowedImageTypes = [
 	'image/webp',
 	'image/svg+xml',
 ];
+
+export const DEFAULT_MODEL = {
+	provider: LlmProviderName.OPENAI,
+	model: 'gpt-4o',
+};
 
 export const DEFAULT_TRANSFORM_DELAY = 300;
 export const SOCKET_HOST = 'http://www.chatemo.chat';

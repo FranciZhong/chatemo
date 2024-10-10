@@ -2,6 +2,7 @@
 
 import ChannelBox from '@/components/chat/ChannelBox';
 import ChannelInviteTrigger from '@/components/layout/ChannelInviteTrigger';
+import ChannelSettingTrigger from '@/components/layout/ChannelSettingTrigger';
 import MembershipsTrigger from '@/components/layout/MembershipsTrigger';
 import NavTopbar from '@/components/layout/NavTopbar';
 import { Separator } from '@/components/ui/separator';
@@ -40,6 +41,7 @@ const page: React.FC<Props> = async ({ params: { channelId } }) => {
 				<ChannelInviteTrigger key="channel-invite-trigger" />
 			),
 			<MembershipsTrigger key="memberships-trigger" />,
+			<ChannelSettingTrigger key="channel-setting-trigger" />,
 		];
 
 		return (

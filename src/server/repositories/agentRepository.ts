@@ -17,7 +17,8 @@ const create = (
 	userId: string,
 	name: string,
 	description?: string,
-	image?: string
+	image?: string,
+	config?: JsonObject
 ) => {
 	return prisma.agent.create({
 		data: {
@@ -25,6 +26,7 @@ const create = (
 			name,
 			description,
 			image,
+			config,
 		},
 	});
 };
@@ -83,11 +85,29 @@ const updateValidById = (
 	});
 };
 
+const updateProfileById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	name: string,
+	image: string | null,
+	description: string | null
+) => {
+	return prisma.agent.update({
+		where: {
+			id,
+		},
+		data: {
+			name,
+			image,
+			description,
+		},
+	});
+};
+
 const updateConfigById = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	id: string,
-	config: JsonObject,
-	includePrompts: boolean
+	config: JsonObject
 ) => {
 	return prisma.agent.update({
 		where: {
@@ -95,13 +115,6 @@ const updateConfigById = (
 		},
 		data: {
 			config,
-		},
-		include: {
-			prompts: includePrompts && {
-				where: {
-					valid: ValidStatus.VALID,
-				},
-			},
 		},
 	});
 };
@@ -111,6 +124,7 @@ const agentRepository = {
 	selectById,
 	selectByUserId,
 	updateValidById,
+	updateProfileById,
 	updateConfigById,
 };
 

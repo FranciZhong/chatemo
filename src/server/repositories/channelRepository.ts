@@ -92,12 +92,26 @@ const updateValidById = (
 	});
 };
 
+const updateProfileById = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	id: string,
+	{ type, name, image, description }: ChannelPayload
+) => {
+	return prisma.channel.update({
+		where: {
+			id,
+		},
+		data: { type, name, image, description },
+	});
+};
+
 const channelRepository = {
 	create,
 	selectByIds,
 	selectByNamePrefix,
 	updateOwnerById,
 	updateValidById,
+	updateProfileById,
 };
 
 export default channelRepository;

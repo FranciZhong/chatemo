@@ -134,10 +134,11 @@ const agentHandler = (io: Server, socket: Socket) => {
 			const channelRoom = CHANNEL_PREFIX + newMessage.channelId;
 			io.to(channelRoom).emit(ChannelEvent.NEW_CHANNEL_MESSAGE, newMessage);
 
+			// use the max history if configured
 			const historyMessages = await channelService.getMessageHistory(
 				replyToMessage.channelId,
 				replyToMessage.createdAt,
-				TAKE_MESSAGES_DEFAULT
+				params?.maxHistory || TAKE_MESSAGES_DEFAULT
 			);
 
 			inputMessages = [

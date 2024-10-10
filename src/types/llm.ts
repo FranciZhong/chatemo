@@ -37,11 +37,12 @@ export const LlmModelSchema = z.object({
 export type LlmModelZType = z.infer<typeof LlmModelSchema>;
 
 export const ModelParamsSchema = z.object({
-	maxToken: z.number().int().min(50).max(10000),
-	temperature: z.number().min(0).max(2),
-	topP: z.number().min(0).max(1),
-	frequencyPenalty: z.number().min(-2).max(2),
-	presencePenalty: z.number().min(-2).max(2),
+	maxHistory: z.number().int().min(5).max(50).default(20),
+	maxToken: z.number().int().min(50).max(10000).default(1000),
+	temperature: z.number().min(0).max(2).default(1),
+	topP: z.number().min(0).max(1).default(0.5),
+	frequencyPenalty: z.number().min(-2).max(2).default(0),
+	presencePenalty: z.number().min(-2).max(2).default(0),
 });
 
 export type ModelParamsZType = z.infer<typeof ModelParamsSchema>;
@@ -93,11 +94,21 @@ export type AgentZType = z.infer<typeof AgentSchema>;
 
 export const AgentProfilePayloadSchema = z.object({
 	name: z.string().min(5).max(32),
-	description: z.string().max(1024).optional(),
-	image: z.string().optional(),
+	description: z.string().max(1024),
+	image: z.string(),
 });
 
 export type AgentProfilePayload = z.infer<typeof AgentProfilePayloadSchema>;
+
+export const UpdateAgentProfilePayloadSchema = AgentProfilePayloadSchema.extend(
+	{
+		agentId: z.string(),
+	}
+);
+
+export type UpdateAgentProfilePayload = z.infer<
+	typeof UpdateAgentProfilePayloadSchema
+>;
 
 export const AgentConfigPayloadSchema = z.object({
 	agentId: z.string(),

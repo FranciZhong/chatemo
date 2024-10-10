@@ -125,7 +125,7 @@ export default class AuthropicProvider implements LlmProvider {
 				messages: userPrompts,
 				system: systemPrompts,
 				max_tokens: params?.maxToken || 1000,
-				temperature: params && params.temperature / 2,
+				temperature: params?.temperature && params.temperature / 2,
 				top_p: params?.topP,
 			});
 
@@ -160,7 +160,7 @@ export default class AuthropicProvider implements LlmProvider {
 					messages: userPrompts,
 					system: systemPrompts,
 					max_tokens: params?.maxToken || 1000,
-					temperature: params && params.temperature / 2,
+					temperature: params?.temperature && params.temperature / 2,
 					top_p: params?.topP,
 				})
 				.on('text', (text) => {

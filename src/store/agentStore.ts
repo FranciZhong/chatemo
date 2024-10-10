@@ -39,7 +39,14 @@ const useAgentStore = create<AgentStore>((set) => ({
 	updateAgent: (agent: AgentZType) => {
 		set((state) => ({
 			...state,
-			agents: [agent, ...state.agents.filter((item) => item.id !== agent.id)],
+			agents: state.agents.map((item) =>
+				item.id === agent.id
+					? {
+							...item,
+							...agent,
+					  }
+					: item
+			),
 		}));
 	},
 }));

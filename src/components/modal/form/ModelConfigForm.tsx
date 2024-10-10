@@ -71,6 +71,29 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 
 				<FormField
 					control={form.control}
+					name="modelParams.maxHistory"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Maximum channel history</FormLabel>
+							<FormControl>
+								<div className="flex justify-between gap-8">
+									<Slider
+										value={[field.value]}
+										onValueChange={(arr) => field.onChange(arr[0])}
+										min={5}
+										max={50}
+										step={1}
+									/>
+									<Input {...field} type="number" className="w-24" />
+								</div>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
 					name="modelParams.maxToken"
 					render={({ field }) => (
 						<FormItem>

@@ -3,7 +3,7 @@
 import axiosInstance from '@/lib/axios';
 import {
 	ApiUrl,
-	LlmProviderName,
+	DEFAULT_MODEL,
 	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
 	TOAST_ERROR_DEFAULT,
@@ -44,10 +44,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 	const { toast } = useToast();
 	const { user } = useUserStore();
 	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
-		user?.config?.modelConfig?.defaultModel || {
-			provider: LlmProviderName.OPENAI,
-			model: 'gpt-4o',
-		}
+		user?.config?.modelConfig?.defaultModel || DEFAULT_MODEL
 	);
 	const [moreMessages, setMoreMessages] = useState<boolean>(true);
 	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(

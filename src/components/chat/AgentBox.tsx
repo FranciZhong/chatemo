@@ -3,7 +3,7 @@
 import axiosInstance from '@/lib/axios';
 import {
 	ApiUrl,
-	LlmProviderName,
+	DEFAULT_MODEL,
 	PageUrl,
 	TOAST_ERROR_DEFAULT,
 } from '@/lib/constants';
@@ -37,10 +37,8 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 
 	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
 		agent?.config?.defaultModel ||
-			user?.config?.modelConfig?.defaultModel || {
-				provider: LlmProviderName.OPENAI,
-				model: 'gpt-4o',
-			}
+			user?.config?.modelConfig?.defaultModel ||
+			DEFAULT_MODEL
 	);
 
 	if (!agent) {
