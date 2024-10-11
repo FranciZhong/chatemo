@@ -5,6 +5,7 @@ import { Cross2Icon, ImageIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
 import { useState } from 'react';
 import FileUploader from '../FileUploader';
+import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
 import SelectAgentButton from '../SelectAgentButton';
 import SelectModelButton from '../SelectModelButton';
@@ -74,25 +75,26 @@ const ChatEditer: React.FC<Props> = ({
 	};
 
 	const actions = [
-		<FileUploader
-			key="image-button"
-			onChange={setUploadedImage}
-			allowedFileTypes={allowedImageTypes}
-			allowedFileSize={MAX_IMAGE_FILE_SIZE}
-		>
-			<IconButton>
-				<ImageIcon className="icon-size" />
-			</IconButton>
-		</FileUploader>,
-		<SelectModelButton
-			key="model-button"
-			selectedModel={selectedModel}
-			onSelectedModelChange={onSelectedModelChange}
-		/>,
-		<SelectAgentButton
-			key="preview-button"
-			onSelectedAgentChange={handleSelectedAgentChange}
-		/>,
+		<HoverTooltip key="image-button" content="Upload Image">
+			<FileUploader
+				onChange={setUploadedImage}
+				allowedFileTypes={allowedImageTypes}
+				allowedFileSize={MAX_IMAGE_FILE_SIZE}
+			>
+				<IconButton>
+					<ImageIcon className="icon-size" />
+				</IconButton>
+			</FileUploader>
+		</HoverTooltip>,
+		<HoverTooltip key="model-button" content="Switch Model">
+			<SelectModelButton
+				selectedModel={selectedModel}
+				onSelectedModelChange={onSelectedModelChange}
+			/>
+		</HoverTooltip>,
+		<HoverTooltip key="preview-button" content="Agent Preview">
+			<SelectAgentButton onSelectedAgentChange={handleSelectedAgentChange} />
+		</HoverTooltip>,
 	];
 
 	return (

@@ -9,6 +9,7 @@ import {
 	GitHubLogoIcon,
 } from '@radix-ui/react-icons';
 import Link from 'next/link';
+import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
 import ThemeToggle from './ThemeToggle';
 
@@ -31,15 +32,21 @@ const NavTopbar: React.FC<Props> = ({ children, triggers }) => {
 			</div>
 			<div className="flex justify-end items-center gap-2">
 				{triggers}
-				<IconButton onClick={() => openModal(ModalType.NOTIFICATION_MODAL)}>
-					<EnvelopeClosedIcon className="icon-size" />
-				</IconButton>
-				<IconButton>
-					<Link type="" href={GITHUB_LINK}>
-						<GitHubLogoIcon className="icon-size" />
-					</Link>
-				</IconButton>
-				<ThemeToggle />
+				<HoverTooltip content="Notifications">
+					<IconButton onClick={() => openModal(ModalType.NOTIFICATION_MODAL)}>
+						<EnvelopeClosedIcon className="icon-size" />
+					</IconButton>
+				</HoverTooltip>
+				<HoverTooltip content="Github Repository">
+					<IconButton>
+						<Link type="" href={GITHUB_LINK}>
+							<GitHubLogoIcon className="icon-size" />
+						</Link>
+					</IconButton>
+				</HoverTooltip>
+				<HoverTooltip content="Switch Theme">
+					<ThemeToggle />
+				</HoverTooltip>
 			</div>
 		</div>
 	);

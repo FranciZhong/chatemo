@@ -2,7 +2,7 @@
 
 import IconButton from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
-import { ModalType, NavModalTab } from '@/lib/constants';
+import { ModalType, NavModalTab, PRESS_ENTER_TEXT } from '@/lib/constants';
 import useAgentStore from '@/store/agentStore';
 import useModalStore from '@/store/modalStore';
 import { AgentZType } from '@/types/llm';
@@ -42,7 +42,11 @@ const AgentList: React.FC = () => {
 	return (
 		<div className="flex flex-col">
 			<div className="flex justify-end items-center gap-2 px-4">
-				<Input value={searchInput} onChange={handleSearchChange} />
+				<Input
+					value={searchInput}
+					placeholder={PRESS_ENTER_TEXT}
+					onChange={handleSearchChange}
+				/>
 				<IconButton
 					onClick={() => openModal(ModalType.NAV_MODAL, NavModalTab.ADD_AGENT)}
 				>

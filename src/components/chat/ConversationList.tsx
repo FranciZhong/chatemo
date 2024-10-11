@@ -2,7 +2,7 @@
 
 import IconButton from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
-import { ModalType, NavModalTab } from '@/lib/constants';
+import { ModalType, NavModalTab, PRESS_ENTER_TEXT } from '@/lib/constants';
 import useConversationStore from '@/store/conversationStore';
 import useModalStore from '@/store/modalStore';
 import { ConversationZType } from '@/types/chat';
@@ -45,7 +45,11 @@ const ConversationList: React.FC = () => {
 		<div className="flex flex-col">
 			{/* todo */}
 			<div className="flex justify-end items-center gap-2 px-4">
-				<Input value={searchInput} onChange={handleSearchChange} />
+				<Input
+					value={searchInput}
+					placeholder={PRESS_ENTER_TEXT}
+					onChange={handleSearchChange}
+				/>
 				<IconButton
 					onClick={() =>
 						openModal(ModalType.NAV_MODAL, NavModalTab.FIND_FRIEND)
