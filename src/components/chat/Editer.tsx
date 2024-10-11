@@ -1,6 +1,7 @@
 import { PaperPlaneIcon } from '@radix-ui/react-icons';
 import { EmojiClickData } from 'emoji-picker-react';
 import EmojiPickerButton from '../EmojiPickerButton';
+import HoverTooltip from '../HoverTooltip';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 
@@ -44,7 +45,9 @@ const Editer: React.FC<Props> = ({
 		<div className="w-full p-1 flex flex-col gap-1">
 			{children}
 			<div className="flex items-center gap-2">
-				<EmojiPickerButton onEmojiClick={handleClickEmoji} />
+				<HoverTooltip content="Emoji">
+					<EmojiPickerButton onEmojiClick={handleClickEmoji} />
+				</HoverTooltip>
 				{actions}
 			</div>
 			<div className="w-full relative px-2">

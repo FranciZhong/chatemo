@@ -132,6 +132,7 @@ export const TAKE_MESSAGES_DEFAULT = 20;
 export const TAKE_MESSAGES_LIMIT = 50;
 
 // text
+export const PRESS_ENTER_TEXT = 'press enter to search';
 export const TOAST_ERROR_DEFAULT = {
 	title: 'Error',
 	description: 'Something went wrong.',

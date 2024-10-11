@@ -2,6 +2,7 @@
 
 import IconButton from '@/components/IconButton';
 import SelectModelButton from '@/components/SelectModelButton';
+import TooltipLabel from '@/components/TooltipLabel';
 import { Button } from '@/components/ui/button';
 import {
 	Form,
@@ -47,7 +48,12 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 					name="defaultModel"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Default Model</FormLabel>
+							<FormLabel>
+								<TooltipLabel
+									label="Default Model"
+									tooltipContent="If an agent is configured with a default model, this model will override the default model in user configuration."
+								/>
+							</FormLabel>
 							<FormControl>
 								<div className="w-96 flex justify-between items-center gap-4">
 									<SelectModelButton
@@ -75,7 +81,12 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 					name="modelParams.maxHistory"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Maximum channel history</FormLabel>
+							<FormLabel>
+								<TooltipLabel
+									label="Maximum channel history"
+									tooltipContent="The maximum number of history messages used as the model context."
+								/>
+							</FormLabel>
 							<FormControl>
 								<div className="flex justify-between gap-8">
 									<Slider
@@ -98,7 +109,12 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 					name="modelParams.maxToken"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Maximum token</FormLabel>
+							<FormLabel>
+								<TooltipLabel
+									label="Maximum token"
+									tooltipContent="The maximum length of output tokens."
+								/>
+							</FormLabel>
 							<FormControl>
 								<div className="flex justify-between gap-8">
 									<Slider
@@ -121,7 +137,12 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 					name="modelParams.temperature"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Temperature</FormLabel>
+							<FormLabel>
+								<TooltipLabel
+									label="Temperature"
+									tooltipContent="Amount of randomness injected into the response. Don't alter with top P together."
+								/>
+							</FormLabel>
 							<FormControl>
 								<div className="flex justify-between gap-8">
 									<Slider
@@ -144,7 +165,12 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 					name="modelParams.topP"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Top P</FormLabel>
+							<FormLabel>
+								<TooltipLabel
+									label="Top P"
+									tooltipContent="An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. Don't alter with temperature together."
+								/>
+							</FormLabel>
 							<FormControl>
 								<div className="flex justify-between gap-8">
 									<Slider
@@ -167,7 +193,12 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 					name="modelParams.frequencyPenalty"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Frequency Penalty</FormLabel>
+							<FormLabel>
+								<TooltipLabel
+									label="Frequency Penalty"
+									tooltipContent="Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim."
+								/>
+							</FormLabel>
 							<FormControl>
 								<div className="flex justify-between gap-8">
 									<Slider
@@ -190,7 +221,12 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 					name="modelParams.presencePenalty"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Presence Penalty</FormLabel>
+							<FormLabel>
+								<TooltipLabel
+									label="Presence Penalty"
+									tooltipContent="Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics."
+								/>
+							</FormLabel>
 							<FormControl>
 								<div className="flex justify-between gap-8">
 									<Slider

@@ -28,7 +28,7 @@ const selectByIds = (
 	});
 };
 
-const selectStartWithName = (
+const selectByName = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	name: string,
 	limit?: number
@@ -36,7 +36,8 @@ const selectStartWithName = (
 	return prisma.user.findMany({
 		where: {
 			name: {
-				startsWith: name,
+				contains: name,
+				mode: 'insensitive',
 			},
 		},
 		take: limit,
@@ -78,7 +79,7 @@ const updateConfig = (
 const userRepository = {
 	selectById,
 	selectByIds,
-	selectStartWithName,
+	selectByName,
 	updateProfile,
 	updateConfig,
 };

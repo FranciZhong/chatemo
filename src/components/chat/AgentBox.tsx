@@ -14,6 +14,7 @@ import { AgentPromptPayload, AgentZType, LlmModelZType } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
 import { redirect } from 'next/navigation';
 import { useState } from 'react';
+import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
 import SelectModelButton from '../SelectModelButton';
 import { ScrollArea } from '../ui/scroll-area';
@@ -57,14 +58,17 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 	};
 
 	const actions = [
-		<SelectModelButton
-			key="model-button"
-			selectedModel={selectedModel}
-			onSelectedModelChange={setSelectedModel}
-		/>,
-		<IconButton key="preview-button" onClick={handleOpenPreview}>
-			<RocketIcon className="icon-size" />
-		</IconButton>,
+		<HoverTooltip key="model-button" content="Select Model">
+			<SelectModelButton
+				selectedModel={selectedModel}
+				onSelectedModelChange={setSelectedModel}
+			/>
+		</HoverTooltip>,
+		<HoverTooltip key="preview-button" content="Preview Mode">
+			<IconButton onClick={handleOpenPreview}>
+				<RocketIcon className="icon-size" />
+			</IconButton>
+		</HoverTooltip>,
 	];
 
 	const handleSubmit = async () => {

@@ -16,7 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new BadRequestError();
 	}
 
-	const channels = await channelService.getChannelByNamePrefix(name);
+	const channels = await channelService.searchByName(name);
 
 	res.status(HttpStatusCode.Ok).json({
 		data: channels,
