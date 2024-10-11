@@ -1,7 +1,7 @@
 import { AgentPromptZType, LlmMessageZType } from '@/types/llm';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { AvatarSize } from './constants';
+import { AvatarSize, LlmRole } from './constants';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -25,7 +25,7 @@ export const getAvatarSizeStyle = (size: AvatarSize) => {
 export const convertPrompt2LlmMessage = (
 	prompt: AgentPromptZType
 ): LlmMessageZType => ({
-	role: 'system',
+	role: LlmRole.SYSTEM,
 	content: prompt.content,
 });
 

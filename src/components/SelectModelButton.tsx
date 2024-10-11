@@ -67,7 +67,7 @@ const SelectModelButton: React.FC<Props> = ({
 								<div className="col-span-7 text-single-line">
 									{`${model.model} (${model.provider})`}
 								</div>
-								<div className="col-span-1">
+								<div className="col-span-1 flex justify-center items-center">
 									{selectedModel &&
 										selectedModel.provider === model.provider &&
 										selectedModel.model === model.model && (
