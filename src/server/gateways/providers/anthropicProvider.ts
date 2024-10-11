@@ -34,6 +34,7 @@ export default class AuthropicProvider implements LlmProvider {
 	): [TextBlockParam[], MessageParam[]] {
 		const systemPrompts = messages
 			.filter((item) => item.role === LlmRole.SYSTEM)
+			.filter((item) => item.content)
 			.map(
 				(item) =>
 					({
@@ -44,6 +45,7 @@ export default class AuthropicProvider implements LlmProvider {
 
 		const userPrompts = messages
 			.filter((item) => item.role !== LlmRole.SYSTEM)
+			.filter((item) => item.content)
 			.map((item) => item as MessageParam);
 
 		return [systemPrompts, userPrompts];

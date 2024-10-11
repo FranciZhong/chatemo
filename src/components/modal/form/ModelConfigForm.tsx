@@ -29,6 +29,7 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 		defaultValues: {
 			defaultModel: modelConfig?.defaultModel,
 			modelParams: modelConfig?.modelParams || {
+				maxHistory: 20,
 				maxToken: 1000,
 				temperature: 1.0,
 				topP: 0.5,
