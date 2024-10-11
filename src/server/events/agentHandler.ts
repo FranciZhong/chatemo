@@ -1,16 +1,18 @@
-import { TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
+import { LlmRole, TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
 import { AgentEvent, ChannelEvent, ConversationEvent } from '@/lib/events';
 import { convertPrompt2LlmMessage } from '@/lib/utils';
 import {
 	AgentPreviewPayload,
 	AgentReplyPayload,
 	LlmMessageZType,
+	LlmModelZType,
 	LlmProvider,
+	ModelParamsZType,
 	StreamMessagePayload,
 } from '@/types/llm';
 import { Server, Socket } from 'socket.io';
 import { CHANNEL_PREFIX, USER_PREFFIX } from '.';
-import { BadRequestError, ForbiddenError, NotFoundError } from '../error';
+import { BadRequestError, ForbiddenError } from '../error';
 import { wrapSocketErrorHandler } from '../middleware';
 import agentService from '../services/agentService';
 import channelService from '../services/channelService';
@@ -26,11 +28,16 @@ const agentHandler = (io: Server, socket: Socket) => {
 			const replyToMessage = await conversationService.getMessageById(
 				payload.replyTo
 			);
+			if (!replyToMessage || replyToMessage.valid !== 'VALID') {
+				throw new BadRequestError('Message not found.');
+			}
+
+			let [model, params, inputMessages] = await initLlmInput(userId, payload);
 
 			const provider: LlmProvider = await getProvider(
 				socket,
 				userId,
-				payload.provider
+				model.provider
 			);
 
 			// emit pending message
@@ -40,6 +47,9 @@ const agentHandler = (io: Server, socket: Socket) => {
 				true,
 				{
 					...payload,
+					// might override payload if using agent
+					model: model.model,
+					provider: model.provider,
 					conversationId: replyToMessage.conversationId,
 					content: '',
 				}
@@ -59,19 +69,17 @@ const agentHandler = (io: Server, socket: Socket) => {
 				newMessage
 			);
 
-			// todo handle error and update message
-			let inputMessages = await initLlmInputMessages(userId, payload);
-
 			inputMessages = [
 				...inputMessages,
 				{
-					role: 'user',
+					role: LlmRole.USER,
 					content: replyToMessage.content,
 				},
 			];
 			const llmMessage = await provider.completeMessage(
-				payload.model,
-				inputMessages
+				model.model,
+				inputMessages,
+				params
 			);
 
 			const updatedMessage = await conversationService.updateMessageContent(
@@ -97,13 +105,15 @@ const agentHandler = (io: Server, socket: Socket) => {
 			);
 
 			if (!replyToMessage || replyToMessage.valid !== 'VALID') {
-				throw new NotFoundError();
+				throw new BadRequestError('Message not found.');
 			}
+
+			let [model, params, inputMessages] = await initLlmInput(userId, payload);
 
 			const provider: LlmProvider = await getProvider(
 				socket,
 				userId,
-				payload.provider
+				model.provider
 			);
 
 			// emit pending message
@@ -113,6 +123,9 @@ const agentHandler = (io: Server, socket: Socket) => {
 				true,
 				{
 					...payload,
+					// might override payload if using agent
+					model: model.model,
+					provider: model.provider,
 					channelId: replyToMessage.channelId,
 					content: '',
 				}
@@ -121,21 +134,22 @@ const agentHandler = (io: Server, socket: Socket) => {
 			const channelRoom = CHANNEL_PREFIX + newMessage.channelId;
 			io.to(channelRoom).emit(ChannelEvent.NEW_CHANNEL_MESSAGE, newMessage);
 
-			let inputMessages = await initLlmInputMessages(userId, payload);
-
+			// use the max history if configured
 			const historyMessages = await channelService.getMessageHistory(
 				replyToMessage.channelId,
 				replyToMessage.createdAt,
-				TAKE_MESSAGES_DEFAULT
+				params?.maxHistory || TAKE_MESSAGES_DEFAULT
 			);
 
 			inputMessages = [
 				...inputMessages,
 				...provider.prepareChatMessages(historyMessages),
 			];
+
 			const llmMessage = await provider.completeMessage(
-				payload.model,
-				inputMessages
+				model.model,
+				inputMessages,
+				params
 			);
 
 			const updatedMessage = await channelService.updateMessageContent(
@@ -165,8 +179,13 @@ const agentHandler = (io: Server, socket: Socket) => {
 			);
 
 			const messages: LlmMessageZType[] = [];
+			let params: ModelParamsZType | undefined = undefined;
 			if (agentId) {
 				const agent = await agentService.getWithPromptsById(agentId);
+				if (!agent) {
+					throw new BadRequestError('Agent not found');
+				}
+
 				messages.push(
 					...(agent.prompts?.map(
 						(prompt) =>
@@ -176,6 +195,8 @@ const agentHandler = (io: Server, socket: Socket) => {
 							} as LlmMessageZType)
 					) || [])
 				);
+
+				params = agent.config?.modelParams;
 			}
 
 			messages.push({
@@ -183,13 +204,18 @@ const agentHandler = (io: Server, socket: Socket) => {
 				content: request,
 			} as LlmMessageZType);
 
-			await llmProvider.streamMessage(model, messages, (chunk) => {
-				socket.emit(AgentEvent.PREVIEW_STREAM_CHUNK, {
-					referToId,
-					finished: false,
-					chunk,
-				} as StreamMessagePayload);
-			});
+			await llmProvider.streamMessage(
+				model,
+				messages,
+				(chunk) => {
+					socket.emit(AgentEvent.PREVIEW_STREAM_CHUNK, {
+						referToId,
+						finished: false,
+						chunk,
+					} as StreamMessagePayload);
+				},
+				params
+			);
 
 			socket.emit(AgentEvent.PREVIEW_STREAM_CHUNK, {
 				referToId,
@@ -215,10 +241,17 @@ async function getProvider(socket: Socket, userId: string, provider: string) {
 	return llmProvider;
 }
 
-async function initLlmInputMessages(
+async function initLlmInput(
 	userId: string,
 	payload: AgentReplyPayload
-) {
+): Promise<[LlmModelZType, ModelParamsZType | undefined, LlmMessageZType[]]> {
+	const config = await userService.getConfigById(userId);
+	let model = {
+		provider: payload.provider,
+		model: payload.model,
+	} as LlmModelZType;
+	let params = config.modelConfig?.modelParams;
+
 	let inputMessages = [] as LlmMessageZType[];
 	if (payload.agentId) {
 		const agent = await agentService.getWithPromptsById(payload.agentId);
@@ -227,11 +260,19 @@ async function initLlmInputMessages(
 			throw new BadRequestError();
 		}
 
+		if (agent.config?.defaultModel) {
+			model = agent.config.defaultModel;
+		}
+
+		if (agent.config?.modelParams) {
+			params = agent.config.modelParams;
+		}
+
 		if (agent.prompts) {
 			inputMessages = agent.prompts?.map((item) =>
 				convertPrompt2LlmMessage(item)
 			);
 		}
 	}
-	return inputMessages;
+	return [model, params, inputMessages];
 }

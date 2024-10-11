@@ -9,7 +9,7 @@ import useModalStore from '@/store/modalStore';
 import useSocketStore from '@/store/socketStore';
 import { ChannelPayload, ChannelZType } from '@/types/chat';
 import { FormatResponse } from '@/types/common';
-import ChannelForm from '../form/ChannelForm';
+import ChannelProfileForm from '../form/ChannelProfileForm';
 
 const CreateChannelBox: React.FC = () => {
 	const { socket } = useSocketStore();
@@ -39,7 +39,7 @@ const CreateChannelBox: React.FC = () => {
 			<h2 className="heading">
 				{NavModalTab.CREATE_CHANNEL.toLocaleUpperCase()}
 			</h2>
-			<ChannelForm onSubmit={onSubmit} />
+			<ChannelProfileForm onSubmit={onSubmit} buttonText="Create" />
 		</div>
 	);
 };

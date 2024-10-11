@@ -25,10 +25,15 @@ import { useForm } from 'react-hook-form';
 
 interface Props {
 	channel?: ChannelZType;
+	buttonText: string;
 	onSubmit: (values: ChannelPayload) => Promise<void>;
 }
 
-const ChannelForm: React.FC<Props> = ({ channel, onSubmit }) => {
+const ChannelProfileForm: React.FC<Props> = ({
+	channel,
+	buttonText,
+	onSubmit,
+}) => {
 	const form = useForm<ChannelPayload>({
 		resolver: zodResolver(ChannelPayloadSchema),
 		defaultValues: {
@@ -104,11 +109,11 @@ const ChannelForm: React.FC<Props> = ({ channel, onSubmit }) => {
 					)}
 				/>
 				<div className="flex justify-end">
-					<Button type="submit">Create</Button>
+					<Button type="submit">{buttonText}</Button>
 				</div>
 			</form>
 		</Form>
 	);
 };
 
-export default ChannelForm;
+export default ChannelProfileForm;

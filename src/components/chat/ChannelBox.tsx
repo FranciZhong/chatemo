@@ -3,7 +3,7 @@
 import axiosInstance from '@/lib/axios';
 import {
 	ApiUrl,
-	LlmProviderName,
+	DEFAULT_MODEL,
 	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
 	TOAST_ERROR_DEFAULT,
@@ -12,6 +12,7 @@ import { AgentEvent, ChannelEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useChannelStore from '@/store/channelStore';
 import useSocketStore from '@/store/socketStore';
+import useUserStore from '@/store/userStore';
 import {
 	BasicChannelMessageZType,
 	ChannelMessagePayload,
@@ -41,11 +42,10 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
-	// todo
-	const [selectedModel, setSelectedModel] = useState<LlmModelZType>({
-		provider: LlmProviderName.OPENAI,
-		model: 'gpt-4o-mini',
-	});
+	const { user } = useUserStore();
+	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
+		user?.config?.modelConfig?.defaultModel || DEFAULT_MODEL
+	);
 	const [moreMessages, setMoreMessages] = useState(true);
 	const [replyTo, setReplyTo] = useState<BasicChannelMessageZType | null>(null);
 

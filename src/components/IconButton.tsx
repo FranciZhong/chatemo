@@ -1,11 +1,11 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, MouseEventHandler } from 'react';
 
 interface Props {
 	children: React.ReactNode;
-	onClick?: () => void;
+	onClick?: MouseEventHandler<any>;
 	className?: string;
 }
 
@@ -14,6 +14,7 @@ const IconButton = forwardRef<HTMLButtonElement, Props>(
 		return (
 			<button
 				ref={ref}
+				type="button"
 				className={cn('icon-button', className)}
 				onClick={onClick}
 			>

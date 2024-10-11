@@ -7,6 +7,7 @@ import {
 	ChannelRequestSchema,
 	ChannelSchema,
 	MessageTypeZType,
+	UpdateChannelPayload,
 } from '@/types/chat';
 import { ChannelRequestType, RequestStatus, ValidStatus } from '@prisma/client';
 import { ConflictError, NotFoundError } from '../error';
@@ -210,6 +211,16 @@ const getMembershipById = async (membershipId: string) => {
 	return membership ? ChannelMembershipSchema.parse(membership) : null;
 };
 
+const updateChannelProfile = async (payload: UpdateChannelPayload) => {
+	const channel = await channelRepository.updateProfileById(
+		prisma,
+		payload.channelId,
+		payload
+	);
+
+	return ChannelSchema.parse(channel);
+};
+
 const closeChannel = async (channelId: string) => {
 	await prisma.$transaction(async (client) => {
 		await channelRepository.updateValidById(
@@ -305,6 +316,7 @@ const channelService = {
 	getMessageHistory,
 	getChannelRequestById,
 	getMembershipById,
+	updateChannelProfile,
 	closeChannel,
 	updateMessageContent,
 	rejectRequest,

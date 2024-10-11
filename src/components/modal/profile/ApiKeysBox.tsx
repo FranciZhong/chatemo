@@ -67,7 +67,7 @@ const ApiKeysBox: React.FC = () => {
 							<FormItem>
 								<FormLabel>OpenAI API Key</FormLabel>
 								<FormControl>
-									<Input placeholder="sk-xxx" {...field} />
+									<Input type="password" placeholder="sk-xxx" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -81,7 +81,20 @@ const ApiKeysBox: React.FC = () => {
 							<FormItem>
 								<FormLabel>Anthropic API Key</FormLabel>
 								<FormControl>
-									<Input placeholder="sk-xxx" {...field} />
+									<Input type="password" placeholder="sk-xxx" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="geminiApiKey"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Gemini API Key</FormLabel>
+								<FormControl>
+									<Input type="password" placeholder="AIxxx" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>

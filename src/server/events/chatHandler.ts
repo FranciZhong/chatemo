@@ -50,6 +50,10 @@ const chatHandler = (io: Server, socket: Socket) => {
 			const message = await conversationService.getMessageById(
 				payload.referToId
 			);
+			if (!message || message.valid !== 'VALID') {
+				throw new BadRequestError('Message not found.');
+			}
+
 			if (message.senderId !== senderId) {
 				throw new ForbiddenError(
 					'Cannot delete a message from other participants.'

@@ -153,6 +153,12 @@ export const ChannelPayloadSchema = z.object({
 
 export type ChannelPayload = z.infer<typeof ChannelPayloadSchema>;
 
+export const UpdateChannelPayloadSchema = ChannelPayloadSchema.extend({
+	channelId: z.string(),
+});
+
+export type UpdateChannelPayload = z.infer<typeof UpdateChannelPayloadSchema>;
+
 export const ChannelRequestTypeSchema = z.enum([
 	ChannelRequestType.INVITE,
 	ChannelRequestType.JOIN,

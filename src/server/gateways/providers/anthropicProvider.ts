@@ -1,7 +1,12 @@
-import { LlmProviderName } from '@/lib/constants';
+import { LlmProviderName, LlmRole } from '@/lib/constants';
 import { LlmProviderError } from '@/server/error';
 import { MessageZType } from '@/types/chat';
-import { LlmMessageZType, LlmModelZType, LlmProvider } from '@/types/llm';
+import {
+	LlmMessageZType,
+	LlmModelZType,
+	LlmProvider,
+	ModelParamsZType,
+} from '@/types/llm';
 import Anthropic, { AnthropicError } from '@anthropic-ai/sdk';
 import {
 	MessageParam,
@@ -28,7 +33,7 @@ export default class AuthropicProvider implements LlmProvider {
 		messages: LlmMessageZType[]
 	): [TextBlockParam[], MessageParam[]] {
 		const systemPrompts = messages
-			.filter((item) => item.role === 'system')
+			.filter((item) => item.role === LlmRole.SYSTEM)
 			.map(
 				(item) =>
 					({
@@ -38,7 +43,7 @@ export default class AuthropicProvider implements LlmProvider {
 			);
 
 		const userPrompts = messages
-			.filter((item) => item.role !== 'system')
+			.filter((item) => item.role !== LlmRole.SYSTEM)
 			.map((item) => item as MessageParam);
 
 		return [systemPrompts, userPrompts];
@@ -56,7 +61,7 @@ export default class AuthropicProvider implements LlmProvider {
 
 	public async isAvailable(): Promise<boolean> {
 		const message = await this.completeMessage(models[0], [
-			{ role: 'user', content: 'Hello' },
+			{ role: LlmRole.USER, content: 'Hello' },
 		]);
 
 		return message && message.content.length > 0;
@@ -84,14 +89,14 @@ export default class AuthropicProvider implements LlmProvider {
 				id2MessageMap.has(assistantMessage.replyTo)
 			) {
 				const replyToMessage = {
-					role: 'user',
+					role: LlmRole.USER,
 					content: id2MessageMap.get(assistantMessage.replyTo)!.content,
-				} as LlmMessageZType;
+				};
 
 				const agentMessage = {
-					role: 'assistant',
+					role: LlmRole.ASSISTANT,
 					content: assistantMessage.content,
-				} as LlmMessageZType;
+				};
 
 				parsedMessages.push(replyToMessage, agentMessage);
 			}
@@ -99,7 +104,7 @@ export default class AuthropicProvider implements LlmProvider {
 
 		if (lastMessage?.type === 'USER') {
 			parsedMessages.push({
-				role: 'user',
+				role: LlmRole.USER,
 				content: lastMessage.content,
 			});
 		}
@@ -109,23 +114,26 @@ export default class AuthropicProvider implements LlmProvider {
 
 	public async completeMessage(
 		model: string,
-		messages: LlmMessageZType[]
+		messages: LlmMessageZType[],
+		params?: ModelParamsZType
 	): Promise<LlmMessageZType> {
 		const [systemPrompts, userPrompts] = this.filterMessages(messages);
 
 		try {
 			const msg = await this.client.messages.create({
-				max_tokens: 1024,
 				model,
 				messages: userPrompts,
 				system: systemPrompts,
+				max_tokens: params?.maxToken || 1000,
+				temperature: params?.temperature && params.temperature / 2,
+				top_p: params?.topP,
 			});
 
 			const returnedMessage =
 				msg.content[0].type === 'text' ? msg.content[0].text : '';
 
 			return {
-				role: msg.role,
+				role: LlmRole.ASSISTANT,
 				content: returnedMessage,
 			};
 		} catch (error) {
@@ -140,17 +148,20 @@ export default class AuthropicProvider implements LlmProvider {
 	public async streamMessage(
 		model: string,
 		messages: LlmMessageZType[],
-		callback: (chunk: string) => void
+		callback: (chunk: string) => void,
+		params?: ModelParamsZType
 	): Promise<void> {
 		const [systemPrompts, userPrompts] = this.filterMessages(messages);
 
 		try {
 			this.client.messages
 				.stream({
-					max_tokens: 1024,
 					model,
 					messages: userPrompts,
 					system: systemPrompts,
+					max_tokens: params?.maxToken || 1000,
+					temperature: params?.temperature && params.temperature / 2,
+					top_p: params?.topP,
 				})
 				.on('text', (text) => {
 					callback(text);

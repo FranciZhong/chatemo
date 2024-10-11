@@ -8,36 +8,53 @@ import { ModalType, ProfileModalTab } from '@/lib/constants';
 import useLlmModelStore from '@/store/llmModelStore';
 import useModalStore from '@/store/modalStore';
 import { LlmModelZType } from '@/types/llm';
-import { CheckIcon, CubeIcon } from '@radix-ui/react-icons';
-import { useEffect, useState } from 'react';
+import { CaretSortIcon, CheckIcon, CubeIcon } from '@radix-ui/react-icons';
+import { useCallback, useState } from 'react';
 import IconButton from './IconButton';
+import { Button } from './ui/button';
 import { ScrollArea, ScrollBar } from './ui/scroll-area';
 
 interface Props {
-	selectedModel: LlmModelZType;
 	onSelectedModelChange: (model: LlmModelZType) => void;
+	variant?: 'icon' | 'config';
+	selectedModel?: LlmModelZType | null;
 }
 
 const SelectModelButton: React.FC<Props> = ({
-	selectedModel,
 	onSelectedModelChange,
+	variant = 'icon',
+	selectedModel,
 }) => {
 	const { availableModels } = useLlmModelStore();
 	const { openModal } = useModalStore();
 	const [open, setOpen] = useState(false);
 
-	useEffect(() => {
-		if (open) {
+	const getTriggerComponent = useCallback(() => {
+		if (variant === 'config') {
+			return (
+				<Button
+					variant="outline"
+					role="combobox"
+					className="w-full hover:bg-hover hover:text-secondary flex justify-between gap-2"
+				>
+					{selectedModel
+						? `${selectedModel.provider} - ${selectedModel.model}`
+						: 'None'}
+					<CaretSortIcon className="icon-size opacity-50" />
+				</Button>
+			);
 		}
-	}, [open]);
+
+		return (
+			<IconButton onClick={() => setOpen((value) => !value)}>
+				<CubeIcon className="icon-size" />
+			</IconButton>
+		);
+	}, [variant, selectedModel]);
 
 	return (
 		<DropdownMenu open={open} onOpenChange={setOpen}>
-			<DropdownMenuTrigger asChild>
-				<IconButton onClick={() => setOpen((value) => !value)}>
-					<CubeIcon className="icon-size" />
-				</IconButton>
-			</DropdownMenuTrigger>
+			<DropdownMenuTrigger asChild>{getTriggerComponent()}</DropdownMenuTrigger>
 			<DropdownMenuContent>
 				{availableModels.length > 0 ? (
 					<ScrollArea className="h-96 w-80">
@@ -48,10 +65,11 @@ const SelectModelButton: React.FC<Props> = ({
 								onClick={() => onSelectedModelChange(model)}
 							>
 								<div className="col-span-7 text-single-line">
-									{`${model.model}(${model.provider})`}
+									{`${model.model} (${model.provider})`}
 								</div>
 								<div className="col-span-1">
-									{selectedModel.provider === model.provider &&
+									{selectedModel &&
+										selectedModel.provider === model.provider &&
 										selectedModel.model === model.model && (
 											<CheckIcon className="icon-size" />
 										)}

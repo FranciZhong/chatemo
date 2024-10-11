@@ -4,10 +4,10 @@ import {
 	UnauthorizedError,
 } from '@/server/error';
 import { wrapErrorHandler } from '@/server/middleware';
-import agentService from '@/server/services/agentService';
 import userService from '@/server/services/userService';
 import { FormatResponse } from '@/types/common';
-import { AgentProfilePayloadSchema, AgentZType } from '@/types/llm';
+import { ModelConfigSchema } from '@/types/llm';
+import { UserConfigZType, UserProfileZType } from '@/types/user';
 import { HttpStatusCode } from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getToken } from 'next-auth/jwt';
@@ -17,8 +17,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const payload = AgentProfilePayloadSchema.parse(req.body);
-	if (!payload) {
+	const { success, data: modelConfig } = ModelConfigSchema.safeParse(req.body);
+	if (!success) {
 		throw new BadRequestError();
 	}
 
@@ -28,18 +28,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const userId = token.sub;
+	const userProfile = await userService.getProfileById(userId);
 
-	const userConfig = await userService.getConfigById(userId);
-	const agent = await agentService.create(
-		userId,
-		payload,
-		userConfig.modelConfig
-	);
+	const config: UserConfigZType = {
+		...userProfile.config,
+		modelConfig,
+	};
+
+	const user = await userService.updateConfig(userId, config);
 
 	res.status(HttpStatusCode.Ok).json({
-		data: agent,
-		message: 'Your new agent is ready!!',
-	} as FormatResponse<AgentZType>);
+		data: user,
+		message: 'Default model configuration is successfully updated.',
+	} as FormatResponse<UserProfileZType>);
 };
 
 export default wrapErrorHandler(handler);

@@ -110,7 +110,7 @@ const getMessageById = async (messageId: string) => {
 		messageId
 	);
 
-	return ConversationMessageSchema.parse(message);
+	return message ? ConversationMessageSchema.parse(message) : null;
 };
 
 const createMessage = async (

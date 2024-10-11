@@ -14,16 +14,18 @@ type ParamsType = {
 };
 
 const ChannelInviteModal: React.FC = () => {
-	const { channelId } = useParams() as ParamsType;
+	const params = useParams<ParamsType>();
 	const { isOpen, modalType, closeModal } = useModalStore();
-
-	if (!channelId) {
-		return null;
-	}
 
 	if (!isOpen || modalType !== ModalType.CHANNEL_INVITE_MODAL) {
 		return null;
 	}
+
+	if (!params) {
+		return null;
+	}
+
+	const channelId = params.channelId;
 
 	const handleSendRequest = (userId: string) => async () => {
 		try {

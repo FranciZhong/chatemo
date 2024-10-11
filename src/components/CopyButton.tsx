@@ -39,7 +39,7 @@ const CopyButton: React.FC<Props> = ({ content }) => {
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>Copied!</p>
+					<p>Copied</p>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>

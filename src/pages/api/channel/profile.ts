@@ -1,13 +1,13 @@
 import {
 	BadRequestError,
+	ForbiddenError,
 	MethodNotAllowedError,
 	UnauthorizedError,
 } from '@/server/error';
 import { wrapErrorHandler } from '@/server/middleware';
-import agentService from '@/server/services/agentService';
-import userService from '@/server/services/userService';
+import channelService from '@/server/services/channelService';
+import { ChannelZType, UpdateChannelPayloadSchema } from '@/types/chat';
 import { FormatResponse } from '@/types/common';
-import { AgentProfilePayloadSchema, AgentZType } from '@/types/llm';
 import { HttpStatusCode } from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getToken } from 'next-auth/jwt';
@@ -17,8 +17,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const payload = AgentProfilePayloadSchema.parse(req.body);
-	if (!payload) {
+	const { success, data: payload } = UpdateChannelPayloadSchema.safeParse(
+		req.body
+	);
+	if (!success) {
 		throw new BadRequestError();
 	}
 
@@ -28,18 +30,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const userId = token.sub;
+	const channel = await channelService.getChannelById(payload.channelId, false);
+	if (channel.ownerId !== userId) {
+		throw new ForbiddenError();
+	}
 
-	const userConfig = await userService.getConfigById(userId);
-	const agent = await agentService.create(
-		userId,
-		payload,
-		userConfig.modelConfig
-	);
+	const updatedChannel = await channelService.updateChannelProfile(payload);
 
 	res.status(HttpStatusCode.Ok).json({
-		data: agent,
-		message: 'Your new agent is ready!!',
-	} as FormatResponse<AgentZType>);
+		data: updatedChannel,
+		message: `Channel profile is updated.`,
+	} as FormatResponse<ChannelZType>);
 };
 
 export default wrapErrorHandler(handler);

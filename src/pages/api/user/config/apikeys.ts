@@ -6,7 +6,11 @@ import {
 import { wrapErrorHandler } from '@/server/middleware';
 import userService from '@/server/services/userService';
 import { FormatResponse } from '@/types/common';
-import { ApiConfigSchema, UserProfileZType } from '@/types/user';
+import {
+	ApiConfigSchema,
+	UserConfigZType,
+	UserProfileZType,
+} from '@/types/user';
 import { HttpStatusCode } from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getToken } from 'next-auth/jwt';
@@ -16,8 +20,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		throw new MethodNotAllowedError();
 	}
 
-	const apiConfig = ApiConfigSchema.parse(req.body);
-	if (!apiConfig) {
+	const { success, data: apiConfig } = ApiConfigSchema.safeParse(req.body);
+	if (!success) {
 		throw new BadRequestError();
 	}
 
@@ -29,7 +33,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const userId = token.sub;
 	const userProfile = await userService.getProfileById(userId);
 
-	let config = {
+	const config: UserConfigZType = {
 		...userProfile.config,
 		apiConfig,
 	};
@@ -38,7 +42,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 	res.status(HttpStatusCode.Ok).json({
 		data: user,
-		message: 'API keys successfully updated.',
+		message: 'API keys are successfully updated.',
 	} as FormatResponse<UserProfileZType>);
 };
 
