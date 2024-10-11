@@ -2,7 +2,7 @@
 
 ## 🚀 Introduction
 
-Welcome to [Chatemo](http://www.chatemo.chat/), the cutting-edge team communication app that integrates Large Language Models (LLMs) to provide real-time problem-solving capabilities. With Chatemo, there's no need to switch contexts to ask questions—various models and agents with tailored prompts are accessible directly within the conversation window. Simply input your preferred providers' API keys to get started.
+Welcome to [Chatemo](http://www.chatemo.chat/), the cutting-edge team communication app that integrates Large Language Models (LLMs) to provide real-time problem-solving capabilities. With Chatemo, there's no need to switch contexts to ask questions—various models. Instead, agents with tailored prompts are accessible directly within the conversation window. Simply input your preferred providers' API keys to get started.
 
 ### 🌟 Core Features
 
@@ -57,7 +57,7 @@ Welcome to [Chatemo](http://www.chatemo.chat/), the cutting-edge team communicat
 - 🆔 uuid
 - ⏳ use-debounce
 
-### 📝 Markdown Processing
+### 📝 Markdown Fully Support
 
 Utilize React Markdown along with remark & rehype plugins for markdown processing in React applications.
 
