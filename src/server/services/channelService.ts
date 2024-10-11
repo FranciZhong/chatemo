@@ -141,8 +141,8 @@ const getChannelById = async (
 	return ChannelSchema.parse(channels.at(0));
 };
 
-const getChannelByNamePrefix = async (prefix: string) => {
-	const channels = await channelRepository.selectByNamePrefix(prisma, prefix);
+const searchByName = async (name: string) => {
+	const channels = await channelRepository.selectByName(prisma, name);
 
 	return channels.map((item) => ChannelSchema.parse(item));
 };
@@ -309,7 +309,7 @@ const channelService = {
 	createMessage,
 	getChannelsByUserId,
 	getChannelById,
-	getChannelByNamePrefix,
+	searchByName,
 	getMembershipByChannelUser,
 	getChannelMessages,
 	getMessageById,

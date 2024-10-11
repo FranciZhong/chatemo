@@ -123,7 +123,7 @@ const getFriendshipsById = async (friendshipId: string) => {
 };
 
 const searchByName = async (name: string) => {
-	const users = await userRepository.selectStartWithName(
+	const users = await userRepository.selectByName(
 		prisma,
 		name,
 		DEFAULT_SELECT_LIMIT

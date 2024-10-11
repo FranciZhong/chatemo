@@ -47,14 +47,15 @@ const selectByIds = (
 	});
 };
 
-const selectByNamePrefix = (
+const selectByName = (
 	prisma: PrismaClient | Prisma.TransactionClient,
-	prefix: string
+	name: string
 ) => {
 	return prisma.channel.findMany({
 		where: {
 			name: {
-				startsWith: prefix,
+				contains: name,
+				mode: 'insensitive',
 			},
 			type: AvailableType.PUBLIC,
 			valid: ValidStatus.VALID,
@@ -108,7 +109,7 @@ const updateProfileById = (
 const channelRepository = {
 	create,
 	selectByIds,
-	selectByNamePrefix,
+	selectByName,
 	updateOwnerById,
 	updateValidById,
 	updateProfileById,
