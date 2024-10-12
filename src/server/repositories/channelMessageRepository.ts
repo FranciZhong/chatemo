@@ -93,10 +93,10 @@ const selectByCreateAtOffset = (
 	return prisma.channelMessage.findMany({
 		where: {
 			channelId,
+			valid: ValidStatus.VALID,
 			createdAt: {
 				lte: createAt,
 			},
-			valid: ValidStatus.VALID,
 		},
 		take,
 		orderBy: {

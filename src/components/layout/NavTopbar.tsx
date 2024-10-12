@@ -1,16 +1,16 @@
 'use client';
 
-import { GITHUB_LINK, ModalType } from '@/lib/constants';
+import { GITHUB_LINK } from '@/lib/constants';
 import { useOpenModalStore } from '@/store/modalStore';
 import useOpenStore from '@/store/openStore';
 import {
 	DragHandleHorizontalIcon,
-	EnvelopeClosedIcon,
 	GitHubLogoIcon,
 } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
+import NotificationModalTrigger from './NotificationModalTrigger';
 import ThemeToggle from './ThemeToggle';
 
 interface Props {
@@ -32,11 +32,7 @@ const NavTopbar: React.FC<Props> = ({ children, triggers }) => {
 			</div>
 			<div className="flex justify-end items-center gap-2">
 				{triggers}
-				<HoverTooltip content="Notifications">
-					<IconButton onClick={() => openModal(ModalType.NOTIFICATION_MODAL)}>
-						<EnvelopeClosedIcon className="icon-size" />
-					</IconButton>
-				</HoverTooltip>
+				<NotificationModalTrigger />
 				<HoverTooltip content="Github Repository">
 					<IconButton>
 						<Link type="" href={GITHUB_LINK}>

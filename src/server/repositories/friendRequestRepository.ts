@@ -42,8 +42,8 @@ const selectWithStatus = (
 ) => {
 	return prisma.friendRequest.findFirst({
 		where: {
-			senderId,
 			receiverId,
+			senderId,
 			status,
 		},
 	});
