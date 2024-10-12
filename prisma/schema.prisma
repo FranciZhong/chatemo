@@ -107,7 +107,7 @@ model FriendRequest {
   receiver   User          @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
   status     RequestStatus
 
-  @@unique([senderId, receiverId])
+  @@unique([receiverId, senderId])
 }
 
 model Friendship {
@@ -123,6 +123,7 @@ model Friendship {
   valid          ValidStatus  @default(VALID)
 
   @@unique([userId, friendId])
+  @@index([conversationId])
 }
 
 model ConversationPartipant {
@@ -134,6 +135,9 @@ model ConversationPartipant {
   user           User         @relation(fields: [userId], references: [id])
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([userId])
+  @@index([conversationId])
 }
 
 enum ConversationType {
@@ -171,6 +175,8 @@ model ConversationMessage {
   model             String?
   agentId           String?
   agent             Agent?                @relation(fields: [agentId], references: id)
+
+  @@index([conversationId])
 }
 
 model Agent {
@@ -187,6 +193,8 @@ model Agent {
   prompts              AgentPrompt[]
   conversationMessages ConversationMessage[]
   ChannelMessage       ChannelMessage[]
+
+  @@index([userId])
 }
 
 model AgentPrompt {
@@ -197,6 +205,8 @@ model AgentPrompt {
   agentId   String
   agent     Agent       @relation(fields: [agentId], references: [id])
   valid     ValidStatus @default(VALID)
+
+  @@index([agentId])
 }
 
 model Channel {
@@ -226,6 +236,7 @@ model ChannelMembership {
   channel   Channel     @relation(fields: [channelId], references: [id])
 
   @@unique([channelId, userId])
+  @@index([userId])
 }
 
 enum ChannelRequestType {
@@ -245,6 +256,9 @@ model ChannelRequest {
   receiver   User               @relation("ReceivedChannelRequests", fields: [receiverId], references: [id])
   channelId  String
   channel    Channel            @relation(fields: [channelId], references: [id])
+
+  @@index([receiverId])
+  @@index([channelId])
 }
 
 model ChannelMessage {
@@ -267,4 +281,6 @@ model ChannelMessage {
   model             String?
   agentId           String?
   agent             Agent?           @relation(fields: [agentId], references: id)
+
+  @@index([channelId, valid, createdAt])
 }
