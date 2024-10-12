@@ -7,9 +7,9 @@ const create = (
 ) => {
 	return prisma.friendRequest.upsert({
 		where: {
-			senderId_receiverId: {
-				senderId,
+			receiverId_senderId: {
 				receiverId,
+				senderId,
 			},
 		},
 		create: {
