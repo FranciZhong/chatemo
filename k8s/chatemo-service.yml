@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: chatemo
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: chatemo
   ports:
