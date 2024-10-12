@@ -123,7 +123,6 @@ export const DEFAULT_MODEL = {
 };
 
 export const DEFAULT_TRANSFORM_DELAY = 300;
-export const SOCKET_HOST = 'https://www.chatemo.chat';
 export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
 export const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;
 

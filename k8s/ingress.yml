@@ -2,11 +2,32 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: chatemo-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: chatemo-domain
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/enable-websockets: 'true'
+  # Add this annotation if needed
+  # kubernetes.io/ingress.class: "nginx"
 spec:
+  ingressClassName: nginx
   tls:
-    - secretName: chatemo-ingress
+    - hosts:
+        - chatemo.chat
+        - www.chatemo.chat
+      secretName: chatemo-tls
   rules:
     - host: chatemo.chat
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: chatemo
+                port:
+                  number: 80
+    - host: www.chatemo.chat
       http:
         paths:
           - path: /

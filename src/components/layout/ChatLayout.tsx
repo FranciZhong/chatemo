@@ -1,6 +1,6 @@
 'use client';
 
-import { ModalType, SOCKET_HOST } from '@/lib/constants';
+import { ModalType } from '@/lib/constants';
 import {
 	AgentEvent,
 	ChannelEvent,
@@ -51,7 +51,7 @@ interface Props {
 
 const ChatLayout: React.FC<Props> = (props) => {
 	const [isLoading, setLoading] = useState(true);
-	const { socket, connect } = useSocketStore();
+	const { socket, connect, disconnect } = useSocketStore();
 	const { user, setProfile, newFriendship, removeFriendship } = useUserStore();
 	const { setNotifications, pushNotification } = useNotificationStore();
 	const {
@@ -100,13 +100,12 @@ const ChatLayout: React.FC<Props> = (props) => {
 
 	// init socket and event listeners
 	useEffect(() => {
-		if (!socket) {
-			// console.log(
-			// 	`Try to build a socket connected to ${process.env.NEXT_PUBLIC_SOCKET_HOST}`
-			// );
-			connect(process.env.NEXT_PUBLIC_SOCKET_HOST || SOCKET_HOST);
+		if (window) {
+			connect(window.location.host);
 		}
-	}, [socket, connect]);
+
+		return () => disconnect();
+	}, [connect, disconnect]);
 
 	useEffect(() => {
 		if (!socket) {
