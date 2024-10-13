@@ -14,7 +14,7 @@ interface Props {
 
 const HoverTooltip: React.FC<Props> = ({ content, children }) => {
 	const [isHover, setIsHover] = useState(false);
-	const [debouncedIsHover] = useDebounce(isHover, 500);
+	const [debouncedIsHover] = useDebounce(isHover, 300);
 
 	return (
 		<TooltipProvider>
@@ -23,6 +23,7 @@ const HoverTooltip: React.FC<Props> = ({ content, children }) => {
 					<div
 						onMouseEnter={() => setIsHover(true)}
 						onMouseLeave={() => setIsHover(false)}
+						onClick={() => setIsHover(false)}
 					>
 						{children}
 					</div>
