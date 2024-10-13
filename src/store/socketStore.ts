@@ -17,8 +17,6 @@ const useSocketStore = create<SocketStore>((set) => ({
 	connect: (url: string) => {
 		const socket = io(url, {
 			path: ApiUrl.SOCKET,
-			transports: ['polling'],
-			timeout: 3600,
 		});
 
 		socket.on('connect', () => {

@@ -6,6 +6,9 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: chatemo-domain
     networking.gke.io/managed-certificates: managed-cert
     kubernetes.io/ingress.class: 'gce' # Updated annotation
+    ingress.gcp.kubernetes.io/session-affinity: 'true'
+    ingress.gcp.kubernetes.io/session-affinity-type: 'GENERATED_COOKIE'
+    ingress.gcp.kubernetes.io/session-affinity-cookie-ttl: '3600'
 spec:
   defaultBackend:
     service:
