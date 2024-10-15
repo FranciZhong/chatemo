@@ -75,7 +75,7 @@ const AgentPrompt: React.FC<Props> = ({ prompt, name, image }) => {
 					</div>
 
 					<div className="message-container">
-						<p className="break-words break-all">{prompt.content}</p>
+						<p className="break-words">{prompt.content}</p>
 					</div>
 					<p className="text-xs text-foreground/50 font-thin">
 						{datetimeObject.date} {datetimeObject.time}
