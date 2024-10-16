@@ -3,10 +3,8 @@ FROM --platform=linux/amd64 node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
-
 COPY . .
+RUN npm install
 RUN npx prisma generate
 RUN npm run lint
 # RUN npm run test
