@@ -1,6 +1,7 @@
 node_modules
 npm-debug.log
-.git
+# [nextra] Init git repository failed Discover git repo from [/app] failed 
+# .git
 .env
 .env.*
 
