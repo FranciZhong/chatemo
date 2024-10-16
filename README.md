@@ -4,7 +4,7 @@
 
 Welcome to [Chatemo](http://www.chatemo.chat/), the cutting-edge team communication app that integrates Large Language Models (LLMs) to provide real-time problem-solving capabilities. With Chatemo, there's no need to switch contexts to ask questions—various models. Instead, agents with tailored prompts are accessible directly within the conversation window. Simply input your preferred providers' API keys to get started.
 
-[Quick Start](./docs/quick-start.md).
+[Quick Start](https://www.chatemo.chat/docs/quick-start).
 
 ## 🌟 Core Features
 
