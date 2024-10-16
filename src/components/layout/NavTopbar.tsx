@@ -1,9 +1,9 @@
 'use client';
 
-import { GITHUB_LINK } from '@/lib/constants';
-import { useOpenModalStore } from '@/store/modalStore';
+import { GITHUB_LINK, USER_MANUAL_URI } from '@/lib/constants';
 import useOpenStore from '@/store/openStore';
 import {
+	ActivityLogIcon,
 	DragHandleHorizontalIcon,
 	GitHubLogoIcon,
 } from '@radix-ui/react-icons';
@@ -19,7 +19,6 @@ interface Props {
 }
 
 const NavTopbar: React.FC<Props> = ({ children, triggers }) => {
-	const openModal = useOpenModalStore();
 	const { toggleOpenSidebar } = useOpenStore();
 
 	return (
@@ -33,9 +32,16 @@ const NavTopbar: React.FC<Props> = ({ children, triggers }) => {
 			<div className="flex justify-end items-center gap-2">
 				{triggers}
 				<NotificationModalTrigger />
+				<HoverTooltip content="User Manual">
+					<IconButton>
+						<Link href={USER_MANUAL_URI}>
+							<ActivityLogIcon className="icon-size" />
+						</Link>
+					</IconButton>
+				</HoverTooltip>
 				<HoverTooltip content="Github Repository">
 					<IconButton>
-						<Link type="" href={GITHUB_LINK}>
+						<Link href={GITHUB_LINK}>
 							<GitHubLogoIcon className="icon-size" />
 						</Link>
 					</IconButton>
