@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM --platform=linux/amd64 node:20-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -11,19 +11,16 @@ RUN npm run lint
 RUN npm run build
 
 # Stage 2: Production
-FROM --platform=linux/amd64 node:20-alpine AS production
+FROM node:20-alpine AS production
 
 WORKDIR /app
 
-COPY --from=builder /app/package.json /app/package-lock.json ./
-# COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/next.config.mjs ./next.config.mjs
-COPY --from=builder /app/theme.config.tsx ./theme.config.tsx
-COPY --from=builder /app/src/pages/src/pages/_meta.js ./src/pages/src/pages/_meta.js
-COPY --from=builder /app/src/pages/docs ./src/pages/docs
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
+COPY . .
+# COPY --from=builder /app/package.json /app/package-lock.json ./
+# COPY --from=builder /app/.next ./.next
+# COPY --from=builder /app/next.config.mjs ./next.config.mjs
+# COPY --from=builder /app/public ./public
+# COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
 
