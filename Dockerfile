@@ -15,7 +15,7 @@ FROM --platform=linux/amd64 node:20-alpine AS production
 
 WORKDIR /app
 
-COPY . .
+COPY --from=builder /app/. .
 # COPY --from=builder /app/package.json /app/package-lock.json ./
 # COPY --from=builder /app/.next ./.next
 # COPY --from=builder /app/next.config.mjs ./next.config.mjs
