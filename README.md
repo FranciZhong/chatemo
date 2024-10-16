@@ -4,7 +4,9 @@
 
 Welcome to [Chatemo](http://www.chatemo.chat/), the cutting-edge team communication app that integrates Large Language Models (LLMs) to provide real-time problem-solving capabilities. With Chatemo, there's no need to switch contexts to ask questions—various models. Instead, agents with tailored prompts are accessible directly within the conversation window. Simply input your preferred providers' API keys to get started.
 
-### 🌟 Core Features
+[Quick Start](./docs/quick-start.md).
+
+## 🌟 Core Features
 
 1. **AI-Enhanced Team Discussions**  
    Seamlessly integrate AI assistance into your conversations, ensuring insights and information are always at hand.
@@ -83,7 +85,7 @@ Manage containerized applications in production efficiently using Kubernetes (K8
 
 Deploy on Google Cloud Platform (GCP) using Google Kubernetes Engine (GKE) or Amazon Web Services (AWS) utilizing S3 Buckets for storage needs.
 
-## Quick Start Guide
+## Deployment Guide
 
 Visit our online platform at [Chatemo](http://www.chatemo.chat/).
 
