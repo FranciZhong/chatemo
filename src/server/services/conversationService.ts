@@ -133,13 +133,15 @@ const createMessage = async (
 const updateMessageContent = async (
 	messageId: string,
 	loading: boolean,
-	content: string
+	content?: string,
+	image?: string
 ) => {
 	const message = await conversationMessageRepository.updateContentById(
 		prisma,
 		messageId,
 		loading,
-		content
+		content,
+		image
 	);
 
 	return ConversationMessageSchema.parse(message);

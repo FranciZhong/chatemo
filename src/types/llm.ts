@@ -56,7 +56,8 @@ export type ModelConfigZType = z.infer<typeof ModelConfigSchema>;
 
 export const LlmMessageSchema = z.object({
 	role: z.enum([LlmRole.SYSTEM, LlmRole.USER, LlmRole.ASSISTANT]),
-	content: z.string(),
+	content: z.string().optional(),
+	image: z.string().optional(),
 });
 
 export type LlmMessageZType = z.infer<typeof LlmMessageSchema>;

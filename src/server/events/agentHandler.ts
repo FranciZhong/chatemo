@@ -85,7 +85,8 @@ const agentHandler = (io: Server, socket: Socket) => {
 			const updatedMessage = await conversationService.updateMessageContent(
 				newMessage.id,
 				false,
-				llmMessage.content
+				llmMessage.content,
+				llmMessage.image
 			);
 
 			io.to(participantRooms).emit(
@@ -155,7 +156,8 @@ const agentHandler = (io: Server, socket: Socket) => {
 			const updatedMessage = await channelService.updateMessageContent(
 				newMessage.id,
 				false,
-				llmMessage.content
+				llmMessage.content,
+				llmMessage.image
 			);
 
 			io.to(channelRoom).emit(

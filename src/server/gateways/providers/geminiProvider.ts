@@ -1,4 +1,5 @@
 import { LlmProviderName, LlmRole } from '@/lib/constants';
+import { fetchImageAsBase64, getImageType } from '@/lib/utils';
 import { LlmProviderError } from '@/server/error';
 import { MessageZType } from '@/types/chat';
 import {
@@ -13,6 +14,8 @@ import {
 	GoogleGenerativeAIError,
 	HarmBlockThreshold,
 	HarmCategory,
+	InlineDataPart,
+	Part,
 	TextPart,
 } from '@google/generative-ai';
 
@@ -51,43 +54,6 @@ export default class GeminiProvider implements LlmProvider {
 		this.client = new GoogleGenerativeAI(apiKey);
 	}
 
-	private filterMessages(
-		messages: LlmMessageZType[]
-	): [Content | undefined, Content[]] {
-		const systemMessages = messages.filter(
-			(item) => item.role === LlmRole.SYSTEM
-		);
-
-		const systemInstruction =
-			systemMessages.length > 0
-				? ({
-						role: 'system',
-						parts: systemMessages.map(
-							(item) =>
-								({
-									text: item.content,
-								} as TextPart)
-						),
-				  } as Content)
-				: undefined;
-
-		const parsedMessages = messages
-			.filter((item) => item.role !== LlmRole.SYSTEM)
-			.map(
-				(item) =>
-					({
-						role: item.role === LlmRole.USER ? 'user' : 'model',
-						parts: [
-							{
-								text: item.content,
-							},
-						],
-					} as Content)
-			);
-
-		return [systemInstruction, parsedMessages];
-	}
-
 	public async getModels(): Promise<LlmModelZType[]> {
 		return models.map(
 			(item) =>
@@ -103,17 +69,30 @@ export default class GeminiProvider implements LlmProvider {
 			{ role: LlmRole.USER, content: 'Hello' },
 		]);
 
-		return message && message.content.length > 0;
+		return message.content !== undefined && message.content.length > 0;
 	}
 
 	public prepareChatMessages(messages: MessageZType[]): LlmMessageZType[] {
-		const parseMessages: LlmMessageZType[] = messages.reverse().map(
-			(item) =>
-				({
-					role: item.type === 'USER' ? LlmRole.USER : LlmRole.ASSISTANT,
-					content: item.content,
-				} as LlmMessageZType)
-		);
+		const parseMessages: LlmMessageZType[] = messages
+			.slice(1)
+			.reverse()
+			.map(
+				(item) =>
+					({
+						role: item.type === 'USER' ? LlmRole.USER : LlmRole.ASSISTANT,
+						content: item.content,
+					} as LlmMessageZType)
+			);
+
+		// only include the image in the last message
+		const lastMessage = messages.at(0);
+		if (lastMessage) {
+			parseMessages.push({
+				role: lastMessage.type === 'USER' ? LlmRole.USER : LlmRole.ASSISTANT,
+				content: lastMessage.content,
+				image: lastMessage.image || undefined,
+			} as LlmMessageZType);
+		}
 
 		return parseMessages;
 	}
@@ -124,7 +103,9 @@ export default class GeminiProvider implements LlmProvider {
 		params?: ModelParamsZType
 	): Promise<LlmMessageZType> {
 		try {
-			const [systemInstruction, parsedMessages] = this.filterMessages(messages);
+			const [systemInstruction, parsedMessages] = await this.filterMessages(
+				messages
+			);
 
 			const llmModel = this.client.getGenerativeModel({
 				model,
@@ -172,7 +153,9 @@ export default class GeminiProvider implements LlmProvider {
 		params?: ModelParamsZType
 	): Promise<void> {
 		try {
-			const [systemInstruction, parsedMessages] = this.filterMessages(messages);
+			const [systemInstruction, parsedMessages] = await this.filterMessages(
+				messages
+			);
 
 			const llmModel = this.client.getGenerativeModel({
 				model,
@@ -201,5 +184,62 @@ export default class GeminiProvider implements LlmProvider {
 				throw error;
 			}
 		}
+	}
+
+	private async filterMessages(
+		messages: LlmMessageZType[]
+	): Promise<[Content | undefined, Content[]]> {
+		const systemMessages = messages.filter(
+			(item) => item.role === LlmRole.SYSTEM
+		);
+
+		const systemInstruction =
+			systemMessages.length > 0
+				? ({
+						role: 'system',
+						parts: systemMessages.map(
+							(item) =>
+								({
+									text: item.content,
+								} as TextPart)
+						),
+				  } as Content)
+				: undefined;
+
+		const parsedMessages: Content[] = [];
+		for (const item of messages) {
+			if (item.role === LlmRole.SYSTEM) {
+				continue;
+			}
+
+			const parts: Part[] = [];
+			if (item.content) {
+				parts.push({
+					text: item.content,
+				} as TextPart);
+			}
+
+			if (item.image) {
+				const imageType = getImageType(item.image);
+				if (imageType) {
+					const imageBase64 = await fetchImageAsBase64(item.image);
+					parts.push({
+						inlineData: {
+							mimeType: imageType,
+							data: imageBase64,
+						},
+					} as InlineDataPart);
+				}
+			}
+
+			if (parts.length !== 0) {
+				parsedMessages.push({
+					role: item.role === LlmRole.USER ? 'user' : 'model',
+					parts,
+				});
+			}
+		}
+
+		return [systemInstruction, parsedMessages];
 	}
 }

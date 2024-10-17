@@ -1,4 +1,5 @@
 import { LlmProviderName, LlmRole } from '@/lib/constants';
+import { fetchImageAsBase64, getImageType } from '@/lib/utils';
 import { LlmProviderError } from '@/server/error';
 import { MessageZType } from '@/types/chat';
 import {
@@ -9,6 +10,7 @@ import {
 } from '@/types/llm';
 import Anthropic, { AnthropicError } from '@anthropic-ai/sdk';
 import {
+	ImageBlockParam,
 	MessageParam,
 	TextBlockParam,
 } from '@anthropic-ai/sdk/resources/messages.mjs';
@@ -29,28 +31,6 @@ export default class AuthropicProvider implements LlmProvider {
 		});
 	}
 
-	private filterMessages(
-		messages: LlmMessageZType[]
-	): [TextBlockParam[], MessageParam[]] {
-		const systemPrompts = messages
-			.filter((item) => item.role === LlmRole.SYSTEM)
-			.filter((item) => item.content)
-			.map(
-				(item) =>
-					({
-						type: 'text',
-						text: item.content,
-					} as TextBlockParam)
-			);
-
-		const userPrompts = messages
-			.filter((item) => item.role !== LlmRole.SYSTEM)
-			.filter((item) => item.content)
-			.map((item) => item as MessageParam);
-
-		return [systemPrompts, userPrompts];
-	}
-
 	public async getModels(): Promise<LlmModelZType[]> {
 		return models.map(
 			(item) =>
@@ -66,7 +46,7 @@ export default class AuthropicProvider implements LlmProvider {
 			{ role: LlmRole.USER, content: 'Hello' },
 		]);
 
-		return message && message.content.length > 0;
+		return message.content !== undefined && message.content.length > 0;
 	}
 
 	public prepareChatMessages(messages: MessageZType[]): LlmMessageZType[] {
@@ -104,10 +84,12 @@ export default class AuthropicProvider implements LlmProvider {
 			}
 		}
 
+		// only include the image in the last message
 		if (lastMessage?.type === 'USER') {
 			parsedMessages.push({
 				role: LlmRole.USER,
 				content: lastMessage.content,
+				image: lastMessage.image || undefined,
 			});
 		}
 
@@ -119,7 +101,7 @@ export default class AuthropicProvider implements LlmProvider {
 		messages: LlmMessageZType[],
 		params?: ModelParamsZType
 	): Promise<LlmMessageZType> {
-		const [systemPrompts, userPrompts] = this.filterMessages(messages);
+		const [systemPrompts, userPrompts] = await this.filterMessages(messages);
 
 		try {
 			const msg = await this.client.messages.create({
@@ -153,7 +135,7 @@ export default class AuthropicProvider implements LlmProvider {
 		callback: (chunk: string) => void,
 		params?: ModelParamsZType
 	): Promise<void> {
-		const [systemPrompts, userPrompts] = this.filterMessages(messages);
+		const [systemPrompts, userPrompts] = await this.filterMessages(messages);
 
 		try {
 			this.client.messages
@@ -175,5 +157,63 @@ export default class AuthropicProvider implements LlmProvider {
 				throw error;
 			}
 		}
+	}
+
+	private async filterMessages(
+		messages: LlmMessageZType[]
+	): Promise<[TextBlockParam[], MessageParam[]]> {
+		const systemPrompts = messages
+			.filter((item) => item.role === LlmRole.SYSTEM)
+			.filter((item) => item.content)
+			.map(
+				(item) =>
+					({
+						type: 'text',
+						text: item.content,
+					} as TextBlockParam)
+			);
+
+		const parsedMessages: MessageParam[] = [];
+		for (const item of messages) {
+			if (item.role === LlmRole.SYSTEM) {
+				continue;
+			}
+
+			if (!item.content && !item.image) {
+				continue;
+			}
+
+			const content: Array<TextBlockParam | ImageBlockParam> = [];
+			if (item.content) {
+				content.push({
+					type: 'text',
+					text: item.content,
+				} as TextBlockParam);
+			}
+
+			if (item.image) {
+				const imageType = getImageType(item.image);
+				if (imageType) {
+					const imageBase64 = await fetchImageAsBase64(item.image);
+					content.push({
+						type: 'image',
+						source: {
+							data: imageBase64,
+							type: 'base64',
+							media_type: imageType,
+						},
+					} as ImageBlockParam);
+				}
+			}
+
+			if (content.length !== 0) {
+				parsedMessages.push({
+					role: item.role,
+					content,
+				});
+			}
+		}
+
+		return [systemPrompts, parsedMessages];
 	}
 }

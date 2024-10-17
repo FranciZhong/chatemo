@@ -41,7 +41,8 @@ const updateContentById = (
 	prisma: PrismaClient | Prisma.TransactionClient,
 	id: string,
 	loading: boolean,
-	content: string
+	content?: string,
+	image?: string
 ) => {
 	return prisma.conversationMessage.update({
 		where: {
@@ -50,6 +51,7 @@ const updateContentById = (
 		data: {
 			loading,
 			content,
+			image,
 		},
 		include: {
 			replyToMessage: true,

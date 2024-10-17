@@ -38,3 +38,34 @@ export const parseIntVal = (val: any) => {
 	}
 	return val;
 };
+
+export const fetchImageAsBase64 = async (url: string): Promise<string> => {
+	const response = await fetch(url);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch image: ${response.statusText}`);
+	}
+	const arrayBuffer = await response.arrayBuffer();
+	const buffer = Buffer.from(arrayBuffer);
+	return buffer.toString('base64');
+};
+
+export const getImageType = (url: string): string | null => {
+	if (!url) {
+		return null;
+	}
+	const fileType = url.split('.').at(-1);
+	switch (fileType) {
+		case 'jpg':
+			return 'image/jpeg';
+		case 'jpeg':
+			return 'image/jpeg';
+		case 'png':
+			return 'image/png';
+		case 'gif':
+			return 'image/gif';
+		case 'webp':
+			return 'image/webp';
+		default:
+			return null;
+	}
+};
