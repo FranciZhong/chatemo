@@ -9,8 +9,12 @@ import {
 } from '@/types/llm';
 import OpenAI, { OpenAIError } from 'openai';
 import {
+	ChatCompletionContentPart,
+	ChatCompletionContentPartImage,
+	ChatCompletionContentPartText,
 	ChatCompletionCreateParamsNonStreaming,
 	ChatCompletionCreateParamsStreaming,
+	ChatCompletionMessageParam,
 } from 'openai/resources/index.mjs';
 
 export default class OpenAiProvider implements LlmProvider {
@@ -37,13 +41,26 @@ export default class OpenAiProvider implements LlmProvider {
 	}
 
 	public prepareChatMessages(messages: MessageZType[]): LlmMessageZType[] {
-		const parseMessages: LlmMessageZType[] = messages.reverse().map(
-			(item) =>
-				({
-					role: item.type === 'USER' ? LlmRole.USER : LlmRole.ASSISTANT,
-					content: item.content,
-				} as LlmMessageZType)
-		);
+		const parseMessages: LlmMessageZType[] = messages
+			.slice(1)
+			.reverse()
+			.map(
+				(item) =>
+					({
+						role: item.type === 'USER' ? LlmRole.USER : LlmRole.ASSISTANT,
+						content: item.content,
+					} as LlmMessageZType)
+			);
+
+		// only include the image in the last message
+		const lastMessage = messages.at(0);
+		if (lastMessage) {
+			parseMessages.push({
+				role: lastMessage.type === 'USER' ? LlmRole.USER : LlmRole.ASSISTANT,
+				content: lastMessage.content,
+				image: lastMessage.image || undefined,
+			} as LlmMessageZType);
+		}
 
 		return parseMessages;
 	}
@@ -56,7 +73,7 @@ export default class OpenAiProvider implements LlmProvider {
 		try {
 			let input: ChatCompletionCreateParamsNonStreaming = {
 				model,
-				messages,
+				messages: this.parseMessages(messages),
 			};
 			if (params) {
 				input = {
@@ -96,7 +113,7 @@ export default class OpenAiProvider implements LlmProvider {
 			let input: ChatCompletionCreateParamsStreaming = {
 				stream: true,
 				model,
-				messages,
+				messages: this.parseMessages(messages),
 			};
 			if (params) {
 				input = {
@@ -121,5 +138,37 @@ export default class OpenAiProvider implements LlmProvider {
 				throw error;
 			}
 		}
+	}
+
+	private parseMessages(
+		messages: {
+			role: LlmRole;
+			content?: string | undefined;
+			image?: string | undefined;
+		}[]
+	): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
+		return messages.map((item) => {
+			const content: Array<ChatCompletionContentPart> = [];
+			if (item.content) {
+				content.push({
+					type: 'text',
+					text: item.content,
+				} as ChatCompletionContentPartText);
+			}
+
+			if (item.image) {
+				content.push({
+					type: 'image_url',
+					image_url: {
+						url: item.image,
+					},
+				} as ChatCompletionContentPartImage);
+			}
+
+			return {
+				role: item.role,
+				content,
+			} as ChatCompletionMessageParam;
+		});
 	}
 }

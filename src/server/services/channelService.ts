@@ -239,13 +239,15 @@ const closeChannel = async (channelId: string) => {
 const updateMessageContent = async (
 	messageId: string,
 	loading: boolean,
-	content: string
+	content?: string,
+	image?: string
 ) => {
 	const message = await channelMessageRepository.updateContentById(
 		prisma,
 		messageId,
 		loading,
-		content
+		content,
+		image
 	);
 
 	return message ? ChannelMessageSchema.parse(message) : null;
