@@ -3,10 +3,10 @@
 import { GITHUB_LINK, USER_MANUAL_URI } from '@/lib/constants';
 import useOpenStore from '@/store/openStore';
 import {
-	ActivityLogIcon,
 	DragHandleHorizontalIcon,
 	GitHubLogoIcon,
 } from '@radix-ui/react-icons';
+import { NotebookTextIcon } from 'lucide-react';
 import Link from 'next/link';
 import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
@@ -35,7 +35,7 @@ const NavTopbar: React.FC<Props> = ({ children, triggers }) => {
 				<HoverTooltip content="User Manual">
 					<IconButton>
 						<Link href={USER_MANUAL_URI}>
-							<ActivityLogIcon className="icon-size" />
+							<NotebookTextIcon className="icon-size" />
 						</Link>
 					</IconButton>
 				</HoverTooltip>

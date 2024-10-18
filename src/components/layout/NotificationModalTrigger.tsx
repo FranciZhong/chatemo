@@ -3,7 +3,7 @@
 import { ModalType } from '@/lib/constants';
 import { useOpenModalStore } from '@/store/modalStore';
 import useNotificationStore from '@/store/notificationStore';
-import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
+import { MailIcon } from 'lucide-react';
 import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
 
@@ -17,7 +17,7 @@ const NotificationModalTrigger: React.FC = () => {
 				className="relative"
 				onClick={() => openModal(ModalType.NOTIFICATION_MODAL)}
 			>
-				<EnvelopeClosedIcon className="icon-size" />
+				<MailIcon className="icon-size" />
 				{notifications.length > 0 && (
 					<div className="absolute w-2 h-2 rounded-full bg-accent top-1 right-1" />
 				)}
