@@ -10,7 +10,7 @@ import {
 	UidLlmMessageZType,
 } from '@/types/llm';
 import { Cross1Icon } from '@radix-ui/react-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import CopyButton from '../CopyButton';
 import IconButton from '../IconButton';
@@ -32,7 +32,9 @@ export interface AgentPreviewHandle {
 const AgentPreview = React.forwardRef<AgentPreviewHandle, AgentPreviewProps>(
 	({ model, agent, onClose, className }, ref) => {
 		const { socket } = useSocketStore();
+		const [isHovered, setIsHovered] = useState(false);
 		const [history, setHistory] = useState<UidLlmMessageZType[]>([]);
+		const bottomDivRef = useRef<HTMLDivElement>(null);
 
 		React.useImperativeHandle(ref, () => ({
 			request: (content: string) => {
@@ -51,6 +53,7 @@ const AgentPreview = React.forwardRef<AgentPreviewHandle, AgentPreviewProps>(
 					{
 						uid: responseId,
 						role: LlmRole.ASSISTANT,
+						model,
 						content: '',
 					},
 				]);
@@ -97,8 +100,18 @@ const AgentPreview = React.forwardRef<AgentPreviewHandle, AgentPreviewProps>(
 			},
 		}));
 
+		useEffect(() => {
+			if (!isHovered && bottomDivRef.current) {
+				bottomDivRef.current.scrollIntoView({ behavior: 'smooth' });
+			}
+		}, [history, isHovered]);
+
 		return (
-			<div className={cn('flex flex-col p-2 gap-2', className)}>
+			<div
+				className={cn('flex flex-col p-2 gap-2', className)}
+				onMouseEnter={() => setIsHovered(true)}
+				onMouseLeave={() => setIsHovered(false)}
+			>
 				<div className="flex justify-between items-center">
 					<div className="flex gap-2 items-center">
 						<Avatar className="h-8 w-8 bg-secondary">
@@ -123,6 +136,13 @@ const AgentPreview = React.forwardRef<AgentPreviewHandle, AgentPreviewProps>(
 									message.role === LlmRole.USER && 'items-end'
 								)}
 							>
+								{message.model && (
+									<span className="text-sm opacity-70">
+										{`[${message.model.provider?.toUpperCase()}] ${
+											message.model!.model
+										}`}
+									</span>
+								)}
 								<div className="message-width">
 									<MarkdownContent className="message-container">
 										{message.content}
@@ -136,6 +156,7 @@ const AgentPreview = React.forwardRef<AgentPreviewHandle, AgentPreviewProps>(
 							</div>
 						))}
 					</div>
+					<div ref={bottomDivRef} />
 					<ScrollBar orientation="vertical" hidden={true} />
 				</ScrollArea>
 			</div>

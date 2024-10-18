@@ -72,7 +72,9 @@ const ConversationLink: React.FC<Props> = ({ conversation }) => {
 						title={friend?.name || ' '}
 						description={
 							<p className="text-single-line text-sm text-foreground/60 font-light">
-								{lastMessage?.content || lastMessage?.image || ' '}
+								{lastMessage?.content ||
+									(lastMessage?.image && '[Image]') ||
+									' '}
 							</p>
 						}
 					/>
