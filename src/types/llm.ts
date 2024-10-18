@@ -62,6 +62,12 @@ export const LlmMessageSchema = z.object({
 
 export type LlmMessageZType = z.infer<typeof LlmMessageSchema>;
 
+export const UidLlmMessageSchema = LlmMessageSchema.extend({
+	uid: z.string(),
+});
+
+export type UidLlmMessageZType = z.infer<typeof UidLlmMessageSchema>;
+
 export const AgentPromptPayloadSchema = z.object({
 	agentId: z.string(),
 	content: z.string(),
@@ -127,9 +133,10 @@ export const AgentReplyPayloadSchema = z.object({
 
 export type AgentReplyPayload = z.infer<typeof AgentReplyPayloadSchema>;
 
-export const AgentPreviewPayloadSchema = LlmModelSchema.extend({
+export const AgentPreviewPayloadSchema = z.object({
+	model: LlmModelSchema,
 	referToId: z.string(),
-	request: z.string(),
+	history: z.array(LlmMessageSchema),
 	agentId: z.string().optional(),
 });
 

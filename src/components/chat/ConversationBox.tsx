@@ -3,7 +3,6 @@
 import axiosInstance from '@/lib/axios';
 import {
 	ApiUrl,
-	DEFAULT_MODEL,
 	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
 	TOAST_ERROR_DEFAULT,
@@ -11,8 +10,8 @@ import {
 import { AgentEvent, ConversationEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useConversationStore from '@/store/conversationStore';
+import useLlmModelStore from '@/store/llmModelStore';
 import useSocketStore from '@/store/socketStore';
-import useUserStore from '@/store/userStore';
 import {
 	BasicConversationMessageZType,
 	ConversationMessagePayload,
@@ -21,7 +20,7 @@ import {
 	MessageZType,
 } from '@/types/chat';
 import { FormatResponse, IdPayload, SkipTakeQuery } from '@/types/common';
-import { AgentReplyPayload, LlmModelZType } from '@/types/llm';
+import { AgentReplyPayload } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
 import { redirect } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -42,10 +41,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 	const { agents } = useAgentStore();
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
-	const { user } = useUserStore();
-	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
-		user?.config?.modelConfig?.defaultModel || DEFAULT_MODEL
-	);
+	const { selectedModel, setSelectedModel } = useLlmModelStore();
 	const [moreMessages, setMoreMessages] = useState<boolean>(true);
 	const [replyTo, setReplyTo] = useState<BasicConversationMessageZType | null>(
 		null

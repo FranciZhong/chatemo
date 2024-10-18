@@ -3,13 +3,13 @@ import { BasicMessageZType, MessagePayload } from '@/types/chat';
 import { AgentZType, LlmModelZType } from '@/types/llm';
 import { Cross2Icon, ImageIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import FileUploader from '../FileUploader';
 import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
 import SelectAgentButton from '../SelectAgentButton';
 import SelectModelButton from '../SelectModelButton';
-import AgentPreview from './AgentPreview';
+import AgentPreview, { AgentPreviewHandle } from './AgentPreview';
 import Editer from './Editer';
 import RepliedMessage from './RepliedMessage';
 
@@ -30,11 +30,11 @@ const ChatEditer: React.FC<Props> = ({
 }) => {
 	const [messageContent, setMessageContent] = useState<string>('');
 	const [openPreview, setOpenPreview] = useState<boolean>(false);
-	const [previewRequest, setPreviewRequest] = useState<string>('');
 	const [previewAgent, setPreviewAgent] = useState<AgentZType | null>(null);
 	const [uploadedImage, setUploadedImage] = useState<string | undefined>(
 		undefined
 	);
+	const agentPreviewRef = useRef<AgentPreviewHandle>(null);
 
 	const handleSelectedAgentChange = (agent: AgentZType | null) => {
 		setPreviewAgent(agent);
@@ -43,7 +43,6 @@ const ChatEditer: React.FC<Props> = ({
 
 	const handleClosePreview = () => {
 		setOpenPreview(false);
-		setPreviewRequest('');
 	};
 
 	const handleDeleteImage = async () => {
@@ -56,7 +55,7 @@ const ChatEditer: React.FC<Props> = ({
 				return;
 			}
 
-			setPreviewRequest(messageContent);
+			agentPreviewRef.current?.request(messageContent);
 		} else {
 			if (!messageContent.length && !uploadedImage) {
 				return;
@@ -106,7 +105,7 @@ const ChatEditer: React.FC<Props> = ({
 		>
 			{openPreview && (
 				<AgentPreview
-					request={previewRequest}
+					ref={agentPreviewRef}
 					model={selectedModel}
 					agent={previewAgent}
 					onClose={handleClosePreview}

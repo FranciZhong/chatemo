@@ -126,6 +126,7 @@ export const DEFAULT_TRANSFORM_DELAY = 300;
 export const GITHUB_LINK = 'https://github.com/FranciZhong/chatemo';
 export const USER_MANUAL_URI = '/docs/quick-start';
 export const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;
+export const MESSAGE_TIMEOUT = 60 * 1000;
 
 export const DEFAULT_SELECT_LIMIT = 20;
 export const TAKE_MESSAGES_DEFAULT = 20;
