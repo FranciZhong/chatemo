@@ -109,12 +109,34 @@ const selectByConversationOffset = (
 	});
 };
 
+const selectByCreateAtOffset = (
+	prisma: PrismaClient | Prisma.TransactionClient,
+	conversationId: string,
+	createAt: Date,
+	take: number
+) => {
+	return prisma.conversationMessage.findMany({
+		where: {
+			conversationId,
+			createdAt: {
+				lte: createAt,
+			},
+			valid: ValidStatus.VALID,
+		},
+		take,
+		orderBy: {
+			createdAt: 'desc',
+		},
+	});
+};
+
 const conversationMessageRepository = {
 	create,
 	updateContentById,
 	updateValidById,
 	selectById,
 	selectByConversationOffset,
+	selectByCreateAtOffset,
 };
 
 export default conversationMessageRepository;

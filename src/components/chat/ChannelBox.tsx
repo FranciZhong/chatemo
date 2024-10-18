@@ -3,7 +3,6 @@
 import axiosInstance from '@/lib/axios';
 import {
 	ApiUrl,
-	DEFAULT_MODEL,
 	PageUrl,
 	TAKE_MESSAGES_DEFAULT,
 	TOAST_ERROR_DEFAULT,
@@ -11,6 +10,7 @@ import {
 import { AgentEvent, ChannelEvent } from '@/lib/events';
 import useAgentStore from '@/store/agentStore';
 import useChannelStore from '@/store/channelStore';
+import useLlmModelStore from '@/store/llmModelStore';
 import useSocketStore from '@/store/socketStore';
 import useUserStore from '@/store/userStore';
 import {
@@ -21,7 +21,7 @@ import {
 	MessageZType,
 } from '@/types/chat';
 import { FormatResponse, IdPayload, SkipTakeQuery } from '@/types/common';
-import { AgentReplyPayload, LlmModelZType } from '@/types/llm';
+import { AgentReplyPayload } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
 import { redirect } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -43,9 +43,7 @@ const ChannelBox: React.FC<Props> = ({ channelId }) => {
 	const { socket } = useSocketStore();
 	const { toast } = useToast();
 	const { user } = useUserStore();
-	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
-		user?.config?.modelConfig?.defaultModel || DEFAULT_MODEL
-	);
+	const { selectedModel, setSelectedModel } = useLlmModelStore();
 	const [moreMessages, setMoreMessages] = useState(true);
 	const [replyTo, setReplyTo] = useState<BasicChannelMessageZType | null>(null);
 

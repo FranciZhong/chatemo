@@ -1,4 +1,4 @@
-import { LlmRole, TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
+import { TAKE_MESSAGES_DEFAULT } from '@/lib/constants';
 import { AgentEvent, ChannelEvent, ConversationEvent } from '@/lib/events';
 import { convertPrompt2LlmMessage } from '@/lib/utils';
 import {
@@ -69,12 +69,16 @@ const agentHandler = (io: Server, socket: Socket) => {
 				newMessage
 			);
 
+			// use the max history if configured
+			const historyMessages = await conversationService.getMessageHistory(
+				replyToMessage.conversationId,
+				replyToMessage.createdAt,
+				params?.maxHistory || TAKE_MESSAGES_DEFAULT
+			);
+
 			inputMessages = [
 				...inputMessages,
-				{
-					role: LlmRole.USER,
-					content: replyToMessage.content,
-				},
+				...provider.prepareChatMessages(historyMessages),
 			];
 			const llmMessage = await provider.completeMessage(
 				model.model,
@@ -172,12 +176,12 @@ const agentHandler = (io: Server, socket: Socket) => {
 		AgentEvent.START_PREVIEW_STREAM,
 		async (payload: AgentPreviewPayload) => {
 			const userId = socket.data.session.id as string;
-			const { referToId, request, provider, model, agentId } = payload;
+			const { referToId, history, model, agentId } = payload;
 
 			const llmProvider: LlmProvider = await getProvider(
 				socket,
 				userId,
-				provider
+				model.provider
 			);
 
 			const messages: LlmMessageZType[] = [];
@@ -201,13 +205,10 @@ const agentHandler = (io: Server, socket: Socket) => {
 				params = agent.config?.modelParams;
 			}
 
-			messages.push({
-				role: 'user',
-				content: request,
-			} as LlmMessageZType);
+			messages.push(...history);
 
 			await llmProvider.streamMessage(
-				model,
+				model.model,
 				messages,
 				(chunk) => {
 					socket.emit(AgentEvent.PREVIEW_STREAM_CHUNK, {

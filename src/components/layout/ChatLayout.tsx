@@ -76,7 +76,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 	} = useChannelStore();
 	const { toast } = useToast();
 	const { openModal } = useModalStore();
-	const { setAvailableModels } = useLlmModelStore();
+	const { setSelectedModel, setAvailableModels } = useLlmModelStore();
 
 	useEffect(() => {
 		setLoading(false);
@@ -89,6 +89,10 @@ const ChatLayout: React.FC<Props> = (props) => {
 		setConversations(props.conversations);
 		setAgents(props.agents);
 		setChannels(props.channels);
+		const selectedModel = props.userProfile.config?.modelConfig?.defaultModel;
+		if (selectedModel) {
+			setSelectedModel(selectedModel);
+		}
 	}, [
 		props,
 		setProfile,
@@ -96,6 +100,7 @@ const ChatLayout: React.FC<Props> = (props) => {
 		setConversations,
 		setAgents,
 		setChannels,
+		setSelectedModel,
 	]);
 
 	// init socket and event listeners

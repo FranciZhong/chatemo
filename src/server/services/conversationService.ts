@@ -104,6 +104,21 @@ const getConversationMessages = async (
 	return messages.map((item) => ConversationMessageSchema.parse(item));
 };
 
+const getMessageHistory = async (
+	conversationId: string,
+	from: Date,
+	take: number
+) => {
+	const messages = await conversationMessageRepository.selectByCreateAtOffset(
+		prisma,
+		conversationId,
+		from,
+		take
+	);
+
+	return messages.map((item) => ConversationMessageSchema.parse(item));
+};
+
 const getMessageById = async (messageId: string) => {
 	const message = await conversationMessageRepository.selectById(
 		prisma,
@@ -160,6 +175,7 @@ const conversationService = {
 	getConversationById,
 	getParticipantsByConversationId,
 	getConversationMessages,
+	getMessageHistory,
 	getMessageById,
 	createMessage,
 	updateMessageContent,

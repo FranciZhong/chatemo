@@ -13,14 +13,14 @@ import { FormatResponse } from '@/types/common';
 import { AgentPromptPayload, AgentZType, LlmModelZType } from '@/types/llm';
 import { RocketIcon } from '@radix-ui/react-icons';
 import { redirect } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
 import SelectModelButton from '../SelectModelButton';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { toast } from '../ui/use-toast';
-import AgentPreview from './AgentPreview';
+import AgentPreview, { AgentPreviewHandle } from './AgentPreview';
 import AgentPrompt from './AgentPrompt';
 import Editer from './Editer';
 
@@ -31,11 +31,12 @@ interface Props {
 const AgentBox: React.FC<Props> = ({ agentId }) => {
 	const [messageContent, setMessageContent] = useState('');
 	const [openPreview, setOpenPreview] = useState<boolean>(false);
-	const [previewRequest, setPreviewRequest] = useState<string>('');
 	const { user } = useUserStore();
 	const { agents, updateAgent } = useAgentStore();
+	const agentPreviewRef = useRef<AgentPreviewHandle>(null);
 	const agent = agents.find((item) => item.id === agentId);
 
+	// don't use context model for agent previews
 	const [selectedModel, setSelectedModel] = useState<LlmModelZType>(
 		agent?.config?.defaultModel ||
 			user?.config?.modelConfig?.defaultModel ||
@@ -48,13 +49,11 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 
 	const handleOpenPreview = () => {
 		setOpenPreview(true);
-		setPreviewRequest(messageContent);
 		setMessageContent('');
 	};
 
 	const handleClosePreview = () => {
 		setOpenPreview(false);
-		setPreviewRequest('');
 	};
 
 	const actions = [
@@ -77,7 +76,7 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 				return;
 			}
 
-			setPreviewRequest(messageContent);
+			agentPreviewRef.current?.request(messageContent);
 		} else {
 			try {
 				const response = await axiosInstance.post<FormatResponse<AgentZType>>(
@@ -118,7 +117,7 @@ const AgentBox: React.FC<Props> = ({ agentId }) => {
 			>
 				{openPreview && (
 					<AgentPreview
-						request={previewRequest}
+						ref={agentPreviewRef}
 						model={selectedModel}
 						agent={agent}
 						onClose={handleClosePreview}
