@@ -5,7 +5,6 @@ import useUserStore from '@/store/userStore';
 import { MessageZType } from '@/types/chat';
 import { UserZType } from '@/types/user';
 import { QuoteIcon } from 'lucide-react';
-import Image from 'next/image';
 import { memo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import CopyButton from '../CopyButton';
@@ -14,6 +13,7 @@ import { Avatar, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import LoadingContent from './LoadingContent';
+import MessageImage from './MessageImage';
 import RepliedMessage from './RepliedMessage';
 
 interface Props {
@@ -120,17 +120,7 @@ const ChatMessage: React.FC<Props> = ({
 									{message.content}
 								</MarkdownContent>
 							)}
-							{message.image && (
-								<div className="message-container">
-									<Image
-										src={message.image}
-										alt="Image"
-										width={280}
-										height={210}
-										style={{ width: '100%', height: 'auto' }}
-									/>
-								</div>
-							)}
+							{message.image && <MessageImage src={message.image} />}
 						</>
 					) : (
 						<LoadingContent className="message-container" />

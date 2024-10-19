@@ -1,4 +1,4 @@
-import { CopyIcon } from '@radix-ui/react-icons';
+import { CopyIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import {
