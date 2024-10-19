@@ -64,6 +64,7 @@ export type LlmMessageZType = z.infer<typeof LlmMessageSchema>;
 
 export const UidLlmMessageSchema = LlmMessageSchema.extend({
 	uid: z.string(),
+	model: LlmModelSchema.optional(),
 });
 
 export type UidLlmMessageZType = z.infer<typeof UidLlmMessageSchema>;

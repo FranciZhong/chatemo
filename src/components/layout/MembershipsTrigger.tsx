@@ -2,7 +2,7 @@
 
 import { ModalType } from '@/lib/constants';
 import useModalStore from '@/store/modalStore';
-import { PersonIcon } from '@radix-ui/react-icons';
+import { UserRoundSearchIcon } from 'lucide-react';
 import HoverTooltip from '../HoverTooltip';
 import IconButton from '../IconButton';
 
@@ -12,7 +12,7 @@ const MembershipsTrigger: React.FC = () => {
 	return (
 		<HoverTooltip content="Memebers">
 			<IconButton onClick={() => openModal(ModalType.MEMBERSHIP_MODAL)}>
-				<PersonIcon className="icon-size" />
+				<UserRoundSearchIcon className="icon-size" />
 			</IconButton>
 		</HoverTooltip>
 	);

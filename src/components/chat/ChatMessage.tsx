@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import useUserStore from '@/store/userStore';
 import { MessageZType } from '@/types/chat';
 import { UserZType } from '@/types/user';
-import { ArrowTopRightIcon } from '@radix-ui/react-icons';
+import { QuoteIcon } from 'lucide-react';
 import Image from 'next/image';
 import { memo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -99,7 +99,7 @@ const ChatMessage: React.FC<Props> = ({
 										variant="outline"
 										onClick={() => onReplyTo(message.id)}
 									>
-										<ArrowTopRightIcon className="icon-size" />
+										<QuoteIcon className="icon-size" />
 									</Button>
 
 									{actions}
