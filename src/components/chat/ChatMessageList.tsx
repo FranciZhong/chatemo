@@ -8,7 +8,7 @@ interface Props {
 	participants: ParticipantZType[];
 	messages: MessageZType[];
 	onReplyTo: (messageId: string) => void;
-	onScrollTop?: () => void;
+	onScrollTop?: () => Promise<void>;
 	messageActions?: () => ((message: MessageZType) => React.ReactNode)[];
 	className?: string;
 }
@@ -22,35 +22,40 @@ const ChatMessageList: React.FC<Props> = ({
 	className,
 }) => {
 	const [isHovered, setIsHovered] = useState(false);
-	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 	const messageRefs = useRef<RefObject<HTMLDivElement>[]>([]);
+	const [latestId, setLatestId] = useState<string | null>(null);
+	const [lastIndex, setLastIndex] = useState<number | null>(null);
+
+	// init the ref arr length same with messages
 	messageRefs.current = messages.map(
 		(_, i) => messageRefs.current[i] || React.createRef()
 	);
-	const [lastestId, setLatestId] = useState<string | null>(null);
-	const [lastIndex, setLastIndex] = useState<number | null>(null);
 
 	const handleScroll = onScrollTop
-		? (event: React.UIEvent<HTMLDivElement>) => {
+		? async (event: React.UIEvent<HTMLDivElement>) => {
 				const { scrollTop } = event.currentTarget;
 				if (scrollTop === 0) {
 					setLastIndex(messageRefs.current.length - 1);
-					onScrollTop();
+					await onScrollTop();
 				}
 		  }
 		: undefined;
 
 	useEffect(() => {
-		const lastestMessage = messages.at(0);
-		if (lastestMessage && lastestMessage.id !== lastestId) {
-			setLatestId(lastestMessage.id);
+		const latestMessage = messages.at(0);
+		// only scoll down when new messages arrive
+		if (latestMessage && latestMessage.id !== latestId) {
+			setLatestId(latestMessage.id);
 			if (!isHovered) {
-				messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+				messageRefs.current[0]?.current?.scrollIntoView({
+					behavior: 'smooth',
+				});
 			}
 		}
-	}, [messages, lastestId, setLatestId, isHovered, messagesEndRef]);
+	}, [messages, latestId, setLatestId, isHovered]);
 
 	useEffect(() => {
+		// keep scrolling position when fetching the history
 		if (lastIndex) {
 			messageRefs.current[lastIndex]?.current?.scrollIntoView({
 				behavior: 'auto',
@@ -70,7 +75,6 @@ const ChatMessageList: React.FC<Props> = ({
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 			>
-				<div ref={messagesEndRef} />
 				{messages.map((message, index) => (
 					<div key={message.id} ref={messageRefs.current[index]}>
 						<ChatMessage
