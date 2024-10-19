@@ -51,7 +51,7 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 							<FormLabel>
 								<TooltipLabel
 									label="Default Model"
-									tooltipContent="If an agent is configured with a default model, this model will override the default model in user configuration."
+									tooltipContent="Choose the default model from the available options based on your API keys. This model will be used every time you log in to Chatemo."
 								/>
 							</FormLabel>
 							<FormControl>
@@ -83,8 +83,8 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 						<FormItem>
 							<FormLabel>
 								<TooltipLabel
-									label="Maximum channel history"
-									tooltipContent="The maximum number of history messages used as the model context."
+									label="Maximum history messages"
+									tooltipContent="This parameter defines how many previous messages are included as context when making LLM API calls."
 								/>
 							</FormLabel>
 							<FormControl>
@@ -112,7 +112,7 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 							<FormLabel>
 								<TooltipLabel
 									label="Maximum token"
-									tooltipContent="The maximum length of output tokens."
+									tooltipContent="Defines the maximum number of tokens (words, punctuation, etc.) that the model can generate in a single response."
 								/>
 							</FormLabel>
 							<FormControl>
@@ -140,7 +140,7 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 							<FormLabel>
 								<TooltipLabel
 									label="Temperature"
-									tooltipContent="Amount of randomness injected into the response. Don't alter with top P together."
+									tooltipContent="Controls the randomness of the model’s responses. A lower temperature (closer to 0) makes the model more deterministic, meaning it will choose the most likely response. A higher temperature (closer to 2) makes the model more creative and varied in its responses."
 								/>
 							</FormLabel>
 							<FormControl>
@@ -168,7 +168,7 @@ const ModelConfigForm: React.FC<Props> = ({ modelConfig, onSubmit }) => {
 							<FormLabel>
 								<TooltipLabel
 									label="Top P"
-									tooltipContent="An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. Don't alter with temperature together."
+									tooltipContent="Controls the diversity of the model's responses by considering only the top percentage of probability mass when generating each token."
 								/>
 							</FormLabel>
 							<FormControl>

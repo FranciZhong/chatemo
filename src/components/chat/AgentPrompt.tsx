@@ -4,7 +4,7 @@ import { parseFormatedDateTime } from '@/lib/date';
 import useAgentStore from '@/store/agentStore';
 import { FormatResponse } from '@/types/common';
 import { AgentPromptZType, AgentZType } from '@/types/llm';
-import { TrashIcon } from '@radix-ui/react-icons';
+import { Trash2Icon } from 'lucide-react';
 import { memo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { Avatar, AvatarImage } from '../ui/avatar';
@@ -66,7 +66,7 @@ const AgentPrompt: React.FC<Props> = ({ prompt, name, image }) => {
 										variant="outline"
 										className="hover:bg-accent"
 									>
-										<TrashIcon className="icon-size" />
+										<Trash2Icon className="icon-size" />
 									</Button>
 								</div>
 								<ScrollBar orientation="horizontal" className="invisible" />

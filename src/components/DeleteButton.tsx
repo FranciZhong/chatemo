@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { TrashIcon } from '@radix-ui/react-icons';
+import { Trash2Icon } from 'lucide-react';
 import WarningTrigger from './WarningTrigger';
 
 interface Props {
@@ -16,7 +16,7 @@ const DeleteButton: React.FC<Props> = ({ title, description, onDelete }) => {
 			onContinue={onDelete}
 		>
 			<Button size="xs" variant="outline" className="hover:bg-accent">
-				<TrashIcon className="icon-size" />
+				<Trash2Icon className="icon-size" />
 			</Button>
 		</WarningTrigger>
 	);

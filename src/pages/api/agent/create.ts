@@ -30,11 +30,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const userId = token.sub;
 
 	const userConfig = await userService.getConfigById(userId);
-	const agent = await agentService.create(
-		userId,
-		payload,
-		userConfig.modelConfig
-	);
+	const agent = await agentService.create(userId, payload, {
+		...userConfig.modelConfig,
+		defaultModel: undefined,
+	});
 
 	res.status(HttpStatusCode.Ok).json({
 		data: agent,
