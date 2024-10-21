@@ -16,6 +16,12 @@ Don't worry – your API keys are kept private and are only accessible to you. I
 
 Pro tip: Once your API keys are validated, you'll see available models in the model switch button across all chat contexts.
 
+Get your API keys:
+
+- [OpenAI](https://platform.openai.com/api-keys)
+- [Claude](https://console.anthropic.com/settings/keys)
+- [Google](https://aistudio.google.com/app/apikey)
+
 ## Creating Your First Channel
 
 Channels are where the magic happens – they're the main chatting spaces for your team. Here's how to create one:
