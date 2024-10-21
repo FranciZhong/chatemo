@@ -21,7 +21,7 @@ import {
 } from '@/types/chat';
 import { FormatResponse, IdPayload, SkipTakeQuery } from '@/types/common';
 import { AgentReplyPayload } from '@/types/llm';
-import { RocketIcon } from '@radix-ui/react-icons';
+import { BotIcon } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import AgentHelpButton from '../AgentHelpButton';
@@ -139,7 +139,7 @@ const ConversationBox: React.FC<Props> = ({ conversationId }) => {
 						} as AgentReplyPayload);
 					}}
 				>
-					<RocketIcon className="icon-size" />
+					<BotIcon className="icon-size" />
 				</Button>
 			),
 			...agents.map((agent) => {
